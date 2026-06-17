@@ -669,9 +669,11 @@ img, svg, video { max-width: 100%; height: auto; }
 .hero__title {
   font-size: clamp(32px, 5.4vw, 52px);
   font-weight: 850;
-  line-height: 1.12;
+  /* 行高放宽 + 上下内边距：避免渐变文字(background-clip:text)把粗体 CJK 字形上下沿裁掉 */
+  line-height: 1.25;
   letter-spacing: -.02em;
-  margin: 0 0 18px;
+  padding-block: .12em;
+  margin: -.12em 0 14px;
   background: linear-gradient(98deg, var(--rp-iris) 0%, var(--rp-foam) 60%, var(--rp-rose) 100%);
   -webkit-background-clip: text;
   background-clip: text;
