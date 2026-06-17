@@ -1,0 +1,103 @@
+<!doctype html>
+<!--
+  ===========================================================================
+  PAGE TEMPLATE — Agent / Harness 工程知识库
+  ---------------------------------------------------------------------------
+  The conversion agent fills these placeholders, then writes the result to
+  e.g.  site/00.html , site/index.html , site/overview.html  (assets stay in
+  site/assets/, so the relative paths below resolve correctly).
+
+  PLACEHOLDERS
+    {{TITLE}}    -> <title> text. Plain text, e.g. "00 · 导论与心智模型".
+                    Convention: "<page title> — Agent/Harness 知识库".
+    {{SIDEBAR}}  -> the full <nav> list of links (see _GUIDE.md §Sidebar).
+                    The current page's <a> gets class="nav__link is-active"
+                    plus aria-current="page".
+    {{TOC}}      -> the right-rail table-of-contents <ul> built from the page's
+                    h2/h3 (see _GUIDE.md §TOC). Leave the whole <aside> in place
+                    but empty the <ul> if a page has no headings; on the home
+                    page you may drop the <aside class="toc"> entirely.
+    {{CONTENT}}  -> the converted article HTML. MUST start with the status badge
+                    (if present) then <h1>. Everything lives inside <article>.
+    {{PAGER}}    -> the prev/next footer links (see _GUIDE.md §Pager). Use an
+                    empty string on the home page.
+  ===========================================================================
+-->
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>{{TITLE}}</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">{{TITLE}}</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      {{SIDEBAR}}
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        {{CONTENT}}
+
+        <!-- prev / next -->
+        {{PAGER}}
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      {{TOC}}
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

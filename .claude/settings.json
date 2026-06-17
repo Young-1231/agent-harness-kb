@@ -1,0 +1,16 @@
+{
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Write|Edit|MultiEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "f=$(jq -r '.tool_input.file_path // empty'); case \"$f\" in */[0-9][0-9]-*/README.md|*OVERVIEW-发展总脉络.md) python3 /Users/max/Projects/Agent-Harness-知识库/site/assets/_build.py >/dev/null 2>&1 ;; esac",
+            "statusMessage": "重建静态站点…"
+          }
+        ]
+      }
+    ]
+  }
+}

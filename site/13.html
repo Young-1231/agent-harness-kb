@@ -1,0 +1,480 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>13 · 大厂案例研究 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">13 · 大厂案例研究 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link is-active" href="13.html" aria-current="page"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>13 · 大厂案例研究</h1>
+<blockquote>
+<p>把前面 00–12 节的原理，落到 2022–2026 真实跑通的工业系统上。本节是「集成层」：同样的 Agent loop，被不同公司用不同的 harness、动作空间、上下文策略和评测标准，揉成了三类形态完全不同的产品。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：我们沿三条产品主线展开——(A) <strong>编码 agent</strong>（SWE-agent / OpenHands / Agentless / Devin / Cursor / Claude Code）、(B) <strong>computer-use agent</strong>（Anthropic Computer Use / OpenAI Operator）、(C) <strong>deep research agent</strong>（OpenAI / Google Gemini / Perplexity / HuggingFace）。每条线我们都拆「harness 动作空间 × 上下文策略 × 评测基准 × 自主度 × 开闭源」，再把横切争议（agent vs agentless、pixel vs DOM、multi vs single agent、增强 vs 委派）摊开。</p>
+<p><strong>5 条核心结论：</strong></p>
+<ol>
+<li><strong>harness/scaffolding 与模型同等重要。</strong> SWE-agent 用一个为「LM 用户」专门设计的 Agent-Computer Interface（ACI），在不改模型权重的前提下把 SWE-bench pass@1 从 RAG 的 3.8% 抬到 12.5%——这是全行业「设计接口、不只是堆模型」的实证起点（参见 <a class="xref" href="02.html">02</a>）。</li>
+<li><strong>评测是这场竞赛的发动机。</strong> SWE-bench（编码）、OSWorld（computer-use）、GAIA / BrowseComp（deep research）各自定义了一条北极星指标，谁刷榜谁定义路线（参见 <a class="xref" href="09.html">09</a>）。</li>
+<li><strong>三种 agent 原型正在向「统一通用 agent」收敛</strong>，2025-07 ChatGPT Agent 把 Operator（屏幕行动）与 Deep Research（网络综合）合并就是标志；但「通用 vs 垂直」远未定论。</li>
+<li><strong>编码是 agent 第一个跑通收入的垂直。</strong> 到 2025-11，Cursor 与 Claude Code 各自年化营收破 $10 亿——而且赢家走的是 human-in-the-loop 的「增强」路线，不是 Devin 式的「全委派」。</li>
+<li><strong>token 经济学与上下文工程是生产第一约束。</strong> multi-agent 烧约 15 倍 chat token、KV-cache 命中与否差约 10 倍成本——这些不是优化项，而是决定产品能否上线的硬约束（参见 <a class="xref" href="03.html">03</a>）。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>前面几节把 Agent 拆成了零件：推理范式（<a class="xref" href="01.html">01</a>）、harness 运行时（<a class="xref" href="02.html">02</a>）、上下文工程（<a class="xref" href="03.html">03</a>）、工具与 MCP（<a class="xref" href="04.html">04</a>）、多智能体编排（<a class="xref" href="08.html">08</a>）。但零件不等于系统。<strong>真正的工程取舍只在真实产品里才暴露</strong>：当你要在 Ubuntu 上点像素、要在百万行仓库里改一个 bug、要把几百个网页综合成带引用的报告时，「该给多少自主权」「动作空间用什么抽象」「上下文怎么不爆」这些问题才有了带约束的答案。</p>
+<p>本节在 Agent 链路里的位置是<strong>集成与对照层</strong>：不发明新机制，而是把已知机制在不同公司的落地方式并排放，让你看见「同一个 ReAct loop，为什么 Cursor 选择留在 IDE 里、Devin 选择全自主、Anthropic 选择终端原生」。对求职者而言，这一节是面试中「你了解哪些真实 agent 系统、它们的工程取舍是什么」这类问题的弹药库（系统化题库见 <a class="xref" href="15.html">15</a>）；对工程师而言，它是「我要造 agent，该抄谁的作业」的决策地图（具体框架/工具选型见 <a class="xref" href="14.html">14</a>）。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（时间线 · ≥8 里程碑） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<ul>
+<li><strong>2022-10 · ReAct（Yao 等，Princeton/Google）</strong> — 推理与行动交织（think → act → observe → repeat）。这是几乎所有后续编码/computer-use harness 运行的底层循环，是整条主线的概念蓝图。</li>
+<li><strong>2023-03 · Reflexion（Shinn 等）</strong> — 把失败轨迹用自然语言反思写进情景记忆，重试时变好，无需更新权重。SE agent 里「patch → test → 自我调试」回路的概念根。</li>
+<li><strong>2023-10 · SWE-bench（Jimenez、Yang 等，Princeton/UChicago）</strong> — 2294 个真实 GitHub issue→PR 任务、Docker 沙箱单测验收。<strong>在产品 agent 出现前，先立下「修真实仓库 issue」的硬基准</strong>，把编码评测从「补全一个函数」升级为「解决真实工单」。这根北极星重新定义了之后每个 agent 追赶的目标。</li>
+<li><strong>2023-11 · GAIA（Mialon、Fourrier 等，Meta/HuggingFace）</strong> — 466 道需要推理+多模态+工具+浏览的真实问题，人类 92% 而 GPT-4+插件仅 15%。后来 deep research 产品的事实标尺。</li>
+<li><strong>2024-03 · Devin（Cognition）+ OpenDevin（同日开工）</strong> — Devin 自称「首个 AI 软件工程师」，用沙箱内 shell+编辑器+浏览器演示端到端自主，把 SWE-bench 从研究话题变成产品叙事；它的高调直接催生了同日开源的复刻 OpenDevin——<strong>「炒作」与「开源回应」从一开始就共生</strong>。</li>
+<li><strong>2024-04 · OSWorld（Xie 等）</strong> — 首个可扩展的真实操作系统（Ubuntu/Windows/macOS）computer-use 基准，369 任务、执行式验收；人类 72.4% vs 最佳模型 12%，把 GUI grounding 的鸿沟摆上台面。</li>
+<li><strong>2024-05 · SWE-agent ACI（Yang 等，NeurIPS 2024）</strong> — <strong>harness 设计的里程碑</strong>：给同一个模型配上专用的 Agent-Computer Interface，分数几乎翻倍。把「脚手架与模型同等重要」确立为全行业核心工程共识。</li>
+<li><strong>2024-07 · OpenHands（原 OpenDevin）+ Agentless（同月）</strong> — 一边是通用 agent 平台（代码+CLI+浏览器），一边是「不要 agent」的极简固定流水线，恰好把核心争议结晶出来：到底需不需要自主 agent？</li>
+<li><strong>2024-10 · Anthropic Computer Use（Claude 3.5 Sonnet 公测）</strong> — 首个能靠截图+像素坐标操作任意 GUI 的前沿模型，把 agent 从代码沙箱扩展到任何有屏幕的软件；但可靠性从发布第一天就被点名偏低。</li>
+<li><strong>2024-12 · Anthropic《Building Effective Agents》+ Google Gemini Deep Research</strong> — Anthropic 把「workflow vs agent」的设计纪律写成行业最被引用的分类法；Google 发出首个主流消费级 deep research agent。agent 范式从编码外溢到知识工作。</li>
+<li><strong>2025-01 · OpenAI Operator / CUA</strong> — 对标 Computer Use，OSWorld 刷到 SOTA 38.1%，却远低于人类 72.4%，公开了「能力 vs 宣传」的鸿沟，点燃 computer-use 成熟度之争。</li>
+<li><strong>2025-02 · 收敛之月</strong> — OpenAI Deep Research（基于 o3）、Anthropic Claude Code 预览、GitHub Copilot Agent 模式同窗落地。每个实验室都在交 agent，「scaffolding 比模型更是产品」全面兑现。</li>
+<li><strong>2025-05 · Claude Code GA</strong> → <strong>2025-11 Claude Code 与 Cursor 各破 $10 亿 ARR</strong> — 验证终端/CLI 是可持续的 agent 界面；agentic coding 成为首个被证明的 agent 商业模式。</li>
+<li><strong>2025-06 · Anthropic《How we built our multi-agent research system》vs Cognition《Don't Build Multi-Agents》（相隔一天）</strong> — 两家前沿实验室在多智能体编排上给出<strong>完全相反</strong>的公开结论，成为这一话题的定义性辩论（参见 <a class="xref" href="08.html">08</a>）。</li>
+<li><strong>2025-07 · Manus《Context Engineering for AI Agents》+ OpenAI ChatGPT Agent</strong> — Manus 交出以 KV-cache 命中率为核心的生产 playbook；OpenAI 把 Operator+Deep Research 合并为单一通用 agent，Operator 独立站下线，行业向「统一通用 agent」收敛（通用 agent 的身份/发现/协议基建参见 <a class="xref" href="17.html">17</a>）。</li>
+<li><strong>2025-09 / 11 · Anthropic《Writing effective tools》《Code execution with MCP》《Effective harnesses for long-running agents》</strong> — 评测驱动的工具设计、按需加载工具定义省 token、initializer+coding-agent 的长任务 harness——工程焦点从「prompt」转向「接口与上下文预算」。</li>
+<li><strong>2025-10 · Karpathy「是 agent 的十年，不是元年」（Dwarkesh 播客）</strong> — 经历 18 个月密集发布后的纠偏：模型仍缺记忆、持续学习、可靠多模态与 computer use，为 2026 定下清醒基调。</li>
+<li><strong>2025-12 · Menlo Ventures《2025 State of GenAI in Enterprise》</strong> — 给「agent 元年」叙事补上一记市场体检：企业 GenAI 支出冲到约 $37B（2024 约 $11.5B，3.2x），但<strong>仅约 16%</strong> 的部署算得上真正的 agent——钱在涌入，真 agent 仍是少数（参见 <a class="xref" href="11.html">11</a>）。</li>
+<li><strong>2026 · Cognition《How Cognition uses Devin to build Devin》</strong> — dogfooding 规模化：单周合入 659 个 Devin 撰写的 PR（2025 峰值 154）。agent 被接进 web/Slack/Linear/CLI/API，而非孤立的聊天框。</li>
+<li><strong>2026-02-23 · OpenAI 退役 SWE-bench Verified</strong> — 编码 agent 的北极星基准被其主推方主动退役：前沿模型已能逐字复现 patch（污染），且约 60% 剩余失败题源于测试/题面缺陷。把「刷榜分 ≠ 真实能力」摆上台面——本章出现的 SWE-bench 数字（如 3.8%→12.5%、32%/26%）均为 2024 开源旧分，须据此读（参见 <a class="xref" href="09.html">09</a>）。</li>
+<li><strong>2026-03 · Anthropic《Harness design for long-running application development》</strong> — 把长程开发 harness 推进到 GAN 式 generator-evaluator + context reset/结构化交接 + planner/generator/evaluator 三 agent 分工，是 2025 长任务 harness 的工程续篇（参见 <a class="xref" href="02.html">02</a><a class="xref" href="08.html">08</a>）。</li>
+<li><strong>2026-04 · Anthropic《Scaling Managed Agents: Decoupling brain from hands》</strong> — brain/hands/session 三层解耦、凭证不入沙箱（vault+proxy），把 TTFT p50 约降 60%（p95 降逾 90%），标志 agent 从「能跑」走向「能规模化托管」（参见 <a class="xref" href="11.html">11</a><a class="xref" href="12.html">12</a>）。</li>
+</ul>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<p>把所有大厂 agent 还原到最小公倍数，它们都是同一个循环 + 三个可变量。</p>
+<h3 id="sec-4-1">4.1 公共骨架：Agent loop <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<pre data-lang="text"><code>state = init(task, repo/screen/web)
+while not done and steps &lt; budget:
+    obs      = perceive(state)          # 文件内容 / 截图 / 网页 / 工具返回
+    thought  = LLM(history + obs)        # ReAct 的 "reason"
+    action   = parse_action(thought)     # 选一个工具 + 参数
+    result   = execute(action)           # 在沙箱/浏览器/OS 里真执行
+    history  = compact(history + result) # 上下文工程发生在这里
+    done     = verify(result)            # 单测 / 校验器 / 用户确认
+return finalize(history)
+</code></pre>
+<p>这个骨架来自 <strong>ReAct</strong>。区别大厂系统的，是下面三个可变量。</p>
+<h3 id="sec-4-2">4.2 可变量一：动作空间（action space）——三种主流抽象 <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>抽象</th><th>代表</th><th>动作长什么样</th></tr></thead>
+<tbody>
+<tr><td><strong>ACI（专用工具面）</strong></td><td>SWE-agent</td><td><code>open &lt;file&gt;</code>、<code>edit &lt;range&gt;</code>、<code>search_dir</code>、<code>run_tests</code>，带护栏与精简反馈</td></tr>
+<tr><td><strong>CodeAct（写代码即行动）</strong></td><td>OpenHands / smolagents</td><td>直接生成可执行 Python，工具是函数调用，可组合、可自调试</td></tr>
+<tr><td><strong>截图+坐标（GUI）</strong></td><td>Anthropic Computer Use / OpenAI Operator</td><td>读屏幕截图 → 输出 <code>click(x,y)</code> / <code>type(...)</code> / <code>scroll(...)</code></td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>关键洞察（SWE-agent）：接口是给模型用的，不是把人类 UI 端过来。</strong> 人类用 <code>vim</code> 靠肌肉记忆滚屏；模型需要的是「一次给我刚好够的行、报错精简、改完立即反馈」。同一个 GPT-4，换上 ACI 分数几乎翻倍，证明瓶颈常在接口而非模型原始智商。CodeAct 进一步主张：与其让模型吐 JSON 工具调用，不如让它写代码——HuggingFace 实测 code agent 比结构化调用少约 30% 步数、组合性更好（参见 <a class="xref" href="04.html">04</a> code-as-action 争议）。</p>
+<h3 id="sec-4-3">4.3 可变量二：上下文策略 <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>仓库地图 + AST 检索</strong>（AutoCodeRover）：用结构感知的 code-search API + 谱系故障定位，把「对的代码」喂给模型，而非塞整个仓库。</li>
+<li><strong>HTML 过滤</strong>（Mind2Web）：用小模型先把网页裁剪到能进 context 的片段。</li>
+<li><strong>CLAUDE.md 记忆 + 隔离 subagent</strong>（Claude Code）：项目级持久记忆自动加载，subagent 在独立 context window 跑，不污染主线。</li>
+<li><strong>上下文预算管理</strong>（Anthropic long-running harness）：长任务拆 initializer + coding agent，用 JSON 特性清单、进度文件 + git 历史在 context window 间交接。</li>
+<li><strong>KV-cache 友好布局</strong>（Manus）：prompt 前缀字节级稳定（不放时间戳）、永不中途改工具定义。</li>
+</ul>
+<h3 id="sec-4-4">4.4 可变量三：评测基准（决定了路线） <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<pre data-lang="text"><code>编码        → SWE-bench / Verified（人筛子集）/ Lite / Multimodal
+computer-use→ OSWorld
+Web 动作    → WebArena / Mind2Web
+deep research→ GAIA / BrowseComp（短可验证答案）
+</code></pre>
+<p>评测不是事后打分，而是<strong>前置的产品设计约束</strong>——你优化什么基准，你的 harness 就长成什么样。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<p><strong>表 1 · 编码 agent</strong></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>系统</th><th>机构</th><th>动作空间</th><th>上下文策略</th><th>自主度</th><th>开/闭源</th><th>关键数字</th></tr></thead>
+<tbody>
+<tr><td>SWE-agent</td><td>Princeton NLP</td><td>ACI（edit/search/test）</td><td>精简反馈+护栏</td><td>全自主</td><td>开源</td><td>SWE-bench 3.8%→12.5%</td></tr>
+<tr><td>Agentless</td><td>Xia 等</td><td>固定 localize→repair→validate</td><td>层级定位</td><td><strong>无 agent</strong></td><td>开源</td><td>匹配复杂 agent，成本更低</td></tr>
+<tr><td>AutoCodeRover</td><td>Zhang 等</td><td>结构感知 search API</td><td>AST + 谱系定位</td><td>半自主</td><td>开源</td><td>~19% Lite，~$0.43/issue</td></tr>
+<tr><td>OpenHands</td><td>All Hands AI</td><td>CodeAct（可执行 Python）</td><td>沙箱运行时</td><td>全自主/multi-agent</td><td>开源</td><td>通用平台基线</td></tr>
+<tr><td>Devin</td><td>Cognition</td><td>沙箱 shell+编辑器+浏览器</td><td>单线程线性 + edit-apply</td><td><strong>全委派</strong></td><td>闭源</td><td>659 PR/周（dogfood）</td></tr>
+<tr><td>Cursor</td><td>Anysphere</td><td>IDE 内编辑 + Agent 模式</td><td>仓库检索 + shadow workspace</td><td><strong>HITL 增强</strong></td><td>闭源</td><td>$10 亿+ ARR</td></tr>
+<tr><td>Claude Code</td><td>Anthropic</td><td>终端低层工具 + subagent</td><td>CLAUDE.md + 隔离 context</td><td>HITL/可 headless</td><td>闭源</td><td>$10 亿 ARR</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>表 2 · computer-use &amp; deep research agent</strong></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>系统</th><th>机构</th><th>动作空间</th><th>评测</th><th>工程主张</th></tr></thead>
+<tbody>
+<tr><td>Computer Use</td><td>Anthropic</td><td>截图→像素点击</td><td>OSWorld</td><td>最大通用性，任意 app 无需集成</td></tr>
+<tr><td>Operator / CUA</td><td>OpenAI</td><td>vision+RL GUI</td><td>OSWorld 38.1%</td><td>视觉+RL，分层 prompt-injection 防御</td></tr>
+<tr><td>Deep Research</td><td>OpenAI</td><td>o3 端到端 RL 浏览（2025-02 开路引擎）</td><td>GAIA / BrowseComp / HLE 26.6%（首发）</td><td>单一 RL agent loop &gt; 手搭编排</td></tr>
+<tr><td>Gemini Deep Research</td><td>Google</td><td>异步 browse-refine</td><td>—</td><td>计划交人审批，执行交自主</td></tr>
+<tr><td>Perplexity Deep Research</td><td>Perplexity</td><td>数十次搜索</td><td>HLE 21.1%</td><td>速度/成本/免费 &gt; 峰值精度</td></tr>
+<tr><td>Open Deep Research</td><td>HuggingFace</td><td>CodeAgent（写 Python）</td><td>GAIA ~54%</td><td>几千行极简框架，code agent</td></tr>
+<tr><td>Manus</td><td>Manus</td><td>通用计算机 + 文件系统</td><td>—</td><td>上下文工程 &gt; 更大模型</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议（≥2 组对立面） <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<p><strong>争议 1 · 编码到底需不需要自主 agent？</strong></p>
+<ul>
+<li>A 方（自主派，<strong>Yang 等 / SWE-agent、OpenHands</strong>）：让模型自己选工具、自己从错误里恢复，才能 scale 到脏乱的真实仓库。</li>
+<li>B 方（无 agent 派，<strong>Xia 等 / Agentless</strong>）：一个固定的 localize→repair→validate 流水线在 SWE-bench Lite 上能匹配甚至打败复杂 agent，成本更低、行为更可预测。</li>
+<li>现状：两者都对一半——结构化任务固定流水线够用，开放/脏乱任务需要自主回路。</li>
+</ul>
+<p><strong>争议 2 · 多智能体编排 vs 单线程线性 agent？（相隔一天的世纪对线）</strong></p>
+<ul>
+<li>A 方（<strong>Anthropic</strong>）：orchestrator-worker，lead agent 拆解任务并行 spawn subagent；内部研究评测<strong>比 single-agent Opus 4 高 90.2%</strong>、并行工具调用最多省 90% 墙钟时间——但烧约 15 倍 chat token，所以只该用在高价值、可并行、读多写少的任务。</li>
+<li>B 方（<strong>Cognition / Walden Yan</strong>）：别造 multi-agent。subagent 缺共享 context、会做出互相冲突的隐式决策；默认单线程线性 agent，要压上下文就用专门的模型压，而非 fan-out。</li>
+<li>本质分歧很可能归约到任务类型：读多并行的研究偏 multi-agent，写多耦合的编码偏单线程（详见 <a class="xref" href="08.html">08</a>）。</li>
+</ul>
+<p><strong>争议 3 · 像素/截图 GUI 控制 vs 结构化（DOM/无障碍树/API）控制？</strong></p>
+<ul>
+<li>A 方（<strong>OSWorld / SeeClick / Anthropic·OpenAI computer use</strong>）：视觉控制能泛化到任何人类能看见的 app，零集成。</li>
+<li>B 方（<strong>WebArena / Mind2Web 路线</strong>）：DOM/无障碍树/API 动作更可靠更便宜，但碰到没有干净结构的 app 就崩。</li>
+</ul>
+<p><strong>争议 4 · 软件工程的未来是全委派还是 human-in-the-loop 增强？</strong></p>
+<ul>
+<li>A 方（自主/委派，<strong>Cognition/Devin、GitHub Project Padawan</strong>）：把人移出循环，issue 直接派给 agent。（注：Scott Wu 后来软化，称 HITL 是高风险生产的「永久要求」。）</li>
+<li>B 方（增强，<strong>Anysphere/Cursor、Microsoft Copilot</strong>）：差距不是技术 gap 而是 <strong>context gap</strong>——隐性知识在人脑里；Cursor 坚持 IDE 内 HITL 反而最快冲到 $10 亿+ ARR；Devin 早期实测被 The Register 批「自信地写错」。市场用脚投票更偏 HITL。（注：曾被视作独立 IDE-HITL 阵营的 Windsurf 已于 2025-07 被全委派派的 Cognition 收购，「委派 vs 增强」的阵营边界本身在松动。）</li>
+</ul>
+<p><strong>争议 5 · 「2025 是 agent 元年」还是被高估、还需十年？</strong></p>
+<ul>
+<li>A 方（元年派，多数厂商/看涨 VC）：以 Cursor、Claude Code 各破 $10 亿 ARR 为证，拐点已至。</li>
+<li>B 方（长期派，<strong>Andrej Karpathy</strong>）：是「agent 的十年」，不是元年——缺记忆、持续学习、可靠多模态/computer use，过早造完整 agent 是错误。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践（拆解工程取舍） <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A · Anthropic：Claude Code（终端原生的「反框架」harness） <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>取舍：低层 unix 哲学，而非 opinionated IDE。</strong> 工具刻意做得低层、可脚本化（headless 模式可进 CI），换来组合性与自动化，代价是放弃 hand-holding 的图形界面。</li>
+<li><strong>上下文策略：</strong> <code>CLAUDE.md</code> 作为自动加载的持久项目记忆；agentic 代码库搜索；<strong>subagent 在隔离 context window 跑</strong>，把脏活的中间产物挡在主线之外。工作流是 explore→plan→code→commit + TDD。</li>
+<li><strong>为什么成立：</strong> 把 agent 当「带工具和记忆的初级工程师」来用——指令、记忆、可验证回路，比花哨 UI 更重要。</li>
+</ul>
+<h3 id="sec-7-2">案例 B · Anthropic：multi-agent 研究系统（orchestrator-worker） <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>取舍：用 15 倍 token 换 90% 墙钟时间。</strong> lead agent 把查询拆成子任务、并行 spawn subagent 做广度优先检索。只对高价值、可并行、读多写少的研究开放。</li>
+<li><strong>评测方法学：</strong> 用 <strong>end-state（终态）评估</strong>而非逐步比对——因为 multi-agent 路径不可复现。</li>
+<li><strong>生产之痛：</strong> statefulness——小改动会级联放大，所以重投可观测性与可恢复的错误恢复（呼应 <a class="xref" href="10.html">10</a>）。</li>
+</ul>
+<h3 id="sec-7-3">案例 C · Anysphere：Cursor（fork VS Code 拿编辑器级权限） <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>取舍：承担 fork 维护负担，换插件 API 给不了的编辑器级访问。</strong> 低延迟「Tab」推测补全（&lt;1s，加密 context 片段）。</li>
+<li><strong>shadow workspace（影子工作区）：</strong> 为了让 AI 拿到 LSP/lint 反馈又不动用户的文件，Cursor 在同一 workspace 里 spawn 一个<strong>隐藏的 Electron 窗口</strong>（独立 extension host，走 gRPC，约 15min 闲置自动关）。设计目标是「LSP 可用 + 可运行」同时不打扰用户编辑。还讨论了内核/FUSE 文件代理在 Linux 干净、却在 macOS/Windows 被挡的跨平台权衡。</li>
+</ul>
+<h3 id="sec-7-4">案例 D · Cognition：Devin（刻意单线程 + edit-apply + 全 API） <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>架构取舍：刻意不做 multi-agent。</strong> 单线程线性架构避免 subagent 冲突。</li>
+<li><strong>edit-apply 模型：</strong> 大模型用 markdown 描述改动，小快模型重写整个文件——比逼大模型吐合法 diff 更可靠（对立面是 SWE-agent 式的结构化 patch，省一次模型调用）。</li>
+<li><strong>接入方式：</strong> 暴露完整 REST API，session 可无人启动；被接进 web/Slack/Linear/CLI。dogfooding 到单周 659 PR——这些轨迹同时是把杠杆从 prompting 移向训练侧的数据金矿（参见 <a class="xref" href="16.html">16</a>）。</li>
+</ul>
+<h3 id="sec-7-5">案例 E · OpenAI：Deep Research（端到端 RL single-agent loop） <a class="heading-anchor" href="#sec-7-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>取舍：押注「训练」而非「手搭编排」。</strong> 一个用 RL 在真实浏览+推理任务上端到端训练的模型（2025-02 首发以 <strong>o3</strong> 为开路引擎，HLE 26.6%），自主规划、搜索、把数百来源综合成带引用的分析师级报告。o3 是当年的开路者；OpenAI 当代旗舰已迭代至 <strong>GPT-5.5</strong>（前代 GPT-5.4），deep research 类产品的底座随旗舰滚动升级。</li>
+<li><strong>对照 Gemini Deep Research：</strong> Google 选「计划交人审批、执行交自主」——异步多分钟 browse-refine-synthesize 后导出 Google Doc。<strong>同一品类，两种自主度哲学。</strong></li>
+</ul>
+<h3 id="sec-7-6">案例 F · Manus：上下文工程即产品 <a class="heading-anchor" href="#sec-7-6" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>取舍：性能来自上下文工程，不是更大模型。</strong> KV-cache 命中率是头号生产指标（缓存/未缓存约 10 倍成本差）：prompt 前缀字节稳定、<strong>用 logit masking 屏蔽工具而非中途删工具定义</strong>、用文件系统当外置无限上下文、把失败留在 context 里让模型学。框架重写 4 次（「随机研究生下降」）。</li>
+</ul>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非事实陈述），是作者基于上述材料的独立研判，可证伪。</strong></p>
+</blockquote>
+<p><strong>市场现实校准：先给「agent 元年」做一次体检。</strong> 把三份独立的企业落地调研并排放，hype 与落地之间的落差是结构性的，不是个案——这也是下面三条研判共同的地基（<strong>表中数字为引用事实，结论为个人研判</strong>）。</p>
+<p><strong>表 3 · 「部署 vs 落地」的三份体检（2025–2026）</strong></p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>来源</th><th>已部署 / 投入面</th><th>真正落地 / 产出面</th><th>落差信号</th></tr></thead>
+<tbody>
+<tr><td>Menlo《2025 State of GenAI in Enterprise》</td><td>企业 GenAI 支出 ~<strong>$37B</strong>（2024 ~$11.5B，<strong>3.2x</strong>）；agent 平台 ~占横向类目 <strong>10%</strong>（~$750M）</td><td><strong>仅约 16%</strong> 的部署算得上真正的 agent</td><td>钱在涌入，真 agent 仍是少数</td></tr>
+<tr><td>McKinsey《Seizing the agentic AI advantage》（「gen AI 悖论」）</td><td><strong>约 80%</strong> 企业已部署 gen AI</td><td><strong>&gt;80%</strong> 报告对 EBIT 无实质影响；<strong>约 90%</strong> 高价值/转型型用例仍卡在 pilot（是用例占比，<strong>非采用率</strong>）；<strong>&lt;10%</strong> pilot 能规模化</td><td>部署 ≠ EBIT</td></tr>
+<tr><td>Deloitte《Tech Trends 2026》（agentic AI strategy）</td><td>14% 有可部署方案、38% 在 pilot、30% 仍在探索</td><td><strong>仅 11%</strong> 已投产</td><td>多数停在 pilot/探索</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>读法：</strong> 钱（支出 3.2x）和故事（"元年"）都已就位，但"产出"这一栏全线偏冷——真 agent 占比仅 16%（Menlo）、转型用例近九成卡在 pilot（McKinsey）、产线投产仅 11%（Deloitte）。本节前面那些破 $10 亿 ARR 的赢家（Cursor / Claude Code）是<strong>已经穿过这道落差的少数</strong>，不是行业平均；把它们当基准会系统性高估成熟度。这给 §6 争议 5（"元年 vs 十年"）补上市场侧证据：Karpathy 的"十年"判断与这组落地数字方向一致——拐点信号真实，但规模化兑现仍是少数派工程（参见 <a class="xref" href="11.html">11</a>）。</p>
+<p><strong>研判一：「harness 红利」正在见顶，下一波分水岭在训练侧。</strong> 2024 年 ACI 把分数翻倍，是因为前沿模型当时还在「会推理但不会用工具」的阶段，脚手架能捡走大量地上的钱。但 SWE-Gym 已经显示，训练 agent + 校验器 + 推理时扩展能把开源 SOTA 推得比纯 prompting 更远（<strong>32%/26% Verified/Lite 系 2024 开源旧分</strong>；到 2026 前沿系统的 SWE-bench 已抬到 70–80%+，且 SWE-bench Verified 已于 2026-02-23 被 OpenAI 退役，见 §3）。我的判断是：<strong>2026 之后，纯靠 prompt/scaffolding 的边际收益会快速衰减，真正的护城河回到「能拿到轨迹数据做 RL」的那批公司</strong>（agentic RL 训练的系统化框架参见 <a class="xref" href="16.html">16</a>）——这也是为什么 Cognition 拼命 dogfooding（659 PR/周不只是产能，更是轨迹金矿）。而握有数据与模型的这批公司已不止西方阵营：据报道，到 2026 H1，阿里 <strong>Qwen3.7-Max</strong>（号称自主千次工具调用、连续运行约 35 小时）、智谱 <strong>GLM-5.1</strong>、月之暗面 <strong>Kimi K2.6</strong> 等中国前沿模型也已挤进 agentic 第一梯队，开/闭源混合，是本节西方案例之外不应忽略的对照面（以上为 medium 置信、约 2026 上半年口径）。</p>
+<p><strong>研判二：computer-use 是被产品营销透支最严重的品类。</strong> 把厂商的 OSWorld SOTA（Operator 38.1%、后续前沿模型逐代抬升至六成档）和独立实测（多数部署真实任务完成率不到 40%）并排看，结论很清楚：<strong>演示曲线陡，可靠性曲线平。</strong> 加上 prompt injection 几乎是结构性弱点（截图里塞一行字就能劫持），我认为 computer-use 在 2026 仍然是「beta 心智」——能做受控的、可回滚的、低风险的桌面自动化，但别把它放进会花钱、会发邮件、会删数据的关键路径。</p>
+<p><strong>研判三：增强派（HITL）会在「写多」垂直长期赢，委派派会在「读多」垂直先突破。</strong> Cursor/Claude Code 在编码（写多、强耦合、错一行炸一片）赢，不是偶然——这类任务的 context gap 在人脑里，HITL 是必需而非过渡。反过来，deep research（读多、可并行、终态可验）天然适合更高自主度。Anthropic vs Cognition 的对线，我倾向于「不是架构信仰之争，是任务结构之差」。</p>
+<p><strong>常见坑（按踩雷频率排序）：</strong></p>
+<ol>
+<li><strong>拿 SWE-bench 分数当能力信号，忽略污染与过拟合。</strong> PR 里可能泄漏解、harness 可能对基准过拟合、换语言/视觉就崩（SWE-bench Multimodal 上顶级系统集体跳水）。看分先问：Verified 还是全量？是否同分布？</li>
+<li><strong>上来就 multi-agent。</strong> 没有 end-state 评测和可观测性之前，multi-agent 只会把不可复现的失败放大 15 倍 token。</li>
+<li><strong>中途改工具定义 / prompt 前缀不稳定</strong>，直接打穿 KV-cache，成本 10 倍恶化还查不出来。</li>
+<li><strong>把工具当人类 UI 端过来。</strong> 返回 UUID 而非可读名字、一个动作要 5 次低层调用——模型会被淹死。</li>
+</ol>
+<p><strong>最佳实践（我会照做的顺序）：</strong></p>
+<ul>
+<li>先写评测、再写 agent（eval-driven），用 end-state 评估长任务；</li>
+<li>默认单线程线性 + 固定流水线，只在证明任务可并行且读多时才上 multi-agent；</li>
+<li>工具做「为模型设计」：少而高层、命名空间化、返回人类可读上下文、按需用 code-execution 加载定义（<a class="xref" href="04.html">04</a>）；</li>
+<li>上下文优先级：稳定前缀 &gt; 外置文件系统 &gt; 隔离 subagent &gt; 压缩 &gt; 检索；</li>
+<li>computer-use 一律加 prompt-injection 分类器 + 人审高风险动作（<a class="xref" href="12.html">12</a>）。</li>
+</ul>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>什么是 Agent-Computer Interface（ACI），为什么说它证明了「harness 与模型同等重要」？</strong> 要点：ACI 是为 LM「这类新用户」专门设计的工具面（受护栏的编辑、仓库导航、测试执行 + 精简反馈），不是把人类 UI 端过来。SWE-agent 在不改权重下把 SWE-bench pass@1 从 3.8%→12.5%，说明瓶颈常在接口而非模型原始能力。</li>
+<li><strong>编码 agent 的三种动作空间抽象各是什么，优劣？</strong> 要点：ACI（专用工具，可控/护栏好）、CodeAct/写代码（可组合、少约 30% 步数、但要沙箱与不可信代码风险）、截图+坐标 GUI（最通用、但慢且不可靠、易受 prompt injection）。</li>
+<li><strong>deep research 这一品类是怎么收敛出来的，评测用什么？</strong> 要点：从 GAIA（多模态+工具+浏览）到 BrowseComp（难找、短可验证答案）；OpenAI（o3 端到端 RL 单 loop）、Google（计划交人审批）、Perplexity（速度/成本）、HuggingFace（code agent 极简复刻 ~54% GAIA）四种路线。</li>
+<li><strong>「评测污染」为什么是 SWE-bench 类基准的结构性隐忧？</strong> 要点：PR 里可能泄漏解、harness 对基准过拟合、弱泛化（换语言/视觉崩）；缓解靠 Verified 人筛子集、执行式验收、动态/live 基准。<strong>实例：2026-02-23 OpenAI 主动退役 SWE-bench Verified——前沿模型已能逐字复现 patch（污染），且约 60% 剩余失败题源于测试/题面缺陷（参见 <a class="xref" href="09.html">09</a><a class="xref" href="15.html">15</a>）。</strong></li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>设计一个能在百万行真实仓库里解决 GitHub issue 的编码 agent，要求成本可控、行为可复现、能在 CI 里跑。</strong> 要点：(a) 上下文——AST/仓库地图 + 谱系故障定位做精准检索，别塞整库；(b) 动作空间——ACI（受护栏 edit/search/run_tests）或固定 localize→repair→validate 流水线（成本与可预测性更好）；(c) 验证——单测做终态判定，patch→test 回路 + 反思重试；(d) 成本——按 issue 计费、限步数预算、KV-cache 友好前缀；(e) 可复现——headless 模式 + 固定随机种子 + 轨迹日志（呼应 <a class="xref" href="02.html">02</a><a class="xref" href="10.html">10</a>）。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>手写一个最小 ReAct + 工具调用 harness 的伪代码，要求含停止条件、错误重试、上下文压缩。</strong></li>
+</ol>
+<pre data-lang="python"><code>def agent(task, tools, max_steps=30, max_retries=2):
+    history = [system_prompt(tools), user(task)]
+    for step in range(max_steps):
+        thought = llm(history)                    # reason
+        if is_final(thought):
+            return extract_answer(thought)        # 停止条件 1
+        action = parse_action(thought)            # {name, args}
+        for attempt in range(max_retries+1):
+            try:
+                obs = tools[action.name](**action.args)  # act+observe
+                break
+            except ToolError as e:
+                obs = f"ERROR: {e}; 请修正参数后重试"     # 错误反馈进 context
+        history.append(assistant(thought)); history.append(tool(obs))
+        if token_count(history) &gt; BUDGET:
+            history = compact(history)            # 上下文压缩/交接
+    return "reached step limit"                   # 停止条件 2：防死循环
+</code></pre>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>「multi-agent 一定比 single-agent 强吗？」</strong> 陷阱：直接答「是」。正解：取决于任务结构。Anthropic 在读多并行的研究上 multi-agent +90.2%，但烧约 15 倍 token；Cognition 主张写多耦合任务用单线程线性，否则 subagent 做冲突的隐式决策。先问任务可并行性与读写比。</li>
+<li><strong>「computer-use agent OSWorld 刷到 60%+ 了，是不是可以放进生产关键路径？」</strong> 陷阱：把厂商 benchmark 当生产可靠性。正解：人类约 72.4%，独立实测多数部署真实完成率 &lt;40%，且普遍易受 prompt injection；生产前需加分类器防注入、人审高风险动作、可回滚沙箱。</li>
+<li><strong>「为什么 Devin（全自主）没赢，Cursor（HITL）反而先破 $10 亿 ARR？」</strong> 陷阱：归因为技术不行。正解：差距是 context gap 不是 capability gap——隐性知识在人脑，编码是写多强耦合任务，HITL 是必需而非过渡；市场更买「增强」而非「委派」。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li>ReAct: Synergizing Reasoning and Acting in Language Models — Yao 等, 2022. <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> — 推理+行动交织，所有 agent harness 的底层循环。</li>
+<li>Reflexion: Language Agents with Verbal Reinforcement Learning — Shinn 等, 2023. <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> — 用语言反思失败、写进情景记忆，self-debug 回路的概念根。</li>
+<li>Mind2Web: Towards a Generalist Agent for the Web — Deng 等, 2023. <a href="https://arxiv.org/abs/2306.06070" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2306.06070</a> — 首个通用 web agent 基准，引入小模型 HTML 过滤。</li>
+<li>WebArena: A Realistic Web Environment for Building Autonomous Agents — Zhou 等, 2023. <a href="https://arxiv.org/abs/2307.13854" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.13854</a> — 可复现自托管多站点环境 + 执行式功能正确性评测。</li>
+<li>SWE-bench: Can Language Models Resolve Real-World GitHub Issues? — Jimenez、Yang 等, 2023. <a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.06770</a> — 2294 真实 issue→PR + 单测验收，编码 agent 的北极星基准。</li>
+<li>GAIA: a benchmark for General AI Assistants — Mialon、Fourrier 等, 2023. <a href="https://arxiv.org/abs/2311.12983" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.12983</a> — 人类 92% vs GPT-4+插件 15%，deep research 的事实标尺。</li>
+<li>SeeClick: Harnessing GUI Grounding for Advanced Visual GUI Agents — Cheng 等, 2024. <a href="https://arxiv.org/abs/2401.10935" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.10935</a> — GUI grounding 是截图 agent 的瓶颈，提出 ScreenSpot 基准。</li>
+<li>Executable Code Actions Elicit Better LLM Agents (CodeAct) — Wang 等, 2024. <a href="https://arxiv.org/abs/2402.01030" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.01030</a> — 用可执行 Python 统一动作空间，OpenHands harness 的抽象基础。</li>
+<li>AutoCodeRover: Autonomous Program Improvement — Zhang 等, 2024. <a href="https://arxiv.org/abs/2404.05427" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2404.05427</a> — AST 感知 code-search + 谱系故障定位，~19% Lite，~$0.43/issue。</li>
+<li>OSWorld: Benchmarking Multimodal Agents for Open-Ended Tasks in Real Computer Environments — Xie 等, 2024. <a href="https://arxiv.org/abs/2404.07972" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2404.07972</a> — 首个真实操作系统 computer-use 基准，人类 72.4% vs 模型 12%。</li>
+<li>SWE-agent: Agent-Computer Interfaces Enable Automated Software Engineering — Yang、Jimenez 等, 2024. <a href="https://arxiv.org/abs/2405.15793" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2405.15793</a> — 提出 ACI，接口设计把 SWE-bench 翻倍，NeurIPS 2024。</li>
+<li>Agentless: Demystifying LLM-based Software Engineering Agents — Xia 等, 2024. <a href="https://arxiv.org/abs/2407.01489" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2407.01489</a> — 固定三段式流水线匹配/超越复杂 agent，「还需要 agent 吗」的对照点。</li>
+<li>OpenHands: An Open Platform for AI Software Developers as Generalist Agents — Wang 等, 2024. <a href="https://arxiv.org/abs/2407.16741" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2407.16741</a> — 开源通用开发 agent 平台，确立代码+CLI+浏览器动作空间。</li>
+<li>Large Language Model-Based Agents for Software Engineering: A Survey — Liu 等, 2024. <a href="https://arxiv.org/abs/2409.02977" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2409.02977</a> — 系统综述 SE agent，规划/记忆/感知/行动分类。</li>
+<li>SWE-bench Multimodal: Do AI Systems Generalize to Visual Software Domains? — Yang 等, 2024. <a href="https://arxiv.org/abs/2410.03859" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2410.03859</a> — 617 个视觉 JS bug 任务，顶级 Python 系统集体跳水，暴露泛化极限。</li>
+<li>Large Language Model-Brained GUI Agents: A Survey — Zhang 等, 2024. <a href="https://arxiv.org/abs/2411.18279" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2411.18279</a> — computer-use/GUI agent 的综合分类法。</li>
+<li>Training Software Engineering Agents and Verifiers with SWE-Gym — Pan 等, 2024. <a href="https://arxiv.org/abs/2412.21139" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2412.21139</a> — 首个 SE agent 训练环境 + 轨迹训练校验器，把杠杆从 prompting 移到训练。</li>
+<li>The AI Agent Index — Casper 等, 2025. <a href="https://arxiv.org/abs/2502.01635" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2502.01635</a> — 记录 30 个已部署 agent 的设计/能力/评测/安全，闭源 agent 透明度最接近的学术来源。</li>
+<li>BrowseComp: A Simple Yet Challenging Benchmark for Browsing Agents — Wei 等 (OpenAI), 2025. <a href="https://arxiv.org/abs/2504.12516" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2504.12516</a> — 1266 道难找、短可验证答案，deep research 专用评测。</li>
+<li>Deep Research: A Survey of Autonomous Research Agents — Zhang 等, 2025. <a href="https://arxiv.org/abs/2508.12752" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.12752</a> — 综述 deep research 范式（规划/检索/工具/报告）与 RL 优化。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文 <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li>Building Effective Agents — Anthropic, 2024. <a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/building-effective-agents</a> — 最被引用的 workflow vs agent 分类法，主张简单可组合模式优于重框架。</li>
+<li>Developing a computer use model — Anthropic, 2024. <a href="https://www.anthropic.com/research/developing-computer-use" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/research/developing-computer-use</a> — Claude 如何学会读截图、数像素移动光标，computer-use harness 一手来源。</li>
+<li>Introducing computer use, Claude 3.5 Sonnet, and Haiku — Anthropic, 2024. <a href="https://www.anthropic.com/news/3-5-models-and-computer-use" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/3-5-models-and-computer-use</a> — 首个前沿模型公测屏幕操作，自承公测期可靠性有限。</li>
+<li>Initial explorations of Anthropic's new Computer Use — Simon Willison, 2024. <a href="https://simonwillison.net/2024/Oct/22/computer-use/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2024/Oct/22/computer-use/</a> — 独立实测：惊艳但不稳，早点出可靠性与安全隐忧。</li>
+<li>How we built our multi-agent research system — Anthropic, 2025. <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> — orchestrator-worker +90.2%、省 90% 时间但烧 15x token，end-state 评测。</li>
+<li>Don't Build Multi-Agents — Cognition (Walden Yan), 2025. <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> — 与 Anthropic 相隔一天的对立面：默认单线程线性 agent。</li>
+<li>Claude Code: Best practices for agentic coding — Anthropic, 2025. <a href="https://www.anthropic.com/engineering/claude-code-best-practices" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/claude-code-best-practices</a> — CLAUDE.md 记忆 + explore→plan→code→commit + headless，上下文 playbook。</li>
+<li>Effective harnesses for long-running agents — Anthropic, 2025. <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents</a> — 长任务拆 initializer+coding agent，JSON 特性清单 + 进度文件交接。</li>
+<li>Writing effective tools for AI agents — Anthropic, 2025. <a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/writing-tools-for-agents</a> — 为模型而非人设计工具：合并、命名空间、可读返回、token 预算、eval 驱动。</li>
+<li>Code execution with MCP — Anthropic, 2025. <a href="https://www.anthropic.com/engineering/code-execution-with-mcp" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/code-execution-with-mcp</a> — agent 写代码按需加载工具定义，解决大 MCP 部署的工具膨胀。</li>
+<li>Context Engineering for AI Agents: Lessons from Building Manus — Yichao Ji (Manus), 2025. <a href="https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus" target="_blank" rel="noopener noreferrer">https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus</a> — KV-cache 命中率头号指标、logit masking、文件系统当外置上下文。</li>
+<li>Introducing deep research — OpenAI, 2025. <a href="https://openai.com/index/introducing-deep-research/" target="_blank" rel="noopener noreferrer">https://openai.com/index/introducing-deep-research/</a> — o3 端到端 RL 浏览，HLE 26.6%，押注 single-agent loop。</li>
+<li>Computer-Using Agent (CUA) — OpenAI, 2025. <a href="https://openai.com/index/computer-using-agent/" target="_blank" rel="noopener noreferrer">https://openai.com/index/computer-using-agent/</a> — Operator 的 vision+RL GUI agent 与分层 prompt-injection 防御。</li>
+<li>Introducing ChatGPT agent — OpenAI, 2025. <a href="https://openai.com/index/introducing-chatgpt-agent/" target="_blank" rel="noopener noreferrer">https://openai.com/index/introducing-chatgpt-agent/</a> — 统一 Operator+Deep Research，标志向通用 agent 收敛。</li>
+<li>Try Deep Research in Gemini — Google, 2024. <a href="https://blog.google/products/gemini/google-gemini-deep-research/" target="_blank" rel="noopener noreferrer">https://blog.google/products/gemini/google-gemini-deep-research/</a> — 首个主流消费级 deep research，计划交人审批、执行交自主。</li>
+<li>Introducing Perplexity Deep Research — Perplexity, 2025. <a href="https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research" target="_blank" rel="noopener noreferrer">https://www.perplexity.ai/hub/blog/introducing-perplexity-deep-research</a> — HLE 21.1%，押注速度/成本/可及性而非峰值精度。</li>
+<li>Open-source DeepResearch — HuggingFace (smolagents), 2025. <a href="https://huggingface.co/blog/open-deep-research" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/open-deep-research</a> — ~24h 复刻、~54% GAIA，code agent 比 JSON 调用少约 30% 步数。</li>
+<li>Iterating with shadow workspaces — Cursor/Anysphere, 2024. <a href="https://cursor.com/blog/shadow-workspace" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/shadow-workspace</a> — 隐藏 Electron 窗口给 AI LSP/lint 反馈而不动用户文件。</li>
+<li>The rise of 'context engineering' — Harrison Chase (LangChain), 2025. <a href="https://www.langchain.com/blog/the-rise-of-context-engineering" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/the-rise-of-context-engineering</a> — 多数 agent 失败是 context 失败，pro-framework 立场。</li>
+<li>How Cognition uses Devin to build Devin — Cognition, 2026. <a href="https://cognition.ai/blog/how-cognition-uses-devin-to-build-devin" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/how-cognition-uses-devin-to-build-devin</a> — 单周 659 PR dogfooding，Devin 暴露完整 REST API。</li>
+<li>Introducing Devin, the first AI software engineer — Cognition, 2024. <a href="https://cognition.ai/blog/introducing-devin" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/introducing-devin</a> — 端到端自主的产品叙事原点。</li>
+<li>Tool touted as 'first AI software engineer' is bad at its job — The Register, 2025. <a href="https://www.theregister.com/2025/01/23/ai_developer_devin_poor_reviews/" target="_blank" rel="noopener noreferrer">https://www.theregister.com/2025/01/23/ai_developer_devin_poor_reviews/</a> — 全自主路线质疑代表：实测 Devin 完成率低、「自信地写错」。</li>
+<li>I Tested Every Major Computer Use Agent in 2025 — Coasty, 2026. <a href="https://coasty.ai/blog/computer-use-agent-comparison-2025-20260406" target="_blank" rel="noopener noreferrer">https://coasty.ai/blog/computer-use-agent-comparison-2025-20260406</a> — computer-use 怀疑派实测：多数真实完成率 &lt;40%。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 / 指南 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li>A practical guide to building agents — OpenAI, 2025. <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer">https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf</a> — 34 页实践指南：manager vs handoff multi-agent 模式 + 分层 guardrails，配 Agents SDK。</li>
+</ul>
+<h3 id="sec-10-4">🎥 Talk <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<ul>
+<li>AGI is still a decade away（"decade of agents"）— Andrej Karpathy @ Dwarkesh 播客 / Simon Willison 摘录, 2025. <a href="https://simonwillison.net/2025/Oct/18/agi-is-still-a-decade-away/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/Oct/18/agi-is-still-a-decade-away/</a> — 对「agent 元年」的权威纠偏：缺记忆/持续学习/可靠多模态，需十年级工程。</li>
+</ul>
+<h3 id="sec-10-5">📊 市场 / 行业调研 <a class="heading-anchor" href="#sec-10-5" aria-label="锚点">#</a></h3>
+<ul>
+<li>The 2025 State of Generative AI in the Enterprise — Menlo Ventures, 2025. <a href="https://menlovc.com/perspective/2025-the-state-of-generative-ai-in-the-enterprise/" target="_blank" rel="noopener noreferrer">https://menlovc.com/perspective/2025-the-state-of-generative-ai-in-the-enterprise/</a> — 企业 GenAI 支出 ~$37B（3.2x）、agent 平台 ~占横向类目 10%、仅约 16% 部署算真 agent。</li>
+<li>Seizing the agentic AI advantage（「gen AI 悖论」）— McKinsey / QuantumBlack, 2025-06. — 约 80% 已部署但 &gt;80% 对 EBIT 无实质影响、约 90% 转型型用例卡 pilot、&lt;10% pilot 能规模化。</li>
+<li>Tech Trends 2026 · Agentic AI strategy — Deloitte, 2026. deloitte.com（tech-trends/2026/agentic-ai-strategy）— 仅 11% 已投产、14% 可部署、38% pilot、30% 探索。</li>
+</ul>
+<hr>
+<blockquote>
+<p>交叉链接：推理范式 <a class="xref" href="01.html">01</a> · Harness 运行时 <a class="xref" href="02.html">02</a> · 上下文工程 <a class="xref" href="03.html">03</a> · 工具与 MCP <a class="xref" href="04.html">04</a> · 多智能体编排 <a class="xref" href="08.html">08</a> · 评估 <a class="xref" href="09.html">09</a> · 可观测性与调试 <a class="xref" href="10.html">10</a> · 生产与商业化 <a class="xref" href="11.html">11</a> · 安全与对抗 <a class="xref" href="12.html">12</a> · 技术栈速查 <a class="xref" href="14.html">14</a> · 面试题库 <a class="xref" href="15.html">15</a> · 训练与强化学习 <a class="xref" href="16.html">16</a> · 身份与协议 <a class="xref" href="17.html">17</a></p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="12.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">12 · 安全与对抗</span>
+  </a>
+  <a class="pager__link pager__link--next" href="14.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">14 · 技术栈速查</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（时间线 · ≥8 里程碑）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 公共骨架：Agent loop</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 可变量一：动作空间（action space）——三种主流抽象</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 可变量二：上下文策略</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 可变量三：评测基准（决定了路线）</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比）</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议（≥2 组对立面）</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践（拆解工程取舍）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A · Anthropic：Claude Code（终端原生的「反框架」harness）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B · Anthropic：multi-agent 研究系统（orchestrator-worker）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C · Anysphere：Cursor（fork VS Code 拿编辑器级权限）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 D · Cognition：Devin（刻意单线程 + edit-apply + 全 API）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-5">案例 E · OpenAI：Deep Research（端到端 RL single-agent loop）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-6">案例 F · Manus：上下文工程即产品</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档 / 指南</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">🎥 Talk</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-5">📊 市场 / 行业调研</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

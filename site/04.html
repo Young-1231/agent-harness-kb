@@ -1,0 +1,568 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>04 · 工具与 MCP — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">04 · 工具与 MCP — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link is-active" href="04.html" aria-current="page"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>04 · 工具与 MCP</h1>
+<blockquote>
+<p><strong>定位</strong>：Agent 的"手"——让非确定性的语言模型，可靠地驱动确定性的外部系统。本节讲透 function calling 的 schema 设计、好工具的工程原则、MCP（Model Context Protocol）的架构与生态，以及"工具过载"催生的代码执行新范式。</p>
+<p>上游连 <a class="xref" href="03.html">03</a>（工具定义与中间结果都吃 token，是上下文预算的一部分）、<a class="xref" href="02.html">02</a>（工具调用在 harness 主循环里如何 emit→parse→execute→feedback）；下游连 <a class="xref" href="09.html">09</a>（工具调用怎么评测：BFCL/ToolBench 等基准）、<a class="xref" href="11.html">11</a>（生产化：高权限工具走 HITL、失败降级）、<a class="xref" href="12.html">12</a>（工具是 prompt injection 与 lethal trifecta 的主要攻击面）、<a class="xref" href="08.html">08</a>（multi-agent vs 单线程的工具编排之争）、<a class="xref" href="13.html">13</a>（Claude Code / Cursor / Devin 的工具集设计）、<a class="xref" href="17.html">17</a>（MCP/A2A 之上的 agent 身份、发现与协议互操作层）。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p>本节地图：<strong>工具是什么 → 怎么声明（schema）→ 怎么设计好（原则）→ 怎么标准化（MCP）→ 规模化后的代价与解法（上下文膨胀 / 代码执行）→ 安全 → 争议 → 大厂实践</strong>。</p>
+<p>核心结论（先记住这 5 条）：</p>
+<ol>
+<li><strong>工具调用 = 把"自然语言意图"稳定转成"结构化、可执行的动作"</strong>。2023.06 OpenAI function calling 把它从 prompt 拼接技巧，变成了 JSON-Schema 驱动的 API 原语，成为各家事实标准。</li>
+<li><strong>工具的"描述/schema"就是 prompt</strong>。它被加载进模型上下文、直接操纵行为；Hsieh et al. (Google, 2023) 证明：<strong>好的工具文档单独就能匹敌 few-shot 示例</strong>。schema 设计 = 提示工程。</li>
+<li><strong>MCP 把 M×N 集成爆炸降为 M+N</strong>。它不是 function calling 的替代，而是建在其上的<strong>协议/传输层</strong>：标准化"工具如何被发现、跨应用复用"，并加入 resources / prompts 两类原语。代价是协议开销、延迟与新攻击面。</li>
+<li><strong>工具一多就出事</strong>：10+ 个工具就有"选择悖论"与工具幻觉，"启动即灌入全部 tool schema"是规模化下的<strong>头号反模式</strong>——几十个 MCP server 的定义预加载就先吃掉 5 万–15 万 token。三条结构性解法在 2025 年成型，共享"默认不加载、按需渐进披露"原则——<strong>按需检索（Tool Search Tool，<code>defer_loading</code>，最多约 1 万工具）/ 代码执行（Code execution / Cloudflare Code Mode，可把 117 万 token 压到 ~1000）/ 渐进披露技能（Agent Skills，<code>SKILL.md</code> 三级披露）</strong>。</li>
+<li><strong>安全是从"能用"到"敢在生产用"的卡点</strong>：tool poisoning（恶意指令藏在工具描述里、用户不可见）+ prompt injection 凑齐"lethal trifecta"，至今无根本解；治理手段（OAuth 2.1、网关、官方 Registry、基金会中立治理）在快速补齐。2025-12 MCP 已捐给 Linux Foundation 旗下 Agentic AI Foundation。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p><strong>解决什么问题？</strong> 参数化的 LLM 有三个天生短板：(a) 知识有截止日期、会过时；(b) 不能做精确计算、不能保证算对；(c) 无法对真实世界产生副作用（发邮件、改数据库、跑代码）。工具（tool / function）就是把这三类能力"外接"给模型——模型负责<strong>决策与编排</strong>，确定性系统负责<strong>精确执行</strong>。这正是 MRKL（AI21, 2022）提出的核心洞见：LLM 应当是一个<strong>路由器</strong>，把任务委派给离散的专家模块，而非把一切都背进参数里。</p>
+<p><strong>在 Agent 链路中的位置。</strong> 回看根 README 的全景图：用户输入 → Harness 组装上下文 → <strong>LLM 推理（决定输出文本 or 调用工具）</strong> → 若是 tool call，则 Harness 解析 → 权限校验 → 沙箱执行 → 结果回灌上下文 → 回到推理循环。本节聚焦的就是这条回路里"工具"这一格：</p>
+<ul>
+<li>工具的<strong>契约</strong>（schema/描述）在"组装上下文"阶段被注入——这是与 <a class="xref" href="03.html">03</a> 上下文工程的交界；</li>
+<li>工具的<strong>调用机制</strong>（emit→parse→execute→feedback、错误重试、停止条件）在 harness 主循环里——细节见 <a class="xref" href="02.html">02</a>；</li>
+<li>工具的<strong>推理范式</strong>（Think–Act–Observe 交错）来自 ReAct——见 <a class="xref" href="01.html">01</a>。</li>
+</ul>
+<p>一句话定位：<strong>如果说 <a class="xref" href="01.html">01</a> 是 Agent 的"脑"、<a class="xref" href="02.html">02</a> 是"神经系统"，那本节就是 Agent 的"手"——以及让千万只手能被同一个脑安全复用的"标准接口"。</strong></p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（时间线） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线：<strong>"能不能用工具"（2021–2023 研究）→ "怎么稳定调一个工具"（2023 function calling）→ "怎么接成百上千个工具"（2024 MCP）→ "工具太多怎么办"（2025 检索/代码执行）→ "怎么安全、谁来治理"（2025 安全清算 + 基金会中立化）</strong>。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2021-12</strong></td><td><strong>WebGPT</strong>（OpenAI）</td><td>第一次高调证明：给 LLM 一个真实浏览器工具 + 人类反馈训练，能修复参数模型修不了的事实性。工具增强的概念种子。</td></tr>
+<tr><td><strong>2022-05</strong></td><td><strong>MRKL Systems</strong>（AI21）</td><td>提出"LLM 路由到离散专家/工具模块"的蓝图，是工具增强与 agent 路由的思想祖先。</td></tr>
+<tr><td><strong>2022-10</strong></td><td><strong>ReAct</strong>（Yao et al., Princeton/Google）</td><td>确立 Thought→Act→Observe 交错范式——几乎所有工具型 agent 的控制循环源头。把"工具使用"从工程 trick 抬升为可学习能力。</td></tr>
+<tr><td><strong>2023-02</strong></td><td><strong>Toolformer</strong>（Meta）</td><td>自监督让模型自己学"何时/调哪个/带什么参数/结果怎么接回去"，工具使用可被模型自学的奠基作。</td></tr>
+<tr><td><strong>2023-03</strong></td><td><strong>ChatGPT Plugins</strong>（OpenAI）</td><td>第一个面向大众的工具接口，验证了巨大需求；但每个插件是一次性定制、审核制、同时只能开 3 个，<strong>暴露了 N×M 集成难题</strong>，为标准化埋下动机。</td></tr>
+<tr><td><strong>2023-06</strong></td><td><strong>OpenAI function calling</strong>（gpt-3.5/4-0613）</td><td>把工具调用从 prompt 拼接变成结构化 API 原语：开发者用 JSON Schema 声明函数，模型返回带类型的参数对象。被 Anthropic tool use、Gemini 迅速复刻，成为事实底座。<strong>但它只解决"怎么调一个工具"，不解决"怎么发现/接入上千个"。</strong></td></tr>
+<tr><td><strong>2023-07</strong></td><td><strong>ToolLLM / ToolBench</strong>（OpenBMB/THU）</td><td>把工具规模推到 16k+ 真实 RapidAPI 端点，开源数据集 + 检索器 + DFSDT 决策树搜索，缩小开源与闭源的工具使用差距；同时系统暴露工具检索与多步调用的难度。</td></tr>
+<tr><td><strong>2023</strong></td><td><strong>Gorilla、API-Bank、Chameleon、ToolkenGPT + 首篇 Tool-Learning 综述</strong></td><td>benchmark、检索感知调用、组合式工具程序、统一综述集中爆发——工具学习固化为一个公认子领域。</td></tr>
+<tr><td><strong>2024-02</strong></td><td><strong>CodeAct</strong>（Wang et al.）</td><td>证明"用可执行代码作为统一动作空间"在组合性/对象管理/通用性上优于 JSON 工具字典，成为 code-as-action 路线的理论依据。</td></tr>
+<tr><td><strong>2024-11-25</strong></td><td><strong>Anthropic 开源 MCP</strong>（spec 2024-11-05）</td><td>作者 David Soria Parra 与 Justin Spahr-Summers 用一套 client-host-server 协议替代 N×M 一次性集成（"AI 的 USB-C"）。首批落地 Block、Apollo + 开发工具 Zed/Replit/Codeium/Sourcegraph。</td></tr>
+<tr><td><strong>2024-12</strong></td><td><strong>HuggingFace smolagents</strong></td><td>把"让模型写 Python 代码当动作"做成默认范式（引用 CodeAct），推动 code agent 工程化。</td></tr>
+<tr><td><strong>2025-03 / 04</strong></td><td><strong>OpenAI（Altman）与 Google DeepMind（Hassabis）相继支持 MCP</strong></td><td>标准胜负取决于网络效应：连最大竞争对手都接入，MCP 才从"某厂规范"变"跨厂商默认"。Responses API 加入远程 MCP，OpenAI 进入 MCP 指导委员会。</td></tr>
+<tr><td><strong>2025-04</strong></td><td><strong>安全清算：Invariant Labs 披露 Tool Poisoning，Simon Willison 放大风险</strong></td><td>采用速度远超安全模型成熟度。恶意 MCP server 可把指令藏进工具描述（模型可见、用户不可见），配合 prompt injection 静默窃取数据。安全成为生产化卡点。</td></tr>
+<tr><td><strong>2025-09-08</strong></td><td><strong>MCP 官方 Registry（社区目录）预览上线</strong></td><td>server 数冲到上万，"发现哪个能用、哪个可信"成新瓶颈。Registry 由 Anthropic、GitHub、PulseMCP、Microsoft 共建，是从"野蛮生长"转向"可发现、可治理"的一步。</td></tr>
+<tr><td><strong>2025-09</strong></td><td><strong>Anthropic《Writing effective tools for AI agents》</strong></td><td>把工具设计沉淀为可操作原则：少而精、命名空间、返回高信号上下文、token 预算、eval 驱动迭代。</td></tr>
+<tr><td><strong>2025-10</strong></td><td><strong>OpenAI DevDay：Apps SDK 与 AgentKit，均基于 MCP</strong></td><td>MCP 从"连数据源"升级为"在 ChatGPT 内分发应用"的平台层，标准外溢到产品生态。</td></tr>
+<tr><td><strong>2025-11</strong></td><td><strong>Anthropic《Code execution with MCP》+《Advanced tool use》(Tool Search / Programmatic Tool Calling)；Cloudflare 推 Code Mode</strong></td><td>解决工具规模化后的上下文爆炸：渐进式工具发现 + 代码执行，把 15 万 token 工作流压到 ~2K（-98.7%）；Cloudflare 把 2500+ 端点从 ~117 万 token 压到 ~1000。</td></tr>
+<tr><td><strong>2025-12-09</strong></td><td><strong>MCP 捐给 Agentic AI Foundation（Linux Foundation 旗下）</strong></td><td>AWS、Anthropic、Block、Bloomberg、Cloudflare、Google、Microsoft、OpenAI 八家为白金成员；同批捐入的还有 Block 的 goose 与 OpenAI 的 AGENTS.md。MCP 不再是"Anthropic 的协议"——用厂商中立基金会锁定其行业级标准地位。</td></tr>
+<tr><td><strong>2026-03-09</strong></td><td><strong>The 2026 MCP Roadmap</strong></td><td>协议进入"工程治理期"：四优先级——无状态 Streamable HTTP（去会话耦合、可水平扩展）/ Agent 通信的 Tasks 原语 / 治理成熟化 / 企业就绪。MCP 已是事实标准，重心从"抢地盘"转向"可运维、可合规、能进企业"。</td></tr>
+<tr><td><strong>2026-04-09</strong></td><td><strong>A2A 协议一周年（Linux Foundation）</strong></td><td>150+ 组织、v1.0 首个稳定规范、三云生产（Azure / AWS Bedrock AgentCore / Google Cloud）。Agent↔Agent 通信标准与 MCP（Agent↔工具）形成互补分层，标准化从"工具接入"扩到"agent 互联"（再上一层的 agent 身份/发现/信任见 <a class="xref" href="17.html">17</a>）。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 工具 schema 设计：声明即提示 <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<p>一个工具在 API 层就是一段<strong>带类型的 JSON Schema</strong>：<code>name</code> + <code>description</code> + 每个参数的 <code>type</code> / <code>description</code> / <code>required</code> vs optional / <code>enum</code>。MCP 的工具同样是 <code>name</code> + <code>description</code> + <code>inputSchema</code>。</p>
+<pre data-lang="jsonc"><code>// OpenAI function calling / Anthropic tool use 的工具声明（简化）
+{
+  "name": "asana_search_tasks",
+  "description": "在 Asana 中按关键词搜索任务。返回任务标题、负责人、到期日；不返回内部 UUID。",
+  "input_schema": {
+    "type": "object",
+    "properties": {
+      "query":     { "type": "string", "description": "搜索关键词" },
+      "project_id":{ "type": "string", "description": "限定项目（可选）" },
+      "status":    { "type": "string", "enum": ["open", "completed", "all"], "default": "open" },
+      "limit":     { "type": "integer", "description": "返回上限，默认 20", "default": 20 }
+    },
+    "required": ["query"]
+  }
+}
+</code></pre>
+<p>关键认知：<strong>这段 schema 不是给程序读的，首先是给模型读的</strong>。<code>description</code>、参数名、<code>enum</code> 全部进入上下文，直接决定模型选不选这个工具、怎么填参数。这就是为什么 Hsieh et al.（Google, 2023）的结论如此重要——<strong>高质量工具文档单独就能匹敌 few-shot 示例</strong>：与其塞示范对话，不如把描述写清楚。这也是 OpenAI 2023.06 function calling 正式确立"JSON-Schema 参数"模式的意义所在。</p>
+<p>工具调用的完整闭环（与 <a class="xref" href="02.html">02</a> harness 主循环呼应）：</p>
+<pre><code>模型 emit 一个 tool_call（name + arguments JSON）
+  → harness parse &amp; 校验参数（类型、必填、权限）
+  → 沙箱执行工具
+  → 把结果（或错误）作为 tool_result 回灌上下文
+  → 模型基于观察继续推理（Observe → Think）
+  → 直到完成 / 触达停止条件 / 预算耗尽
+</code></pre>
+<p>一次返回<strong>零个 / 一个 / 多个</strong> tool_call 都要能处理（并行函数调用，见 §5）。工具失败时，<strong>把错误原文回喂给模型</strong>让它自纠，是 OpenAI 官方文档明确推荐的做法。</p>
+<h3 id="sec-4-2">4.2 好工具的工程原则（Anthropic 五原则） <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>Anthropic《Writing effective tools for AI agents》把经验沉淀成 5 条，核心框架是一句话：<strong>工具是确定性系统与非确定性 agent 之间的契约（contract）</strong>。</p>
+<ol>
+<li><strong>建高杠杆工具，而非 1:1 薄包装</strong>。别把每个 REST 端点都包成一个工具；把多步操作合并成"贴近用户任务"的少数工具（如 <code>schedule_meeting</code> 而不是 <code>list_calendars</code>+<code>check_availability</code>+<code>create_event</code> 三件套）。</li>
+<li><strong>命名空间（namespacing）</strong>。用一致前缀划清边界：<code>asana_search</code>、<code>asana_create</code>、<code>gdrive_search</code>。让模型一眼看出工具归属，减少跨服务误用。</li>
+<li><strong>返回有意义、token-高效的上下文</strong>。返回"标题/负责人/到期日"这类语义信息，而不是 UUID；用分页、截断、默认值控 token。<strong>工具的返回值也是上下文预算的一部分</strong>（<a class="xref" href="03.html">03</a>）。</li>
+<li><strong>像写 prompt 一样打磨工具描述</strong>。命名要贴合用户对任务的心智；错误信息要是<strong>可操作的自然语言</strong>（"日期格式应为 YYYY-MM-DD，你传的是 06/13/2026"），好让非确定性的 agent 能自我纠正。</li>
+<li><strong>eval 驱动、与模型协作迭代</strong>。用真实多步任务做评测，甚至<strong>让 Claude 自己跑工具</strong>来发现哪些描述会误导它，再改工具。</li>
+</ol>
+<p>补两个常被忽略的隐性契约：<strong>幂等性 / 重试安全</strong>（agent 会重试，<code>create_payment</code> 若非幂等会重复扣款）；<strong>执行语义清晰</strong>（有无副作用、是否有状态）。这些在规范里大多是"非正式约定"，却是可靠性的命门（见 §8）。</p>
+<h3 id="sec-4-3">4.3 MCP 架构：client / host / server / transport <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p>MCP 是建在 JSON-RPC 2.0 之上、<strong>有状态会话 + 能力协商（capability negotiation）</strong> 的 client-host-server 设计：</p>
+<pre><code>        ┌─────────────────────────── HOST（如 Claude Desktop / Cursor / IDE）──────────────────────────┐
+        │  容器 &amp; 协调者：集成 LLM（sampling）、强制用户授权与安全边界、为每个 server 派生一个 client    │
+        │                                                                                             │
+        │   ┌── CLIENT A ──┐        ┌── CLIENT B ──┐        ┌── CLIENT C ──┐                            │
+        │   │ 1:1 隔离会话 │        │ 1:1 隔离会话 │        │ 1:1 隔离会话 │                            │
+        │   └──────┬───────┘        └──────┬───────┘        └──────┬───────┘                            │
+        └──────────┼───────────────────────┼───────────────────────┼────────────────────────────────────┘
+                   │ JSON-RPC              │ JSON-RPC              │ JSON-RPC
+            ┌──────▼──────┐         ┌──────▼──────┐         ┌──────▼──────┐
+            │  SERVER 1   │         │  SERVER 2   │         │  SERVER 3   │
+            │ GitHub      │         │ Postgres    │         │ Slack       │
+            │ tools/      │         │ resources/  │         │ prompts/    │
+            │ resources/  │         │ ...         │         │ ...         │
+            │ prompts/    │         └─────────────┘         └─────────────┘
+            └─────────────┘
+</code></pre>
+<p>三个角色：</p>
+<ul>
+<li><strong>HOST</strong>：容器/协调者。负责启动 client、整合 LLM（含 sampling——server 可反向请求模型生成）、<strong>强制用户同意与安全边界</strong>。</li>
+<li><strong>CLIENT</strong>：每个 server 一个、彼此隔离的 1:1 会话，双向路由消息。</li>
+<li><strong>SERVER</strong>：暴露三类 MCP 原语——<strong>Tools（模型可调用的函数）/ Resources（可读的上下文数据，如文件、记录）/ Prompts（预制提示模板）</strong>；可本地或远程运行。</li>
+</ul>
+<p><strong>传输层（transport）</strong>：本地用 <strong>stdio</strong>，远程用 <strong>Streamable HTTP</strong>（2025-03 spec 取代了旧的 HTTP+SSE）。</p>
+<p><strong>关键安全不变量</strong>：一个 server <strong>看不到完整对话、也看不到其它 server</strong>——隔离是协议级设计，而非可选项。</p>
+<h3 id="sec-4-4">4.4 MCP vs 纯 function calling：到底谁是谁 <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>这是本节最常被问混的点，记住分层：</p>
+<ul>
+<li><strong>function calling 是模型能力（capability）</strong>：模型针对"应用自己定义并执行"的函数，吐出结构化参数对象。每个应用各写一遍集成 → <strong>M×N 问题</strong>（M 个模型客户端 × N 个工具）。</li>
+<li><strong>MCP 是建在该能力之上的协议/传输层（protocol）</strong>：标准化"工具如何被<strong>动态发现</strong>（list/能力协商）、如何<strong>跨应用与客户端复用</strong>"，并把范畴从"只有 tools"扩到 resources + prompts。一次写 server，处处可用 → <strong>M+N</strong>。</li>
+</ul>
+<p>取舍一句话：<strong>MCP 用协议开销/延迟 + 新攻击面（tool poisoning / rug-pull），换来互操作、复用与组合性。</strong> 对单个自包含应用，原生 function calling 往往更简单——MCPGauge（《Help or Hurdle?》, 2025）实测发现 MCP 集成<strong>并不总能提升任务表现</strong>。</p>
+<h3 id="sec-4-5">4.5 工具过载与上下文膨胀（2025 的核心痛点） <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>🚫 <strong>反模式（明确标注）</strong>：<strong>「启动即把全部 tool schema 灌进上下文」是规模化下的头号反模式。</strong> 接十几个 server 就先吃掉 5 万–15 万 token，用户还没开口预算已去大半；工具一多还叠加"选择悖论"与工具幻觉。三条结构性解法共享同一个原则——<strong>默认不加载，按相关性逐级展开（渐进披露）</strong>：</p>
+</blockquote>
+<ul>
+<li><strong>① 按需检索 / 渐进式发现</strong>：Tool Search Tool（Anthropic《Advanced tool use》, 2025-11）、RAG-MCP——把工具用 <code>defer_loading:true</code> 标记，启动时不灌定义，靠 regex/BM25 变体按需检索、每次只返回 3–5 个 <code>tool_reference</code> 再展开。Anthropic 实测 token -85%（~77K→8.7K），准确率反升（当时旗舰 Opus 4.5：79.5%→88.1%；Opus 4：49%→74%），<strong>最多可挂约 1 万个工具</strong>。</li>
+<li><strong>② 代码执行 / Code-as-action</strong>：把 MCP server 暴露成文件系统里的代码 API，让擅长写代码的模型<strong>写代码来 import 并编排工具</strong>，在沙箱里就地过滤中间结果、只回传精炼数据。Anthropic 的 Google Drive→Salesforce 工作流从 ~150K token 降到 ~2K（-98.7%）；Cloudflare Code Mode 用 V8 isolate，把 2500+ 端点 ~117 万 token 压到 ~1000（-99.9%）。</li>
+<li><strong>③ 渐进披露技能 / Agent Skills</strong>：把工具 + 指令 + 资源打包成含 <code>SKILL.md</code> 的文件夹，模型先读元数据、相关时才展开完整指令与支撑文件（详见 §4.6）。</li>
+</ul>
+<blockquote>
+<p>直觉：<strong>当工具数从"几个"涨到"上百个"，"把工具当成一个个直接调用"这个前提本身就该被质疑了。</strong> 这是 §6 争议二的核心战场。</p>
+</blockquote>
+<h3 id="sec-4-6">4.6 Agent Skills：渐进披露作为"第三条路" <a class="heading-anchor" href="#sec-4-6" aria-label="锚点">#</a></h3>
+<p>如果说 Tool Search 解决"工具定义太多"、代码执行解决"中间结果太多"，<strong>Agent Skills（Anthropic，2025-10-16）解决的是"指令与领域知识太多"</strong>——它把完成某类任务所需的<strong>指令、脚本、模板、参考文档</strong>一起打包成一个<strong>含 <code>SKILL.md</code> 的文件夹</strong>，让模型按需动态加载，而不是把所有可能用到的说明都常驻系统提示里。</p>
+<p>核心机制是 <strong>progressive disclosure（渐进披露）三级</strong>，逐级只在"确实需要"时才花 token：</p>
+<ol>
+<li><strong>元数据（metadata）</strong>：启动时模型只看到每个技能 <code>SKILL.md</code> 顶部的名称 + 简短描述（几十 token 级），用来判断"有没有这个能力、什么时候该用"；</li>
+<li><strong>完整指令</strong>：模型判定某技能相关后，才把该 <code>SKILL.md</code> 的正文完整读进上下文；</li>
+<li><strong>支撑文件</strong>：执行中需要时，再按需读取技能目录下的脚本 / 模板 / 数据等附加文件。</li>
+</ol>
+<p>这与 §4.5 的另两条解法是<strong>同一思想在不同层面的投影</strong>——默认不加载、按相关性逐级展开。2025-12-18 Anthropic 追加了<strong>组织级技能管理与技能目录</strong>，并把 Skills 作为<strong>开放标准</strong>发布，使技能从单机配置走向团队 / 组织共享（与 <a class="xref" href="13.html">13</a> 的 Claude Code 工具与技能实践直接相关）。</p>
+<blockquote>
+<p>一句话：<strong>Tool Search 给"工具"做渐进披露，Agent Skills 给"知识与流程"做渐进披露，代码执行给"数据"做渐进披露——三者正交、可叠用。</strong></p>
+</blockquote>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>系统性纵览可参《The Evolution of Tool Use in LLM Agents: From Single-Tool Call to Multi-Tool Orchestration》（2026, <a href="https://arxiv.org/abs/2603.22862" target="_blank" rel="noopener noreferrer">arXiv:2603.22862</a>）——从单工具调用到多工具编排的演进综述，按推理期规划 / 训练 / 安全 / 效率维度组织，正好可作本节 §4–§5 方法谱系与规模化解法的纵览索引。</p>
+</blockquote>
+<h3 id="sec-5-1">5.1 动作表示：JSON 工具调用 vs 代码即动作 <a class="heading-anchor" href="#sec-5-1" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>维度</th><th>JSON function calling</th><th>Code-as-action（CodeAct / smolagents / Code Mode）</th></tr></thead>
+<tbody>
+<tr><td>动作形态</td><td>模型吐结构化 JSON 参数</td><td>模型写并执行代码（Python/TS）</td></tr>
+<tr><td>组合性</td><td>弱：多工具需多轮往返</td><td>强：一段代码内编排、循环、条件</td></tr>
+<tr><td>步数</td><td>多</td><td>少（smolagents 口径约少 ~30% 步数）</td></tr>
+<tr><td>token 效率</td><td>中间结果全进上下文</td><td>在执行环境就地过滤，只回精炼结果</td></tr>
+<tr><td>可移植 / 护栏</td><td>高，易审计、易加 schema 校验</td><td>需沙箱（E2B/Docker/Modal/V8 isolate）隔离</td></tr>
+<tr><td>调试</td><td>直观（每步可见）</td><td>较难（代码黑盒 + 沙箱运维）</td></tr>
+<tr><td>代表</td><td>OpenAI / Google / Anthropic 默认</td><td>HuggingFace smolagents、Anthropic Code execution、Cloudflare Code Mode</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-5-2">5.2 工具学习训练范式 <a class="heading-anchor" href="#sec-5-2" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>范式</th><th>代表工作</th><th>是否训练</th><th>核心思想</th><th>适用</th></tr></thead>
+<tbody>
+<tr><td>纯 prompt + 文档</td><td>ReAct / ART / Tool Documentation</td><td>否（frozen）</td><td>好文档≈few-shot；交错推理与行动</td><td>工具少、文档好</td></tr>
+<tr><td>自监督学工具</td><td>Toolformer</td><td>是</td><td>模型自己在文本里插 API 调用</td><td>通用工具能力内化</td></tr>
+<tr><td>检索感知微调</td><td>Gorilla / ToolLLM</td><td>是</td><td>API 文档接地 + 检索，降幻觉</td><td>上千 API、文档会变</td></tr>
+<tr><td>工具嵌入</td><td>ToolkenGPT</td><td>部分</td><td>每个工具 = 一个 "toolken" 嵌入，frozen LLM 插大量工具</td><td>海量工具免微调</td></tr>
+<tr><td>RL 奖励设计</td><td>ToolRL</td><td>是（RL/GRPO）</td><td>把奖励拆成 tool-name/param-name/param-value 匹配，泛化优于 SFT</td><td>SFT 过拟合时</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-5-3">5.3 工具规模化解法 <a class="heading-anchor" href="#sec-5-3" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>解法</th><th>代表</th><th>机制</th><th>token 收益</th><th>代价</th></tr></thead>
+<tbody>
+<tr><td>全量预加载（<strong>反模式</strong>）</td><td>传统 all-tools-in-context</td><td>一次塞全部定义</td><td>0（基线）</td><td>工具一多即爆</td></tr>
+<tr><td>按需检索</td><td>Tool Search（<code>defer_loading</code>） / RAG-MCP</td><td>检索后再加载工具定义</td><td>-85% 量级（~77K→8.7K）</td><td>多一次检索往返延迟</td></tr>
+<tr><td>渐进披露技能</td><td>Agent Skills（<code>SKILL.md</code>）</td><td>三级披露：元数据→完整指令→支撑文件</td><td>启动近零，按需展开</td><td>需技能编写规范与目录治理</td></tr>
+<tr><td>代码执行</td><td>Code execution with MCP / Code Mode</td><td>工具→代码 API，模型写代码编排</td><td>-98%~99.9%</td><td>沙箱运维 + 安全成本</td></tr>
+<tr><td>程序化调用</td><td>Programmatic Tool Calling</td><td>代码内编排多工具，省推理往返</td><td>复杂任务 -37%，省 19+ 次往返</td><td>实现复杂度</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-5-4">5.4 评测基准 <a class="heading-anchor" href="#sec-5-4" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>基准</th><th>机构/年份</th><th>特点</th></tr></thead>
+<tbody>
+<tr><td>API-Bank</td><td>2023</td><td>73 API / 314 对话，早期可运行工具评测</td></tr>
+<tr><td>ToolBench</td><td>OpenBMB 2023</td><td>16k+ 真实 API，规模化但 live API 不稳定</td></tr>
+<tr><td>StableToolBench</td><td>THUNLP 2024</td><td>缓存 + LLM 模拟虚拟 API server，可复现</td></tr>
+<tr><td>BFCL</td><td>UC Berkeley 2025</td><td>AST 评测 single/parallel/multi-turn，扩到 agentic；事实标准</td></tr>
+<tr><td>MCP-Bench</td><td>2025</td><td>28 个 live MCP server / 250 工具，测跨工具协同</td></tr>
+<tr><td>MCPGauge</td><td>2025</td><td>沿 proactivity/compliance/effectiveness/overhead 四维探 MCP</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>并行 vs 组合调用（Gemini 官方文档）：<strong>并行</strong>（互不依赖的函数一轮并发、用 id 回映、无需保序）vs <strong>组合</strong>（前一函数输出作后一函数输入）——这是 function calling 自身的能力分层，与上面的规模化解法正交。</p>
+</blockquote>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议一：MCP 到底有没有必要——新基础设施，还是被炒作的"API 套壳"？ <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>📦 <strong>结案框</strong></p>
+<ul>
+<li><strong>提出（2024-11）</strong> → MCP 开源后，"要不要上 MCP / 是不是 API 套壳"成为持续约一年的争论。</li>
+<li><strong>2026 定论</strong> → MCP 已是跨厂商<strong>事实标准</strong>（2025-12 入 Linux Foundation、2026-03 Roadmap 进入"治理成熟 + 企业就绪"、A2A 一周年 150+ 组织三云生产）。</li>
+<li><strong>现状</strong> → 真问题从"要不要上"转向<strong>协议级安全（tool poisoning / lethal trifecta，见争议五）+ token 效率（上下文膨胀，见 §4.5）</strong>；怀疑/拥护两派论点仍各自成立，争点变为"怎么上得好"（深入研判见 §8）。</li>
+</ul>
+</blockquote>
+<ul>
+<li><strong>怀疑派</strong>（Armin Ronacher《Your MCP Doesn't Need 30 Tools: It Needs Code》、Tyk、Nordic APIs、部分一线工程师）：多数场景下 MCP 只是 REST API 上的一层开销；工具<strong>不可组合</strong>（组合都靠模型推理）、每次调用都吃大量上下文；"我们还没有通用 agent，只有 app 专属工作流"，MCP 在解决一个尚不存在的问题。MCPGauge 实证支持：MCP 不总能提升表现。</li>
+<li><strong>拥护派</strong>（Anthropic、Speakeasy《Common Criticisms of MCP》、The New Stack）：MCP 解决的是 <strong>N×M 一次性集成的组合爆炸</strong>，设计前提是"模型如何发现、推理、安全使用工具"，不是"人如何集成系统"。<strong>用 API 时代的预期评估它显得冗余，用 AI 时代约束评估它近乎必然</strong>；很多反对其实在骂"ChatGPT 应用商店式实现"，而非协议本身。OpenAI/Google/Microsoft 的收敛是网络效应的胜利证据。</li>
+</ul>
+<blockquote>
+<p>我的取向（详见 §8）：单 app 用原生 function calling；要跨团队/跨产品复用工具、或要让外部生态接入，MCP 的 M+N 才回本。</p>
+</blockquote>
+<h3 id="sec-6-2">争议二：工具过载的正解是"按需检索"还是"让模型写代码"？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>检索/工具搜索派</strong>（AWS 语义工具选择、WRITER、Epsilla、RAG-MCP 作者、Anthropic Tool Search Tool）：工具到 10+ 就有"选择悖论"与工具幻觉；解法是动态发现/按需加载，token 降 ~85%、选择准确率从 ~49% 升到 ~74%。</li>
+<li><strong>代码执行派</strong>（Anthropic《Code execution with MCP》、Cloudflare Code Mode 的 Kenton Varda/Sunil Pai、转向 Skills 的 Armin Ronacher）：别再把工具当一个个直接调用，把 server 暴露成代码 API、让模型写代码编排。Anthropic 把 15 万 token 降到 ~2K，Cloudflare 把 2500+ 端点压到 ~1000。<strong>检索只是缓解，代码执行才是结构性转变。</strong></li>
+</ul>
+<h3 id="sec-6-3">争议三：教模型用工具，SFT 还是 RL？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>SFT 派</strong>（OpenBMB ToolBench/ToolLLM）：在工具调用轨迹上做监督微调是成熟配方。</li>
+<li><strong>RL 派</strong>（Qian et al.《ToolRL》, NeurIPS 2025）：SFT 易过拟合、难泛化到陌生/复杂工具；把奖励<strong>拆解</strong>为 tool-name/param-name/param-value 匹配的 RL（GRPO）泛化更好（较 base +17%、较 SFT +15%）。</li>
+</ul>
+<h3 id="sec-6-4">争议四：frozen LLM + 好文档，还是为工具微调？ <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>微调派</strong>（Schick/Patil/Qin：Toolformer、Gorilla、ToolLLM）：把工具能力烤进模型、扩到上千 API。</li>
+<li><strong>文档派</strong>（Hsieh et al.：Tool Documentation；ReAct；ART）：frozen LLM + 高质量 schema/文档即可匹敌 few-shot，无需训练。</li>
+</ul>
+<h3 id="sec-6-5">争议五：MCP 安全是协议级根本缺陷，还是可治理的实现问题？ <a class="heading-anchor" href="#sec-6-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>警示派</strong>（Invariant Labs 的 Beurer-Kellner &amp; Fischer、Simon Willison、Cloud Security Alliance、MCPTox 作者）：MCP 把"不可信内容 + 工具访问 + 外泄通道"凑成 <strong>lethal trifecta</strong>；tool poisoning 让恶意 server 把指令藏进工具描述（用户不可见）即可静默窃密，prompt injection 至今无根本解，自动授权工具调用本质危险。MCPTox 用 45 个真实 server / 353 工具 / 20 个 agent 把它量化成基准。</li>
+<li><strong>可治理派</strong>（MCP spec 维护者、MintMCP/MCP Manager 等网关厂商）：安全是实现与运营层问题，可用 OAuth 2.1（2025 spec 引入）、MCP 网关/代理、工具签名、官方 Registry 信任与企业管控收敛；不应因早期实现裸奔就否定协议。</li>
+</ul>
+<blockquote>
+<p>延伸到 <a class="xref" href="08.html">08</a> 的经典对照：<strong>Cognition《Don't Build Multi-Agents》（单线程 + 上下文工程更可靠）vs Anthropic multi-agent 研究系统</strong>——并行 subagent 因彼此看不到对方上下文而脆弱、决策冲突。这场"隔日互怼"本质也是工具/上下文编排哲学之争。</p>
+</blockquote>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A：OpenAI——从 function calling 到全面拥抱对手的 MCP <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<p>2023.06 OpenAI 用 function calling（gpt-3.5/4-0613）把 JSON-Schema 工具调用产品化，<strong>一手把工具使用从研究变成主流开发实践</strong>——这是它定义标准的时刻。但 2025.03 起，OpenAI 反过来<strong>采纳竞品 Anthropic 发起的 MCP</strong>：Responses API 支持远程 MCP server（Streamable HTTP/SSE），几行代码接任意 MCP 工具；并加入 MCP 指导委员会；2025.10 DevDay 的 Apps SDK 与 AgentKit 都建在 MCP 上（合作伙伴含 Booking/Canva/Figma/Spotify）。 <strong>工程取舍</strong>：放弃对协议演进的完全掌控，换生态网络效应与开发者速度。当你判断"标准会赢"，加入比另起炉灶更划算——这是平台战略而非纯技术决定。</p>
+<h3 id="sec-7-2">案例 B：Anthropic——既造标准，又造"标准的解药" <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<p>Anthropic 是 MCP 的发起者与参考实现（2024.11 开源 + 预制 server + Python/TS SDK），但更值得学的是它<strong>自曝并修复 MCP 的代价</strong>：</p>
+<ul>
+<li>公开承认 MCP 的"上下文膨胀"——接十几个 server 就吃掉数万 token；</li>
+<li>给出两套生产解法（Tool Search Tool：token -85%、准确率升；Programmatic Tool Calling：复杂任务 token -37%、省 19+ 次推理往返；Tool Use Examples：参数处理 72%→90%）；</li>
+<li>同时 Claude Code 的工具集刻意做成 <strong>low-level、unopinionated 的"最薄包装"</strong>——暴露接近原始模型能力的 Bash/Read/Edit/Grep/Write + subagent，奉行 do-the-simple-thing-first，把可控性/可脚本化/安全留给用户（见 <a class="xref" href="13.html">13</a>）。</li>
+</ul>
+<p><strong>工程取舍</strong>：通用原子工具的灵活性 vs 高层封装的开箱即用——Anthropic 在自家产品里选了前者，又用 Tool Search/代码执行去补"工具一多就爆"的洞。</p>
+<h3 id="sec-7-3">案例 C：Cloudflare Code Mode——工具过载的极致工程化反方案 <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<p>把 MCP 工具转成 <strong>TypeScript API、在 V8 isolate 沙箱执行</strong>模型写的代码。isolate 比容器轻得多、毫秒级启动，可为每段代码新建隔离环境。对 Cloudflare 自家 2500+ 端点的大 API，token 降幅近 <strong>99.9%</strong>（~117 万 → ~1000）。 <strong>工程取舍</strong>：换来近乎极限的 token/上下文节省，代价是必须自建安全沙箱、资源限制与监控——运维与安全成本是直接工具调用所没有的。</p>
+<h3 id="sec-7-4">案例 D：Invariant Labs + OWASP——把安全从个案推成标准 <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<p>Invariant Labs 演示了针对 <strong>WhatsApp 与 GitHub MCP server 的可工作 tool-poisoning rug-pull</strong>：恶意 server 借工具描述里的隐藏指令静默外泄聊天记录/数据。这把 MCP 安全从理论推到真实危害，催生 2025 年 MCP 安全研究潮，并被 <strong>OWASP 收进 MCP Top 10（MCP03:2025 Tool Poisoning）</strong>，把零散发现变成共享安全清单。 <strong>工程取舍</strong>：生态采用速度（"敢不敢用"）被安全成熟度反向约束——这是 <a class="xref" href="12.html">12</a> 的核心议题在工具层的投影。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我基于上述材料的独立研判，仅供参考。</strong></p>
+</blockquote>
+<p><strong>趋势研判一：工具调用的"原语"正在从 JSON 上移到代码。</strong> 2023 的胜利是 function calling 把意图变成结构化 JSON；2025 的转向是——当工具规模化、当推理模型本就擅长写代码，<strong>"让模型写代码来编排工具"在 token、组合性、步数上系统性占优</strong>。我判断未来 2 年的事实形态会是<strong>分层共存</strong>：MCP/schema 负责"工具的发现与契约"，代码执行负责"工具的编排与执行"。Anthropic 同时押注两条（Tool Search + Programmatic Tool Calling）已经在示范这个分层。纯 JSON 工具调用不会消失，但会退守到"少数高杠杆工具 + 简单单步场景"。</p>
+<p><strong>趋势研判二：MCP 会作为"发现/接入标准"长存，但"协议即一切"的叙事会退潮。</strong> 2025-12 捐给 Linux Foundation 是它"赢得标准之战"的封顶动作——中立治理是开放标准的终局。但 MCPGauge 的冷水是对的：协议本身不产生智能，套壳式 server 只增开销。<strong>真正的价值在 server 设计质量（高杠杆、低 token、好错误信息），而非"接了 MCP"这件事本身。</strong></p>
+<p><strong>常见坑（我见过/可预见的）：</strong></p>
+<ol>
+<li><strong>把 OpenAPI 自动 1:1 包成几十上百个工具</strong>——覆盖全、改造省，但模型选择准确率与 token 成本一起崩。正解：少而精、合并多步、命名空间。</li>
+<li><strong>工具描述当文档写、不当 prompt 写</strong>——写给人看的"获取用户信息"远不如写给模型看的"按 user_id 查用户，返回姓名/邮箱/状态；不返回密码"。</li>
+<li><strong>错误信息返回 stack trace 或错误码</strong>——agent 无法自纠。要返回可操作的自然语言。</li>
+<li><strong>工具非幂等却被 agent 重试</strong>——支付/写库类工具不做幂等键，会重复副作用。这是 §4.2 里"被规范忽略却致命"的那条。</li>
+<li><strong>把 tool_result 当可信内容直接喂回模型</strong>——工具返回是头号 prompt injection 通道（<a class="xref" href="12.html">12</a>）。任何"私有数据 + 不可信工具返回 + 外发能力"同时在场，就是 lethal trifecta。</li>
+<li><strong>盲目堆 MCP server</strong>——每多接一个就多吃几万 token + 多一个供应链信任面。接之前先问：这个 server 我信任吗？它进上下文值这些 token 吗？</li>
+</ol>
+<p><strong>最佳实践（我的清单）：</strong></p>
+<ul>
+<li><strong>工具数控制在两位数以内</strong>；超了就上 Tool Search/检索或代码执行，别硬塞。</li>
+<li><strong>eval 驱动迭代</strong>：用真实多步任务跑，<strong>让模型自己用工具</strong>暴露描述缺陷（Anthropic 的方法值得抄）。</li>
+<li><strong>默认幂等 + 可操作错误信息 + token 预算（分页/截断/默认值）</strong> 三件套写进每个工具。</li>
+<li><strong>安全分层</strong>：沙箱执行（<a class="xref" href="12.html">12</a>）+ 最小权限 + 工具返回视为不可信 + 高权限操作走 HITL（<a class="xref" href="11.html">11</a>）。</li>
+<li><strong>选型判据</strong>：单 app → 原生 function calling；跨产品/外部生态复用 → MCP；数据密集/多步编排 → 代码执行。<strong>别为了用 MCP 而用 MCP。</strong></li>
+</ul>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>function calling 与 MCP 是什么关系？</strong> 要点：function calling 是<strong>模型能力</strong>（吐结构化参数，应用自己定义并执行函数，导致 M×N 集成）；MCP 是建在其上的<strong>协议/传输层</strong>（标准化工具的动态发现与跨应用复用，M+N，并加 resources/prompts）。MCP 不替代 function calling，是补它"发现与复用"的洞。代价：协议开销、延迟、新攻击面；单 app 可能仍偏好原生。</li>
+<li><strong>MCP 的 host / client / server 各负责什么？传输层有哪些？为什么 server 之间要隔离？</strong> 要点：host = 容器/协调者（集成 LLM、强制授权、派生 client）；client = 每 server 一个的 1:1 隔离会话；server = 暴露 tools/resources/prompts。传输：本地 stdio、远程 Streamable HTTP（取代旧 HTTP+SSE）。隔离是安全不变量——server 看不到完整对话也看不到其它 server，防越权与横向数据泄露。</li>
+<li><strong>工具的 description/schema 为什么如此关键？</strong> 要点：它被加载进模型上下文、直接操纵"选不选、怎么填参数"——schema 设计就是提示工程。Hsieh et al.（2023）：好文档单独≈few-shot。引申到错误信息要可操作、命名要贴合用户心智。</li>
+<li><strong>什么是 tool poisoning？为什么危险？</strong> 要点：恶意 MCP server 把指令藏进工具描述（模型可见、用户不可见），配合 prompt injection 可静默窃密/改行为；Invariant Labs 演示过 WhatsApp/GitHub rug-pull，已入 OWASP MCP Top 10。与 lethal trifecta 关联。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>为一个接了 50+ 工具、要做多步长任务的 agent 设计工具层，如何不让上下文爆掉、又保证调用准确？</strong> 要点：(a) 不全量预加载——上 Tool Search/RAG-MCP 按需检索工具定义（token -85% 量级）；(b) 工具治理——少而精、命名空间、合并多步、删冗余；(c) 数据密集/多步编排走代码执行（沙箱内过滤中间结果，只回精炼数据，token -98%）；(d) 返回值控 token（分页/截断/默认值）；(e) 评估闭环（真实多步任务 + 让模型自评工具）；(f) 安全（沙箱、最小权限、工具返回视为不可信、高权限 HITL）。讲清每步的 token/延迟/准确率取舍。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>手写一个带工具调用 + 错误自纠的 agent 主循环（伪代码）。</strong></li>
+</ol>
+<pre data-lang="python"><code>def agent_loop(user_msg, tools, max_steps=10, token_budget=150_000):
+    ctx = [system_prompt(), tool_schemas(tools), user_msg]   # schema 即 prompt
+    for step in range(max_steps):
+        if tokens(ctx) &gt; token_budget:
+            ctx = compact(ctx)                                # 见 [[03]]
+        resp = llm(ctx, tools=tools)                          # 模型 emit 文本或 tool_calls
+        if not resp.tool_calls:
+            return resp.text                                  # 停止条件：无工具调用
+        ctx.append(resp)
+        for call in resp.tool_calls:                          # 可能 0/1/多个（并行）
+            if not authorize(call):                           # 权限/HITL 校验
+                ctx.append(tool_error(call, "权限被拒，需用户确认"))
+                continue
+            try:
+                args = validate(call.arguments, tools[call.name].schema)
+                result = sandbox_exec(tools[call.name], args) # 沙箱执行，见 [[12]]
+                ctx.append(tool_result(call, truncate(result)))  # 截断控 token
+            except ToolError as e:
+                ctx.append(tool_error(call, actionable_msg(e)))  # 错误回喂，让模型自纠
+    return "达到步数上限，未完成"
+</code></pre>
+<p>答题要点：强调 emit→parse→authorize→sandbox→feedback 闭环、并行调用、可操作错误回喂、token 预算/compaction、停止条件。</p>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>"工具越多 agent 越强"对吗？</strong> 错。10+ 就有选择悖论与工具幻觉，几十个 server 预加载先吃 5 万–15 万 token。正解是少而精 + 按需检索/代码执行，而非堆工具。</li>
+<li><strong>"接了 MCP 就比 function calling 更好"对吗？</strong> 不一定。MCPGauge 实证 MCP 不总提升表现；单个自包含 app 用原生 function calling 更简单、更快、攻击面更小。MCP 的回本点在跨应用复用与生态互操作，且要承担协议开销 + tool poisoning 等安全成本。</li>
+<li><strong>"工具返回的内容是可信的、可以直接喂回模型"对吗？</strong> 危险的错。工具返回是头号间接 prompt injection 通道；私有数据 + 不可信工具返回 + 外发能力 = lethal trifecta，至今无根本解（<a class="xref" href="12.html">12</a>）。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li>Nakano et al. (OpenAI), <strong>WebGPT: Browser-assisted question-answering with human feedback</strong>, 2021 — <a href="https://arxiv.org/abs/2112.09332" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2112.09332</a> — 微调 GPT-3 用文本浏览器搜索/导航/引用，早期证明外部工具提升 LLM 事实性。</li>
+<li>Karpas et al. (AI21), <strong>MRKL Systems</strong>, 2022 — <a href="https://arxiv.org/abs/2205.00445" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2205.00445</a> — "LLM 路由到离散专家/工具模块"的概念蓝图，工具增强与 agent 路由的思想祖先。</li>
+<li>Yao et al., <strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong>, 2022 — <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> — Thought–Act–Observe 交错，几乎所有工具型 agent 的控制范式源头。</li>
+<li>Schick et al. (Meta AI), <strong>Toolformer: Language Models Can Teach Themselves to Use Tools</strong>, 2023 — <a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.04761</a> — 自监督学"何时/调哪个/带什么参数/怎么接回"，工具使用可自学的奠基作。</li>
+<li>Paranjape et al., <strong>ART: Automatic multi-step reasoning and tool-use</strong>, 2023 — <a href="https://arxiv.org/abs/2303.09014" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.09014</a> — frozen LLM 自动生成"推理+工具调用"交错程序，自动化 ReAct/CoT 的手写脚本。</li>
+<li>Shen et al., <strong>HuggingGPT</strong>, 2023 — <a href="https://arxiv.org/abs/2303.17580" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.17580</a> — LLM 当控制器，按描述把任务派发给专家模型（工具），早期大规模工具/模型编排（NeurIPS 2023）。</li>
+<li>Li et al., <strong>API-Bank</strong>, 2023 — <a href="https://arxiv.org/abs/2304.08244" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.08244</a> — 73 API/314 对话的可运行工具评测，早期标准化（EMNLP 2023）。</li>
+<li>Qin et al. (40+ 作者), <strong>Tool Learning with Foundation Models</strong>, 2023 — <a href="https://arxiv.org/abs/2304.08354" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.08354</a> — 首篇工具学习综述，给出认知起源与统一分类（后入 ACM Computing Surveys）。</li>
+<li>Lu et al., <strong>Chameleon: Plug-and-Play Compositional Reasoning</strong>, 2023 — <a href="https://arxiv.org/abs/2304.09842" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.09842</a> — 按 query 合成组合异构工具（视觉/搜索/Python/规则）的程序（NeurIPS 2023）。</li>
+<li>Hao et al., <strong>ToolkenGPT: Augmenting Frozen LMs with Massive Tools via Tool Embeddings</strong>, 2023 — <a href="https://arxiv.org/abs/2305.11554" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.11554</a> — 每个工具表示为可学的 "toolken" 嵌入，frozen LLM 免微调插海量工具（NeurIPS 2023 oral）。</li>
+<li>Patil et al. (UC Berkeley), <strong>Gorilla: LLM Connected with Massive APIs</strong>, 2023 — <a href="https://arxiv.org/abs/2305.15334" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.15334</a> — 检索感知微调 + 文档接地，降 API 幻觉；提出 APIBench（NeurIPS 2024）。</li>
+<li>Qin et al. (OpenBMB/THU), <strong>ToolLLM: Mastering 16000+ Real-world APIs</strong>, 2023 — <a href="https://arxiv.org/abs/2307.16789" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.16789</a> — ToolBench 16k+ 真实端点 + 检索器 + DFSDT，缩小开源工具使用差距（ICLR 2024 spotlight）。</li>
+<li>Hsieh et al. (Google), <strong>Tool Documentation Enables Zero-Shot Tool-Usage</strong>, 2023 — <a href="https://arxiv.org/abs/2308.00675" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.00675</a> — 好文档/schema 描述单独即匹敌 few-shot，直接论证 schema 设计是工具可靠性的关键杠杆。</li>
+<li>Wang et al., <strong>Executable Code Actions Elicit Better LLM Agents (CodeAct)</strong>, 2024 — <a href="https://arxiv.org/abs/2402.01030" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.01030</a> — 可执行代码作为统一动作空间优于 JSON 工具字典，smolagents 的理论依据。</li>
+<li>Guo et al. (THUNLP), <strong>StableToolBench</strong>, 2024 — <a href="https://arxiv.org/abs/2403.07714" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2403.07714</a> — 用缓存 + LLM 模拟的虚拟 API server 取代不稳定的 live API，使工具评测可复现（ACL 2024 Findings）。</li>
+<li>Qu et al., <strong>Tool Learning with Large Language Models: A Survey</strong>, 2024 — <a href="https://arxiv.org/abs/2405.17935" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2405.17935</a> — 把工具学习组织为任务规划/工具选择/工具调用/响应生成四阶段的清晰分类。</li>
+<li>Patil et al. (UC Berkeley), <strong>The Berkeley Function Calling Leaderboard (BFCL)</strong>, 2025 — <a href="https://proceedings.mlr.press/v267/patil25a.html" target="_blank" rel="noopener noreferrer">https://proceedings.mlr.press/v267/patil25a.html</a> — AST 评测 single/parallel/multi-turn，扩到 stateful agentic，事实标准（ICML 2025）。</li>
+<li>Qian et al., <strong>ToolRL: Reward is All Tool Learning Needs</strong>, 2025 — <a href="https://arxiv.org/abs/2504.13958" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2504.13958</a> — 首个系统性工具 RL 奖励设计（GRPO），拆解 tool-name/param-name/param-value，RL 泛化优于 SFT（NeurIPS 2025）。</li>
+<li>Hou, Zhao, Wang, Wang, <strong>Model Context Protocol (MCP): Landscape, Security Threats, and Future Research Directions</strong>, 2025 — <a href="https://arxiv.org/abs/2503.23278" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.23278</a> — 首篇 MCP 生态学术分析：server 生命周期 + 威胁分类 + 缓解方向。</li>
+<li>Wang et al., <strong>MCP-Bench</strong>, 2025 — <a href="https://arxiv.org/abs/2508.20453" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.20453</a> — 接 28 个 live MCP server / 250 工具，测跨工具协同、精确参数控制与规划。</li>
+<li>Song et al., <strong>Help or Hurdle? Rethinking MCP-Augmented LLMs (MCPGauge)</strong>, 2025 — <a href="https://arxiv.org/abs/2508.12566" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.12566</a> — 沿 proactivity/compliance/effectiveness/overhead 四维探 MCP，发现 MCP 不总提升表现。</li>
+<li>Gan &amp; Sun, <strong>RAG-MCP: Mitigating Prompt Bloat in LLM Tool Selection via RAG</strong>, 2025 — <a href="https://arxiv.org/abs/2505.03275" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2505.03275</a> — 用检索代替全量预加载工具定义，选择准确率升、prompt token 减半。</li>
+<li>Wang et al., <strong>MCPTox: A Benchmark for Tool Poisoning Attack on Real-World MCP Servers</strong>, 2025 — <a href="https://arxiv.org/abs/2508.14925" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.14925</a> — 45 个真实 server/353 工具/20 agent，把 tool poisoning 从个案推成可量化基准。</li>
+<li><strong>The Evolution of Tool Use in LLM Agents: From Single-Tool Call to Multi-Tool Orchestration</strong>, 2026 — <a href="https://arxiv.org/abs/2603.22862" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2603.22862</a> — 工具使用综述：系统梳理从单工具调用到多工具编排的演进路径，可作 §4–§5 方法谱系与规模化解法的纵览索引。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文（优先一手） <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li>Anthropic Engineering, <strong>Writing effective tools for AI agents</strong>, 2025 — <a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/writing-tools-for-agents</a> — 工具设计五原则：高杠杆、命名空间、高信号 token-高效返回、打磨描述、eval 驱动；"工具是确定性系统与非确定性 agent 的契约"。</li>
+<li>Anthropic Engineering, <strong>Code execution with MCP: building more efficient agents</strong>, 2025 — <a href="https://www.anthropic.com/engineering/code-execution-with-mcp" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/code-execution-with-mcp</a> — 让 agent 写代码 import MCP 工具、在沙箱处理中间结果，数据密集任务 token 省约 98%（150K→2K）。</li>
+<li>Anthropic Engineering, <strong>Introducing advanced tool use on the Claude Developer Platform</strong>, 2025 — <a href="https://www.anthropic.com/engineering/advanced-tool-use" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/advanced-tool-use</a> — Tool Search（<code>defer_loading</code>、token -85%（~77K→8.7K）、准确率升、最多约 1 万工具）/ Programmatic Tool Calling（复杂任务 -37%、省 19+ 往返）/ Tool Use Examples（72%→90%）。</li>
+<li>Anthropic (news), <strong>Agent Skills</strong>, 2025 — <a href="https://www.anthropic.com/news/skills" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/skills</a> — 技能 = 含 <code>SKILL.md</code> 的文件夹，progressive disclosure 三级（元数据→完整指令→支撑文件）按需加载；2025-12-18 追加组织级管理与技能目录、作为开放标准发布。</li>
+<li>Invariant Labs, <strong>MCP Security Notification: Tool Poisoning Attacks</strong>, 2025 — <a href="https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks" target="_blank" rel="noopener noreferrer">https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks</a> — 首次系统披露 tool poisoning，演示 WhatsApp/GitHub rug-pull，证明工具描述是活跃注入面。</li>
+<li>Simon Willison, <strong>Model Context Protocol has prompt injection security problems</strong>, 2025 — <a href="https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/Apr/9/mcp-prompt-injection/</a> — 权威评论者点名 MCP 凑齐 lethal trifecta，prompt injection 无根本解。</li>
+<li>HuggingFace (Aymeric Roucher 等), <strong>Introducing smolagents</strong>, 2024 — <a href="https://huggingface.co/blog/smolagents" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/smolagents</a> — 主张 code agent：写 Python 当动作优于 JSON 工具字典，安全靠沙箱（E2B/Docker/Modal）。</li>
+<li>Cognition (Walden Yan), <strong>Don't Build Multi-Agents</strong>, 2025 — <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> — Devin 团队主张单线程 + 上下文工程；并行 subagent 因上下文隔离而脆弱、冲突（与 <a class="xref" href="08.html">08</a> 直接相关）。</li>
+<li>Cloudflare, <strong>Code Mode: the better way to use MCP</strong>, 2025 — <a href="https://blog.cloudflare.com/code-mode/" target="_blank" rel="noopener noreferrer">https://blog.cloudflare.com/code-mode/</a> — 工具转 TypeScript API 在 V8 isolate 跑模型代码，2500+ 端点 ~117 万 token 压到 ~1000（-99.9%）。</li>
+<li>Armin Ronacher, <strong>Your MCP Doesn't Need 30 Tools: It Needs Code</strong>, 2025 — <a href="https://lucumr.pocoo.org/2025/8/18/code-mcps/" target="_blank" rel="noopener noreferrer">https://lucumr.pocoo.org/2025/8/18/code-mcps/</a> — MCP 怀疑派代表作：工具不可组合、太吃上下文，不如让 agent 写一次性代码。</li>
+<li>Speakeasy, <strong>Common Criticisms of MCP (And Why They Miss the Point)</strong>, 2025 — <a href="https://www.speakeasy.com/mcp/mcp-for-skeptics/common-criticisms" target="_blank" rel="noopener noreferrer">https://www.speakeasy.com/mcp/mcp-for-skeptics/common-criticisms</a> — 拥护派系统反驳：用 AI 时代约束而非 API 时代预期评估 MCP，它就从冗余变必然。</li>
+<li>Simon Willison, <strong>Code execution with MCP</strong>（独立解读）, 2025 — <a href="https://simonwillison.net/2025/Nov/4/code-execution-with-mcp/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/Nov/4/code-execution-with-mcp/</a> — 对 Anthropic 代码执行范式的外部交叉验证 lens。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档与标准 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li>Anthropic (news), <strong>Introducing the Model Context Protocol</strong>, 2024 — <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/model-context-protocol</a> — MCP 发布原帖（spec 2024-11-05），开放标准把 N×M 集成统一为一套协议，首批 Block/Apollo/Zed/Replit/Codeium/Sourcegraph。</li>
+<li>modelcontextprotocol.io, <strong>MCP Specification — Architecture</strong>, 2025 — <a href="https://modelcontextprotocol.io/specification/2025-06-18/architecture" target="_blank" rel="noopener noreferrer">https://modelcontextprotocol.io/specification/2025-06-18/architecture</a> — 权威架构参考：JSON-RPC client-host-server、有状态会话、能力协商、隔离不变量。</li>
+<li>OpenAI (docs), <strong>Function calling guide</strong>, 2023 — <a href="https://developers.openai.com/api/docs/guides/function-calling" target="_blank" rel="noopener noreferrer">https://developers.openai.com/api/docs/guides/function-calling</a> — 一手要点：JSON Schema 定义、限制工具数、假设一次返回 0/1/多调用、失败回喂错误自纠。</li>
+<li>OpenAI (index), <strong>New tools and features in the Responses API（含远程 MCP）</strong>, 2025 — <a href="https://openai.com/index/new-tools-and-features-in-the-responses-api/" target="_blank" rel="noopener noreferrer">https://openai.com/index/new-tools-and-features-in-the-responses-api/</a> — Responses API 支持远程 MCP server，OpenAI 加入 MCP 指导委员会，标志跨厂商化。</li>
+<li>Google (Gemini docs), <strong>Function calling with the Gemini API</strong>, 2025 — <a href="https://ai.google.dev/gemini-api/docs/function-calling" target="_blank" rel="noopener noreferrer">https://ai.google.dev/gemini-api/docs/function-calling</a> — 一手文档：并行调用（id 回映、无需保序）、组合调用（前者输出作后者输入）、multi-tool use。</li>
+<li>Cursor (docs), <strong>Model Context Protocol (MCP) in Cursor</strong>, 2025 — <a href="https://cursor.com/docs/mcp" target="_blank" rel="noopener noreferrer">https://cursor.com/docs/mcp</a> — 产品侧一手：<code>.cursor/mcp.json</code> 提交进 git 让全队共享工具、server 信任管控、MCP Apps 返回交互式 UI 并降级。</li>
+<li>OWASP Foundation, <strong>MCP03:2025 — Tool Poisoning (MCP Top 10)</strong>, 2025 — <a href="https://owasp.org/www-project-mcp-top-10/2025/MCP03-2025%E2%80%93Tool-Poisoning" target="_blank" rel="noopener noreferrer">https://owasp.org/www-project-mcp-top-10/2025/MCP03-2025%E2%80%93Tool-Poisoning</a> — 社区安全标准化：tool poisoning 列入 MCP Top 10，形成公认漏洞类别。</li>
+<li>Model Context Protocol Blog, <strong>Introducing the MCP Registry (preview)</strong>, 2025 — <a href="https://blog.modelcontextprotocol.io/posts/2025-09-08-mcp-registry-preview/" target="_blank" rel="noopener noreferrer">https://blog.modelcontextprotocol.io/posts/2025-09-08-mcp-registry-preview/</a> — 官方社区目录上线，回应"上万 server 如何发现与信任"的治理需求。</li>
+<li>Linux Foundation, <strong>Agentic AI Foundation (AAIF) 成立，MCP/goose/AGENTS.md 作为首批捐赠项目</strong>, 2025-12-09 — <a href="https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation" target="_blank" rel="noopener noreferrer">https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation</a> — MCP 捐入中立基金会，AWS/Anthropic/Block/Bloomberg/Cloudflare/Google/Microsoft/OpenAI 为白金成员，锁定其行业标准地位。</li>
+</ul>
+<h3 id="sec-10-4">🎥 Talk <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>本节未引用录播 talk（避免给出未核验链接）；上述官方文档与工程博客均为一手且可点验。MCP 相关公开演讲多在 AI Engineer 大会发布，读者可按需检索，本库不收录未逐条核验的视频链接。</p>
+</blockquote>
+<hr>
+<blockquote>
+<p><strong>交叉链接</strong>：<a class="xref" href="01.html">01</a> 推理范式（ReAct 控制循环）· <a class="xref" href="02.html">02</a> Harness 运行时（tool-call 全链路）· <a class="xref" href="03.html">03</a> 上下文工程（工具定义/返回值的 token 预算）· <a class="xref" href="08.html">08</a> multi-agent（工具编排之争）· <a class="xref" href="09.html">09</a> 评估（BFCL/ToolBench）· <a class="xref" href="11.html">11</a> 生产工程（HITL/降级）· <a class="xref" href="12.html">12</a> 安全与对抗（tool poisoning / lethal trifecta）· <a class="xref" href="13.html">13</a> 大厂案例（Claude Code / Cursor / Devin 工具集）· <a class="xref" href="17.html">17</a> 协议与互操作（MCP/A2A 之上的 agent 身份、发现与协议层）。</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="03.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">03 · 上下文工程</span>
+  </a>
+  <a class="pager__link pager__link--next" href="05.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">05 · 规划与任务分解</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（时间线）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 工具 schema 设计：声明即提示</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 好工具的工程原则（Anthropic 五原则）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 MCP 架构：client / host / server / transport</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 MCP vs 纯 function calling：到底谁是谁</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 工具过载与上下文膨胀（2025 的核心痛点）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-6">4.6 Agent Skills：渐进披露作为"第三条路"</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-1">5.1 动作表示：JSON 工具调用 vs 代码即动作</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-2">5.2 工具学习训练范式</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-3">5.3 工具规模化解法</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-4">5.4 评测基准</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议一：MCP 到底有没有必要——新基础设施，还是被炒作的"API 套壳"？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议二：工具过载的正解是"按需检索"还是"让模型写代码"？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议三：教模型用工具，SFT 还是 RL？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议四：frozen LLM + 好文档，还是为工具微调？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-5">争议五：MCP 安全是协议级根本缺陷，还是可治理的实现问题？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A：OpenAI——从 function calling 到全面拥抱对手的 MCP</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B：Anthropic——既造标准，又造"标准的解药"</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C：Cloudflare Code Mode——工具过载的极致工程化反方案</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 D：Invariant Labs + OWASP——把安全从个案推成标准</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文（优先一手）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档与标准</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">🎥 Talk</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

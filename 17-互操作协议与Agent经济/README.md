@@ -1,0 +1,318 @@
+> 状态：🟢 已校验
+
+# 17 · 互操作协议与 Agent 经济
+
+> **定位**：Agent 的"外交与货币"——当 [[04]] 解决了"单个 agent 怎么用工具"（纵向 MCP），本节解决"成千上万个异构 agent 之间怎么发现彼此、怎么协作、怎么付钱"（横向协议层 + 经济层）。
+>
+> 上游连 [[04]]（MCP 纵向"模型↔工具"是本节的第一层、也是横向协作的零件库）、[[08]]（多智能体编排是"单框架内"的协作，本节把它推到"跨厂跨网"的协议层）；下游连 [[12]]（协议把工具/数据/外联标准化暴露，是 tool poisoning、lethal trifecta、机器支付欺诈的新主战场）、[[11]]（企业鉴权、审计、责任链是生产卡点）；ChatGPT Instant Checkout / 三云 A2A 等落地案例由本节案例 B/C 详述。
+
+---
+
+## 1. TL;DR / 速览
+
+**本节地图**：定位与动机 → 历史脉络（function calling 到 2026 A2A 一周年）→ 核心原理（四层协议模型 + M×N→M+N + 支付三分工 + 信任模型）→ 协议横向对比表 → 四组核心争议 → 大厂案例（Anthropic / Google / OpenAI+Stripe / Linux Foundation / MCP 安全事件）→ 我的判断 → 面试考点 → 参考文献。
+
+**5 条核心结论**：
+
+1. **互操作不是一个协议，而是一个四层栈。** 纵向"模型↔工具"是 MCP（[[04]]）；横向"agent↔agent"是 A2A / AGNTCY；身份与发现是 NANDA/AgentFacts、Agent Card、OASF；支付与电商是 AP2 / ACP / x402。把 MCP 当成唯一协议是最常见的认知错误——它只解决"单个 agent 如何调用工具与数据"，**解决不了 agent 之间如何协作**（Google、Anthropic 官方均称 MCP 与 A2A 互补而非竞争）。
+
+2. **协议的根本价值是把 M×N 的笛卡尔积压成 M+N。** MCP 把"M 个模型 × N 个数据源"的定制集成压成一套协议（被称为 AI 的 USB-C）；A2A 把"M 个框架 × N 个 agent"的私有对接压成一条"横向协调总线"。这是整个生态从"手工接线"走向"即插即用"的统一动机。
+
+3. **2025 是协议爆发年，2026 是治理与成熟年。** MCP（2024-11）→ A2A（2025-04）→ AGNTCY/AP2/ACP/x402（2025）密集落地后，2025-2026 集中发生"捐给 Linux Foundation"：A2A（2025-06）、AGNTCY（2025-07）、MCP→AAIF（2025-12）、x402（2026-04）。A2A 一周年（2026-04-09）已有 **150+ 组织**、v1.0 稳定规范、三云生产（《A2A Protocol Surpasses 150 Organizations》, 2026）。
+
+4. **支付层是"同层选一、跨层组合"的三分工。** AP2 管授权（Mandates 回答 authorization/authenticity/accountability）、ACP 管结账（delegated/Shared Payment Token + 商家 merchant-of-record，已落地 ChatGPT Instant Checkout）、x402 管结算（HTTP 402 + 稳定币 USDC 的机器微支付）。AP2 通过 a2a-x402 扩展把链上结算接进来——卡网与链上不是你死我活，而是被组合。
+
+5. **协议安全已成新主战场，且可能无法被"治理"彻底解决。** Tool Poisoning（Invariant Labs, 2025）把恶意指令藏进对模型可见、对用户隐藏的 tool description，并能跨服务器 shadowing；2025-2026 的 CVE 浪潮（mcp-remote CVE-2025-6514, CVSS 9.6）印证根因是 **LLM 无法区分"数据"与"指令"**（《MCP: Landscape, Security Threats》, 2503.23278）——这是结构性难题，不只是工程 bug。
+
+> **阅读定位**：本章为吃透 [[00]]–[[15]] 后的进阶选读，是 single-agent 链路的横向外延。
+
+---
+
+## 2. 定位与动机
+
+[[04]] 讲透了 MCP：一个 agent 如何"长出手"去调用工具与数据。但 MCP 只覆盖**纵向**的一根线——模型与外部世界之间的"模型↔工具"。当 Agent 从"一个 loop"扩张成"一群 loop"（[[08]]），又从"一个团队内部"扩张成"跨公司、跨云、跨网"的开放生态时，会撞上三堵 [[04]]/[[08]] 都解决不了的墙：
+
+- **协作墙（横向）**：[[08]] 的多智能体编排默认大家在**同一个框架、同一份代码**里。可一旦你的报销 agent 要去调别家公司的差旅 agent，对方既不暴露 system prompt、也不暴露工具集（即"不透明 opaque agent"），MCP 的"把工具 schema 摊开"范式就失效了——你需要一种让**互不信任、互不透明**的 agent 彼此发现、协商、委派任务的协议。这是 **A2A** 的领域。
+- **身份与发现墙**：Web 用 DNS 找服务器。但 agent 是会被毫秒级 spawn、毫秒级迁移的，数量可能到十亿级，DNS 的解析与吊销节奏撑不住（《Beyond DNS》, 2507.14263）。"对面这个 agent 是谁、它声称的能力可不可信、密钥能不能秒级吊销"，是一套全新的身份基础设施问题。
+- **经济墙（支付）**：当 agent 能自主完成"找商品→下单→付款"，钱就要在机器之间流动。但"谁授权了这笔钱、买的是不是用户真想要的东西、出了欺诈谁负责"——这不是技术问题，是**法律与风控问题**，需要可验证的授权链。这是 **AP2 / ACP / x402** 的领域，也是"agent 经济（agent economy）"的雏形。
+
+**在 Agent 链路里的位置**：本节是 [[04]] 纵向层之上的**横向互操作层 + 经济层**。它复用 [[04]] 的 MCP 作为"零件库"、复用 [[08]] 的编排模式作为"单节点内部逻辑"，自己负责更高维的问题——跨边界的发现（谁在哪）、协作（怎么委派）、信任（凭什么信）、结算（怎么付钱）。
+
+**与相邻节的边界**：[[04]] = 纵向"模型↔工具"（MCP server 暴露 tools/resources/prompts）；[[08]] = "单框架内"multi-agent 编排（supervisor/handoff/orchestrator-worker）；**本节 = "跨框架跨厂"的横向协议 + 身份发现 + 支付**。安全面与 [[12]] 强交叉：协议把攻击面标准化暴露，tool poisoning、lethal trifecta、机器支付欺诈都在这层放大。
+
+---
+
+## 3. 历史发展脉络
+
+> 一句话主线：**私有 function calling（各家自定 schema）→ MCP 统一纵向工具层（2024-11）→ MCP 生态爆发（2025）→ A2A 补上横向协作层（2025-04）→ AGNTCY/身份/支付协议集中落地（2025）→ 全数捐给 Linux Foundation 走向中立治理（2025-06 起）→ 2026 成熟：MCP Roadmap、A2A 一周年同发 v1.0 首个稳定规范、150+ 组织三云生产。**
+
+| 年月 | 里程碑 | 为什么这样演进 |
+|---|---|---|
+| **2024-11-25** | **Anthropic 开源 MCP**（spec 2024-11-05） | 纵向"模型↔工具"层诞生：把 N×M 定制集成统一成单一开放协议（AI 的 USB-C），client-server 暴露 tools/resources/prompts。这是整个互操作栈的**第一层**与零点（《Introducing MCP》, 2024）。 |
+| **2025-03** | **Cisco/Outshift 开源 AGNTCY（Internet of Agents）** | 提出 multi-agent 基础设施三件套：OASF 发现 + 密码学身份 + SLIM 消息。第一次把"横向 + 发现"做成全栈，定位与 A2A/MCP 互操作而非取代。 |
+| **2025-03-30** | **首篇 MCP 安全系统化论文**（arXiv 2503.23278） | 把 MCP server 生命周期拆成创建/部署/运行/维护四阶段、建"4 类攻击者 × 16 威胁"分类法——协议爆红的同时，**安全叙事同步起步**。 |
+| **2025-04-09** | **Google 发布 A2A（Agent2Agent）** | 横向"agent↔agent"层：让不透明异构 agent 经 Agent Card 互相发现、协商、委派，不暴露内部实现；发布即 100+ 公司支持。补上 MCP 不覆盖的协作维度。 |
+| **2025-04** | **Invariant Labs 披露 Tool Poisoning（TPA）** | 首个系统化协议级安全披露：恶意指令藏进 `<IMPORTANT>` tool description（用户看简介、模型看全文的不对称），演示跨服务器 shadowing/rug-pull 并发布 mcp-scan。安全从"理论"变"在野威胁"。 |
+| **2025-05** | **Coinbase 开源 x402** | 结算层：复活沉睡的 HTTP 402 "Payment Required"，用稳定币（USDC）做机器对机器即时微支付，无账号、无 API key。机器经济的支付原语登场。 |
+| **2025-06-23** | **A2A 捐给 Linux Foundation** | 横向标准走向厂商中立治理；AWS/Cisco/Salesforce/SAP/Microsoft/ServiceNow/Google 为创始贡献者，降低单厂俘获（《LF Launches A2A Project》, 2025）。 |
+| **2025-07-18** | **NANDA Index + Verified AgentFacts**（arXiv 2507.14263, MIT Media Lab） | 身份与发现层：论证 DNS 撑不住十亿级、毫秒迁移的 agent，提出精简索引解析到动态、密码学可验证的 AgentFacts（亚秒吊销、跨组织隐私发现）。 |
+| **2025-07-29** | **Cisco 把 AGNTCY 捐给 Linux Foundation** | 65+ 支持公司；Cisco/Dell/Google Cloud/Oracle/Red Hat 为创始成员，SLIM 支持多模态/human-in-the-loop/量子安全。 |
+| **2025-09-17** | **Google 发布 AP2（Agent Payments Protocol）** | 支付授权与可追溯层：用 Mandates（密码学签名）回答授权/真实/问责三问；建在 A2A 之上、可与 MCP 协同，60+ 支付与金融机构参与。 |
+| **2025-09-29** | **OpenAI+Stripe 发布 ACP（Apache 2.0）** | 电商结账层：买家↔AI agent↔商家完成结账，delegated/Shared Payment Token + 商家保持 merchant-of-record，驱动 ChatGPT Instant Checkout——**首个规模化落地的 agentic checkout**。 |
+| **2025-12-09** | **Anthropic 把 MCP 捐给 Agentic AI Foundation（AAIF）** | MCP 治理厂商中立化；AAIF 由 Anthropic/Block/OpenAI 共建，MCP 与 goose、AGENTS.md 同为创始项目；MCP 已成跨厂事实标准、生态规模庞大（SDK 下载与活跃 server 数量级巨大）。 |
+| **2026-03-09** | **MCP 2026 Roadmap** | 四优先：无状态 Streamable HTTP（破 sticky routing/解决水平扩展）+ Tasks 原语（补长任务）+ 治理成熟 + 企业就绪（审计/SSO/OAuth+OIDC）（《2026 MCP Roadmap》）。 |
+| **2026-04-02** | **x402 捐给 Linux Foundation 旗下 x402 Foundation** | 结算层协议中立化；零协议费、机器原生微支付（中等把握）。 |
+| **2026-04-09** | **A2A 一周年 + v1.0 首个稳定规范：150+ 组织、三云、企业生产** | 横向层成熟标志：一周年同步发布 v1.0（首个稳定、生产就绪版本，此前为预览/RC 阶段；Signed Agent Cards 密码学身份核验、多协议、企业级多租户、现代化安全流）；Google Cloud、Microsoft（Azure AI Foundry/Copilot Studio）、AWS（Bedrock AgentCore）三云集成；AP2 扩展（60+ 机构）；供应链/金融/保险/IT 运维生产部署（《A2A Surpasses 150 Organizations》, 2026）。 |
+
+---
+
+## 4. 核心概念与原理
+
+### 4.1 四层协议模型（本节主线）
+
+不要把"agent 互操作"想成一个协议，而要想成一个**栈**。从下往上：
+
+```
+        ┌────────────────────────────────────────────────────┐
+  支付层 │  AP2(授权·Mandate) · ACP(结账·Token) · x402(结算·链) │  钱怎么流动
+        ├────────────────────────────────────────────────────┤
+身份/发现 │  NANDA Index/AgentFacts · A2A Agent Card · OASF      │  对面是谁/在哪/可信吗
+        ├────────────────────────────────────────────────────┤
+  横向层 │  A2A · AGNTCY/SLIM · ANP(去中心 DID)                 │  agent ↔ agent 怎么协作
+        ├────────────────────────────────────────────────────┤
+  纵向层 │  MCP(模型 ↔ 工具/数据)   ←  [[04]] 已讲透           │  单个 agent 怎么用工具
+        └────────────────────────────────────────────────────┘
+```
+
+**关键认知**：每层解决一类问题，组合使用才闭环。一个完整的"agent 自主购物"链路是：MCP 让 agent 调商品检索工具（纵向）→ A2A 让购物 agent 把"下单"委派给商家 agent（横向）→ Agent Card/AgentFacts 验证商家 agent 身份（发现）→ AP2 Mandate 授权这笔交易、x402/ACP 完成结算（支付）。**MCP 只是这条链的第一节**。
+
+### 4.2 M×N → M+N：协议为什么存在
+
+```
+没有协议（M×N 笛卡尔积）            有协议（M+N）
+  模型A ──┬── 工具1                  模型A ─┐         ┌─ 工具1
+  模型B ──┼── 工具2  每条线都是        模型B ─┼─[MCP]─┼─ 工具2
+  模型C ──┴── 工具3  一个定制集成      模型C ─┘         └─ 工具3
+  = M×N 套适配代码                    = 各自只实现一次协议 = M+N
+```
+
+MCP 把"M 个模型 × N 个数据源"的集成爆炸压成 M+N；A2A 同理把"M 个 agent 框架 × N 个对端 agent"的私有对接压成 M+N。**这就是"USB-C"比喻的实质**——不是某个具体接口，而是把组合复杂度从乘法降成加法。
+
+### 4.3 纵向 vs 横向：通信形态的差异
+
+| | 纵向（MCP） | 横向（A2A） |
+|---|---|---|
+| 对象 | 模型 ↔ 工具/数据源 | opaque agent ↔ opaque agent |
+| 暴露什么 | tools/resources/prompts（schema 摊开） | Agent Card（只声明能力，**不**暴露内部实现/记忆/工具） |
+| 通信 | JSON-RPC，stdio/SSE → Streamable HTTP | HTTP + JSON-RPC/SSE，原生支持长任务与流式 |
+| 核心原语 | tool call | Task 生命周期 + Message/Artifacts |
+| 信任模型 | client 信任 server（2026 加 OAuth/OIDC） | 对等、互不信任（v1.0 加 Signed Agent Card） |
+
+MCP 是"我把工具摊给你看、你来调"；A2A 是"我不告诉你我怎么干，你给我个任务、我交付制品（artifact）"——**透明 vs 不透明**，这是两层的本质分野。
+
+### 4.4 支付三分工与信任模型
+
+agent 经济的核心难题不是"怎么转账"，而是"怎么证明这笔钱是被合法授权的、出错谁担责"。三套协议分工：
+
+```
+  AP2  授权层  Mandate(Intent 预授权 / Cart 锁定"所见即所付" / Payment 标示 agent 参与)
+              用可验证凭证(VC)做不可抵赖审计链 —— 回答 authorization / authenticity / accountability
+   │
+   ├─ ACP  结账层  Shared/delegated Payment Token + OAuth 委托认证；商家保 merchant-of-record
+   │              agent 全程不接触卡号(PAN)，token 按"商家+金额"限定作用域 —— 走传统卡轨道
+   │
+   └─ x402 结算层  HTTP 402 + 稳定币(USDC)；server 返 402+支付要求，agent 签链上交易附凭证重试
+                  无账号、无 API key、零协议费 —— 走链上轨道；AP2 经 a2a-x402 扩展把它接进来
+```
+
+**三种信任根的差异**：AP2 = "可验证的用户授权链"（谁授权了什么）；ACP = "作用域受限的支付令牌"（凭证最小暴露）；x402 = "链上支付凭证"（结算终局性）。**同层选一、跨层组合**是记忆口诀——它们解决支付信任的不同切面，不是三选一的竞品。
+
+### 4.5 身份与发现：DNS 不够用
+
+NANDA 的论点：DNS 为"相对静态的服务器"设计，而 agent 会十亿级 spawn、毫秒级迁移。它提出 **NANDA Index = 精简瘦索引**，解析到动态、密码学可验证的 **AgentFacts**，给出五项保证：①混合发现（原生+第三方 agent 均可被索引）②新生 agent 的快速全球解析 ③亚秒级吊销与密钥轮换 ④schema 校验的能力声明 ⑤跨组织隐私保护发现（least-disclosure），用 CRDT 做更新、TTL 端点解析。**AgentFacts 与 A2A Agent Card、AGNTCY OASF 在"能力声明"上属竞合关系**——是在既有 web/DNS 上增量加签，还是另起一套密码学索引，是本节争议三的核心。
+
+---
+
+## 5. 主流方法谱系
+
+| 协议 | 层 | 解决什么 | 机制/通信 | 身份/信任根 | 治理归属 |
+|---|---|---|---|---|---|
+| **MCP** | 纵向 模型↔工具 | single-agent 调工具/数据 | JSON-RPC + Streamable HTTP；tools/resources/prompts | client↔server，2026 加 OAuth/OIDC | AAIF（Linux Foundation） |
+| **A2A** | 横向 agent↔agent | opaque agent 发现/委派/长任务 | HTTP+JSON-RPC/SSE；Agent Card/Task/Artifacts | Signed Agent Card（v1.0） | Linux Foundation |
+| **AGNTCY/SLIM** | 横向+发现 | IoA 全栈发现/安全消息 | OASF 目录 + SLIM（多模态/HITL/量子安全） | 密码学身份 + 访问控制 | Linux Foundation |
+| **ANP** | 横向+去中心发现 | 开放网络无许可 agent 市场 | W3C DID | 去中心标识符（DID） | 去中心/学界（survey 2505.02279 收录） |
+| **NANDA / AgentFacts** | 身份与发现 | 超 DNS 的十亿级 agent 索引 | 精简索引→AgentFacts；CRDT/TTL | 密码学可验证、亚秒吊销 | MIT Media Lab（学术提案） |
+| **AP2** | 支付-授权 | 授权/真实/问责 | Mandates（Intent/Cart/Payment）+ VC | 可验证凭证不可抵赖链 | Google（建在 A2A 上） |
+| **ACP** | 支付-结账 | 真实商家结账 | Shared/delegated Payment Token + OAuth | 商家 merchant-of-record | OpenAI+Stripe（Apache 2.0） |
+| **x402** | 支付-结算 | M2M 微支付 | HTTP 402 + 稳定币 USDC | 链上支付凭证 | x402 Foundation（Linux Foundation） |
+
+> 选型一句话：**调工具/数据 → MCP；跨厂 agent 协作 → A2A（重网络/发现则 AGNTCY）；验证对端身份 → Agent Card/AgentFacts；机器付钱 → AP2 授权 + ACP（卡网）或 x402（链上）结算。** 落地工具与技术栈速查见 [[14]]。
+>
+> 一份分阶段采用路线（survey 2505.02279）把它们排成：**MCP → ACP → A2A → ANP（去中心市场）**，即从"调工具"逐步走向"开放无许可 agent 经济"。
+
+---
+
+## 6. 主流观点与争议
+
+### 争议一（★核心★）：要 A2A，还是 MCP 已经够了？
+
+- **【MCP 够用·部分社区】**：把远程 agent 当成一个"工具"暴露（agents-as-tools），MCP 已经能做组合与编排，再叠一层 A2A 是冗余与认知负担；统一在 MCP 生态更简单，也避免"协议战争"。
+- **【需要 A2A·Google 阵营】**：MCP 是"模型↔工具"，**解决不了对等、不透明 agent 之间的协作、长任务与跨厂委托**；A2A 用 Agent Card 专门补这层。一个有力旁证是：**AP2 同时把自己定位为 A2A 与 MCP 的扩展**，暗示官方设计就是两者并存（《AP2 公告》, 2025）。
+- **谁对**：Anthropic（MCP）阵营 vs Google（A2A）阵营；官方口径一致是"**互补而非竞争**——MCP 纵向、A2A 横向"。治理上也呈分裂态势：MCP 进 AAIF、A2A 单独进 Linux Foundation。本质是**建模选择**：你把对端建模成"一个工具"（MCP 够）还是"一个不透明的对等智能体"（需 A2A）。
+
+### 争议二：agent 发现走中心化注册表，还是去中心发现？
+
+- **【中心化注册表·平台/支付公司】**：像 app store 一样**策展 + 审核**才能保信任与安全，便于责任追溯与下架——如 ChatGPT Instant Checkout 的可信商家集合、MCP registry。
+- **【去中心发现·加密/学界】**：用 W3C DID（ANP）、x402 开放网络做**无许可、抗审查**的 agent 市场，避免平台守门人垄断；NANDA 更进一步主张 DNS 撑不住十亿级 agent，需要全新密码学可验证索引 + 亚秒吊销。
+- **谁对**：平台/支付公司（OpenAI、Stripe、Google）倾向策展型；加密/去中心阵营（Coinbase x402、ANP）与学界 survey、MIT Media Lab（NANDA）倾向开放发现。**叠套问题**：身份层是"在既有 web 上增量加签（Agent Card/OASF/.well-known）"还是"另起一套（NANDA AgentFacts）"——增量派认为现有 web + 加签够用，重构派认为规模与吊销速度逼着另起炉灶。
+
+### 争议三：协议级安全能不能被"治理"住？
+
+- **【可控派】**：中立基金会（AAIF）+ SEP 评审 + 扫描器（mcp-scan）+ 描述 pinning + mandate/VC + 沙箱与最小权限，可把风险收敛到工程可管理范围。
+- **【结构性难题派】**：**LLM 本质无法区分"数据"与"指令"**，tool poisoning 是持久化的（毒化描述随包/远程 server 分发，对每次调用静默生效），加上 npm/远程 server 的供应链边界无限；2025-2026 的 CVE 浪潮（mcp-remote CVE-2025-6514 CVSS 9.6、postmark-mcp 后门）说明远未解决（《MCP Landscape, Security Threats》, 2503.23278；Invariant Labs, 2025）。
+- **谁对**：Invariant Labs、PipeLab 等安全研究者强调结构性风险；AAIF/基金会与厂商持治理乐观论。与 [[12]] 的判断同源：**注入是 agent 的"原罪"**，协议层只是把这个原罪标准化、规模化地暴露了出来。
+
+### 争议四：agent 支付走传统卡网，还是链上稳定币？兼论"中立治理能否防锁定"？
+
+- **【卡网·Google/OpenAI/Stripe】**：AP2/ACP 兼容卡组织与 PSP、商家为 merchant-of-record，**合规与现有金融体系友好**，落地快（ChatGPT Instant Checkout 已跑通）。
+- **【链上·Coinbase】**：x402 用链上稳定币、零协议费、机器原生微支付，更适合 M2M API 货币化与亚美分 pay-per-query；代价是引入链上依赖、不可逆交易与 KYC/AML 监管不确定性。实践上 AP2 用 **a2a-x402** 把两者融合，未必你死我活。
+- **治理子争议**：MCP→AAIF、A2A、AGNTCY、x402 都进了 Linux Foundation，**乐观派**认为治理厂商中立、社区驱动；**质疑派**指出发起大厂仍掌握事实标准与方向话语权，"**中立 ≠ 去中心化、≠ 无锁定**"，且"AAIF 托 MCP、LF 另托 A2A"的多基金会格局本身又是一种分裂。
+
+---
+
+## 7. 大厂工程实践
+
+### 案例 A：Anthropic — MCP 的诞生、捐赠与 2026 演进
+
+**做法**：2024-11 开源 MCP，用 client-server + JSON-RPC 把"M 个模型 × N 个数据源"压成 M+N；2025-12-09 捐给 Linux Foundation 旗下 Agentic AI Foundation（与 Block 的 goose、OpenAI 的 AGENTS.md 同为创始项目）。MCP 已成跨厂事实标准、生态规模庞大，跨 ChatGPT/Claude/Cursor/Gemini/Copilot/VS Code 被广泛采用。
+
+**取舍拆解**：
+- **2026 Roadmap 的核心矛盾是"有状态 vs 水平扩展"**：有状态 session 让 sticky routing 把流量钉死在单台 server，难做负载均衡。处方是**无状态 Streamable HTTP 核心 + Tasks 原语把"状态语义"按需补回来**（长任务的重试/过期/结果保留）。这是"先砍掉状态再选择性加回"的经典工程权衡。
+- **捐赠 = 用治理换采用**：放弃单厂控制权，换来"中立标准"的可信度与生态规模——代价是 SEP 评审会拖慢迭代速度。
+
+### 案例 B：Google — A2A 横向层 + AP2 支付授权
+
+**做法**：2025-04 发布 A2A 补上"agent↔agent"，2025-06 捐给 Linux Foundation；2025-09 发布 AP2 把支付授权建在 A2A 之上。A2A 一周年（2026-04-09）已有 **150+ 组织**、v1.0 Signed Agent Cards、三云生产（Google Cloud / Azure AI Foundry+Copilot Studio / AWS Bedrock AgentCore）。
+
+**取舍拆解**：
+- **A2A 刻意只让 agent 暴露 Agent Card、不暴露内部**——这是它能跨厂、跨竞争对手协作的前提（不透明性是 feature 不是 bug），但也意味着**身份核验必须靠协议外的 Signed Agent Card 补**，否则有冒充/重放风险。
+- **AP2 把"支付"拆成可验证授权链**：Intent Mandate（无人值守预授权"买什么"）+ Cart Mandate（"所见即所付"锁价）+ Payment Mandate（向收单方标示 agent 参与），用 VC 做不可抵赖审计——把"agent 替我花钱出了错谁负责"从模糊地带变成可举证的责任链。
+
+### 案例 C：OpenAI + Stripe — ACP 与 ChatGPT Instant Checkout
+
+**做法**：2025-09-29 发布 ACP（Apache 2.0），美国用户可在 ChatGPT 内直接购买 Etsy 卖家、Shopify 商家（Glossier/Vuori/Spanx/SKIMS 等）商品。核心原语是 **Shared Payment Token**：让 ChatGPT 发起支付却**不接触买家支付凭证**，且按"特定商家 + 金额"限定作用域，商家保持 merchant-of-record（《Stripe powers Instant Checkout》, 2025）。
+
+**取舍拆解**：**商家友好 + 落地快**是它跑赢的关键——不挑战现有卡轨道与 PSP，商家保留品牌、定价、履约控制，只把"结账触发点"搬进 ChatGPT。代价是**比链上方案更中心化**：绑定 Stripe/传统卡轨道，且可信商家是策展集合（呼应争议二）。这是"在真实商家结账"这一窄场景上的工程胜利，而非通用 agent 协作协议。
+
+### 案例 D：Linux Foundation — AAIF / A2A / AGNTCY / x402 的中立治理
+
+**做法**：一年内把横向与经济层的关键协议悉数纳入中立基金会——A2A（2025-06）、AGNTCY（2025-07，65+ 公司）、AAIF 托管 MCP（2025-12，白金成员 AWS/Anthropic/Block/Bloomberg/Cloudflare/Google/Microsoft/OpenAI）、x402 Foundation（2026-04）。
+
+**取舍拆解**：**降低单厂俘获与碎片化** vs **治理流程拖慢迭代 + 多基金会本身是新分裂**。值得注意的反讽：MCP 进 AAIF、A2A 进 LF 另一项目，"统一治理"反而呈现"双轨"——这正是争议四"中立 ≠ 无锁定"的活注脚。
+
+### 案例 E：MCP 安全事件 — Tool Poisoning 与 CVE 浪潮
+
+**做法（被动）**：Invariant Labs（2025-04）披露 Tool Poisoning——恶意指令藏在 `<IMPORTANT>` tool description 里，对模型可见、对用户隐藏；并演示**跨服务器 shadowing**（恶意 server 改写可信 server 的 `send_email`，偷偷 BCC 给攻击者）与 rug-pull（工具获批后再变脸）。随后据安全厂商汇总：mcp-remote **CVE-2025-6514**（CVSS 9.6 Critical，未净化即把连接参数传入 shell，影响 0.0.5–0.1.15、0.1.16 修复，由 JFrog 披露）、postmark-mcp npm 后门（2025-09 中下旬，v1.0.16 给每封外发邮件偷加 BCC 到攻击者域，Koi Security 发现，约 1,500 次/周）。
+
+**取舍拆解**：缓解手段（mcp-scan 扫描、描述 pinning + 变更重校验、沙箱、最小权限）都是**猫鼠游戏、治标不治本**——根因是 LLM 区分不了"文档"与"指令"。这把"协议安全能否被治理"之争（争议三）从口水变成 CVE 证据，也把 [[12]] 的 lethal trifecta 推到协议层：MCP/A2A 让"访问私有数据 + 接触不可信内容 + 对外通信"三者更容易凑齐。
+
+---
+
+## 8. 我的分析与判断
+
+> **以下为分析观点（非客观事实），是我基于上述材料的独立研判，可证伪。**
+
+**趋势研判。** 我判断三件事方向较确定：
+
+1. **分层生态已经成型，"一个协议统一一切"的叙事会退场。** 2025-2026 的事实是：MCP 守住纵向、A2A 守住横向、AP2/ACP/x402 三分支付——各层都有了事实领跑者，且官方反复强调"互补"。我认为未来两年的赢家不是"杀死其他协议的那一个"，而是**把多层粘合得最顺滑的编排/平台层**（谁能让 MCP 工具 + A2A 委派 + AP2 授权 + x402 结算在一条链路里无缝跑通）。这与 [[08]] 里"价值上移到编排/可观测层"、[[04]] 里"核心被商品化"的判断同源。**可证伪点**：若 2027 出现某协议吞并相邻层（如 A2A 把工具调用也吃掉、MCP 长出 agent 协作原语），则"稳定分层"判断被推翻。
+
+2. **安全是这一节最被低估、也最可能"治不好"的主战场。** 我倾向"结构性难题派"：tool poisoning 的根因（LLM 分不清数据与指令）与 [[12]] 的 prompt injection 同根，协议层只会**放大而非缩小**攻击面——因为它把工具/身份/支付都标准化、可批量分发了。中立基金会能管"流程与责任归属"，管不了"模型读到毒描述就照做"。我的判断：协议安全会长期停留在"纵深缓解 + 责任划分"，而非"根治"；**真正的护城河会从"协议本身"转向"可信执行环境 + 审计/责任链"**（呼应 [[11]] 的生产卡点）。**可证伪点**：若出现一种被广泛采用、能在协议层稳定区分指令与数据的机制（如强制结构化、能力签名 + 运行时隔离的组合），则此判断需修正。
+
+3. **"Agent 经济"是真方向，但 2026 仍是早期，离"自主 agent 自由交易"很远。** ChatGPT Instant Checkout 证明了"agent 触发结账"可规模化，但它本质是**人在场、商家策展、走传统卡轨道**的窄场景——离 x402 设想的"agent 之间无许可、机器原生微支付"还隔着 KYC/AML 合规、责任链统一、欺诈风控等几道硬墙。我判断短期落地的是"**有人授权、有责任主体、走合规轨道**"的 AP2/ACP 路线；x402 式纯链上 M2M 会先在"API 货币化、agent 买数据/算力"等 B2B 缝隙里跑通，再慢慢外扩。供给侧另一条线在 [[16]]：RL 环境与轨迹的市场化（环境/数据/能力被定价交易）正在成为 agent 经济的"原料层"，与本节的支付/结算层一道构成经济闭环。**可证伪点**：若 2027 前出现大规模"无人授权的 agent↔agent 自主稳定币交易"且监管放行，则"早期"判断过于保守。
+
+**常见坑（我见过/推断的高频误解）：**
+
+- **把 MCP 当万能协议。** MCP 不解决 agent 协作，硬用 agents-as-tools 模拟 multi-agent 会丢掉长任务、流式与不透明协作语义。
+- **以为 A2A Agent Card 自带身份验证。** 凭证发放、信任建立、身份核验在**协议范围之外**（v1.0 才加 Signed Agent Card），裸用 = 冒充/重放敞口。
+- **以为"捐给基金会"= 去中心化 = 无锁定。** 中立治理只动了"谁拥有商标与流程"，没动"谁掌握事实标准与方向"。
+- **支付层三选一。** AP2/ACP/x402 是**跨层组合**（授权×结账×结算），不是竞品；该问的是"我要不要可验证授权链 / 走不走卡网 / 要不要链上结算"。
+- **低估 tool poisoning 的持久性。** 它不是一次性注入，是随供应链分发、对每次调用静默生效的持久威胁（详见 [[12]]）。
+
+**最佳实践（我的处方）：**
+1. **按层选型，别混层**：纵向 MCP、横向 A2A、身份 Agent Card/AgentFacts、支付按"授权+结算"组合。
+2. **横向协作默认开 Signed Agent Card + 协议外身份核验**，把"对面是谁"当第一道闸（[[12]]）。
+3. **支付链路强制可验证授权链 + 作用域受限令牌**：Mandate/VC 记审计，token 按"商家+金额"限作用域，agent 永不接触原始凭证。
+4. **MCP server 当不可信代码对待**：描述 pinning + 变更重校验 + 沙箱 + 最小权限，并接 [[10]] 的可观测性做 trace 级回放。
+
+---
+
+## 9. 面试考点
+
+**概念题**
+
+1. **画出 agent 互操作的四层协议栈，并说清每层边界。** 要点：纵向"模型↔工具"= MCP（[[04]]）；横向"agent↔agent"= A2A / AGNTCY；身份与发现 = NANDA AgentFacts / Agent Card / OASF；支付 = AP2（授权）/ ACP（结账）/ x402（结算）。关键一句：**MCP 不是唯一协议，它解决不了 agent 之间的协作**。
+
+2. **MCP vs A2A 有什么区别？为什么说互补不竞争？** 要点：MCP 纵向、透明（摊开 tools/resources/prompts、JSON-RPC）；A2A 横向、不透明（只暴露 Agent Card、不暴露内部实现，Task/Artifacts、长任务流式）。本质是建模选择——把对端当"工具"（MCP）还是"对等智能体"（A2A）；旁证是 AP2 同时定位为两者的扩展。
+
+3. **AP2、ACP、x402 三者怎么分工？** 要点：AP2 = 授权层（Mandates Intent/Cart/Payment + VC，回答 authorization/authenticity/accountability）；ACP = 结账层（Shared Payment Token + OAuth，商家 merchant-of-record，落地 ChatGPT Instant Checkout）；x402 = 结算层（HTTP 402 + 稳定币 USDC，机器微支付）。口诀：**同层选一、跨层组合**，AP2 用 a2a-x402 把链上结算接进来。
+
+4.（陷阱）**A2A 的 Agent Card 能保证对面 agent 不是冒充的吗？** 要点：不能。凭证发放/信任建立/身份验证在**协议范围之外**，v1.0 才加 Signed Agent Card；裸用有冒充/重放风险，必须协议外补身份核验。
+
+**系统设计题**
+
+5. **设计一个让 agent 替用户自主购物并付款的系统（要可审计、防超额、防欺诈）。** 要点：MCP 调商品检索/比价工具（纵向）→ A2A 把"下单"委派给商家 agent、用 Signed Agent Card/AgentFacts 验身份（横向+发现）→ **AP2 Intent Mandate 预授权"买什么+预算上限"、Cart Mandate 锁定"所见即所付"**（授权）→ ACP Shared Payment Token（卡网，agent 不接触卡号）或 x402 稳定币（链上）完成结算。可审计性：VC 签发的 Mandate 链做不可抵赖证据，token 按"商家+金额"限作用域；安全：把每个 MCP server 当不可信代码沙箱化、防 tool poisoning（[[12]]），全链路 trace（[[10]]）。说清为何**不**让 agent 直接持有用户原始支付凭证。
+
+**手写题**
+
+6. **手写 x402 的"402→付款→重试"机器支付握手（客户端视角）。** 评分点：识别 402、解析支付要求、签链上交易、带凭证重试、无账号/无 API key。
+
+```python
+def x402_fetch(url, wallet):
+    resp = http.get(url)
+    if resp.status == 402:                      # server: "Payment Required"
+        terms = parse_payment_terms(resp.headers["X-Payment"])  # 金额/链/收款地址/资产(USDC)
+        if terms.amount > wallet.per_request_cap:               # ★ 防自主 agent 超额消费
+            raise PaymentRefused(terms)
+        proof = wallet.sign_payment(terms)      # 用稳定币签一笔交易
+        resp = http.get(url, headers={"X-Payment": proof})      # 带支付凭证重试
+        # facilitator 校验链上结算后放行;全程无账号、无 API key
+    return resp.body
+```
+
+**陷阱题**
+
+7. **"用 MCP 把每个远程 agent 当工具暴露（agents-as-tools），就不需要 A2A 了"对吗？** 要点：部分对、整体错。简单委派可以，但 MCP 缺对等、不透明 agent 的长任务/流式/协商语义；官方定位互补，AP2 同时扩展两者即证两者并存。
+
+8. **"协议都捐给 Linux Foundation 了，所以没有厂商锁定、也安全了"对吗？** 要点：错两处。①中立治理 ≠ 去中心化 ≠ 无锁定，发起大厂仍掌握事实标准与方向；②治理管不了 tool poisoning——根因是 LLM 分不清数据与指令，CVE 浪潮（mcp-remote CVSS 9.6）为证（[[12]]）。
+
+---
+
+## 10. 参考文献
+
+### 📄 论文
+
+- **Beyond DNS: Unlocking the Internet of AI Agents via the NANDA Index and Verified AgentFacts** — Ramesh Raskar, Pradyumna Chari, John Zinky 等（MIT Media Lab），2025 · <https://arxiv.org/abs/2507.14263> · 论证 DNS 撑不住十亿级 agent，提出精简索引 + 密码学可验证 AgentFacts（亚秒吊销/隐私发现五项保证）——身份与发现层的学术锚点。（配套企业实践与注册中心对比见 arXiv:2508.03101 / 2508.03095。）
+- **Model Context Protocol (MCP): Landscape, Security Threats, and Future Research Directions** — Xinyi Hou, Yanjie Zhao, Shenao Wang, Haoyu Wang，2025 · <https://arxiv.org/abs/2503.23278> · 把 MCP server 生命周期拆四阶段，建"4 类攻击者 × 16 威胁"分类法——首篇系统化 MCP 安全研究，本节安全骨架。
+- **A Survey of Agent Interoperability Protocols: MCP, ACP, A2A, and ANP** — Abul Ehtesham, Aditi Singh, Gaurav Kumar Gupta, Saket Kumar，2025 · <https://arxiv.org/abs/2505.02279> · 四大互操作协议横向对比（交互/发现/通信/安全模型）+ 分阶段采用路线 MCP→ACP→A2A→ANP。
+
+### ✍️ 博客与工程文
+
+- **Introducing the Model Context Protocol** — Anthropic，2024 · <https://www.anthropic.com/news/model-context-protocol> · 2024-11-25 开源 MCP（spec 2024-11-05），client-server 开放标准，把碎片化集成统一为单一协议（AI 的 USB-C）。
+- **The 2026 MCP Roadmap** — Model Context Protocol（Anthropic / AAIF），2026 · <https://blog.modelcontextprotocol.io/posts/2026-mcp-roadmap/> · 2026-03-09 发布；四优先：无状态 Streamable HTTP + Tasks 原语 + 治理成熟 + 企业就绪。
+- **Announcing Agent Payments Protocol (AP2)** — Google Cloud，2025 · <https://cloud.google.com/blog/products/ai-machine-learning/announcing-agents-to-payments-ap2-protocol> · 2025-09-17 发布；Mandates（Intent/Cart/Payment）+ VC 解决授权/真实/问责，建在 A2A 上、与 MCP 协同，a2a-x402 做加密结算，60+ 机构。
+- **Developing an open standard for agentic commerce (ACP)** — Stripe（与 OpenAI 共建），2025 · <https://stripe.com/blog/developing-an-open-standard-for-agentic-commerce> · 2025-09-29 发布 ACP（Apache 2.0）：delegated payment token + 商家 merchant-of-record，驱动 ChatGPT Instant Checkout。
+- **Stripe powers Instant Checkout in ChatGPT and releases the Agentic Commerce Protocol** — Stripe（with OpenAI），2025 · <https://stripe.com/newsroom/news/stripe-openai-instant-checkout> · Shared Payment Token 让 agent 不接触买家支付凭证、按商家+金额限作用域；Etsy/Shopify 商家。
+- **MCP Security Notification: Tool Poisoning Attacks** — Invariant Labs，2025 · <https://invariantlabs.ai/blog/mcp-security-notification-tool-poisoning-attacks> · TPA 原始披露：tool description 隐藏指令（`<IMPORTANT>`）、跨服务器 shadowing/rug-pull、mcp-scan 扫描器。
+- **The State of MCP Security 2026: Incidents, Attack Patterns, and Defense Coverage** — PipeLab，2026 · <https://pipelab.org/blog/state-of-mcp-security-2026/> · 2026 MCP 安全事件汇总（mcp-remote CVE-2025-6514 CVSS 9.6、postmark-mcp 后门）——安全厂商二手汇总，具体数字未逐项对 NVD 核验（中等把握）。
+
+### 📚 官方文档与新闻稿
+
+- **Linux Foundation Launches the Agent2Agent Protocol Project** — Linux Foundation，2025 · <https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents> · 2025-06-23 A2A 捐入 LF；AWS/Cisco/Salesforce/SAP/Microsoft/ServiceNow/Google 创始贡献者，确立横向 agent↔agent 中立治理。
+- **A2A Protocol Surpasses 150 Organizations, Lands in Major Cloud Platforms, and Sees Enterprise Production Use in First Year** — Linux Foundation，2026 · <https://www.linuxfoundation.org/press/a2a-protocol-surpasses-150-organizations-lands-in-major-cloud-platforms-and-sees-enterprise-production-use-in-first-year> · 2026-04-09 一周年：150+ 组织、三云（Google/Microsoft/AWS）、v1.0 Signed Agent Cards、AP2 扩展 60+ 机构。
+- **Linux Foundation Welcomes the AGNTCY Project** — Linux Foundation，2025 · <https://www.linuxfoundation.org/press/linux-foundation-welcomes-the-agntcy-project-to-standardize-open-multi-agent-system-infrastructure-and-break-down-ai-agent-silos> · 2025-07-29 Cisco 捐 AGNTCY；OASF 发现/密码学身份/SLIM 消息三件套，与 A2A、MCP 互操作，65+ 公司。
+- **Linux Foundation Announces the Formation of the Agentic AI Foundation (AAIF)** — Linux Foundation，2025 · <https://www.linuxfoundation.org/press/linux-foundation-announces-the-formation-of-the-agentic-ai-foundation> · 2025-12-09 成立 AAIF，Anthropic 捐 MCP、Block 捐 goose、OpenAI 捐 AGENTS.md；白金成员 AWS/Anthropic/Block/Bloomberg/Cloudflare/Google/Microsoft/OpenAI。
+- **x402 — the internet's payment standard** — Coinbase / x402，2025 · <https://www.x402.org/> · 复用 HTTP 402 让 agent 用稳定币机器支付、零协议费、链中立（站点未列具体上线日期/合作方，中等把握）。
+
+---
+
+> 交叉链接：[[00]] 心智模型 · [[02]] Harness 运行时 · [[03]] 上下文工程 · [[04]] 工具与 MCP（纵向层） · [[08]] 多智能体编排 · [[09]] 评估 · [[10]] 可观测性与调试 · [[11]] 生产工程 · [[12]] 安全与对抗 · [[13]] 大厂案例研究 · [[14]] 技术栈速查 · [[15]] 面试题库 · [[16]] Agent 训练与强化学习

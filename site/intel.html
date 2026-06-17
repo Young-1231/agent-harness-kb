@@ -1,0 +1,236 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>小红书情报快照 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">小红书情报快照 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link is-active" href="intel.html" aria-current="page"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">情报快照（社媒信号，非事实正文）</p>
+<h1>小红书情报快照 · 2026-06</h1>
+<blockquote>
+<p><strong>这是什么</strong>：用小红书 MCP（<code>xpzouying/xiaohongshu-mcp</code>，本地无头浏览器）对「Agent / Harness / 面经」等关键词做的一轮社媒情报采集，用来给本知识库做<strong>趋势体检 + 民间认知校验 + 面经补充</strong>。 <strong>这不是什么</strong>：这里的笔记内容是<strong>社交媒体信号，不是已核验事实</strong>。凡涉及具体论断/日期/数字，一律以根 事实基线-2026-06 与各章正文为准；本文对民间说法的对错另列校验。<strong>零编造红线照旧</strong>。 采集时间：2026-06-17 ｜ 账号：专用搜索号 ｜ 采集口径：<code>search_feeds</code> 综合排序前 ~18–20 条 + 对高价值笔记 <code>get_feed_detail</code> 取正文与热评。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">§1 一句话结论 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本库押注的「Harness 是独立工程层」这件事，已经从英文圈一手博客</strong>（Anthropic / OpenAI / Cursor）<strong>外溢成中文社区的当红词</strong>——「Harness Engineering」在小红书出现单条收藏 7000+、多条 1000+ 的科普视频，DeepSeek 已挂出「Harness 工程师」岗、字节出了「Harness 手册」。与此同时，<strong>社区已经在追下一跳「Loop Engineering」</strong>（2026-06，本快照触发的最有价值发现，已核实并并入 KB）。但社媒内容<strong>质量参差、且有硬错</strong>（最典型：把 Harness Engineering 说成"OpenAI 2026 年 2 月首提"），所以本轮策略是：<strong>只把已联网核实的新进展写入正文，把社媒信号与面经留在本快照、清楚标注未核验</strong>。</p>
+<hr>
+<h2 id="sec-2">§2 Harness 线热度榜（社媒信号，未核验） <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>排序按收藏量；"点评"是本库视角的一句判断。</p>
+</blockquote>
+<div class="table-wrap">
+<table>
+<thead><tr><th>笔记标题</th><th>类型</th><th>收藏</th><th>赞</th><th>作者</th><th>本库点评</th></tr></thead>
+<tbody>
+<tr><td>最近爆火的 Harness Engineering 是什么？</td><td>视频</td><td>7413</td><td>4950</td><td>@code秘密花园</td><td>现象级；标题里的"爆火"本身就是信号</td></tr>
+<tr><td>Harness工程：这才是AI时代工程师正在干的</td><td>视频</td><td>5818</td><td>4642</td><td>@清华姜学长</td><td>"工程师价值迁移"叙事，呼应本库 §8 护城河前移</td></tr>
+<tr><td>Anthropic博客提到的Harness工程是什么</td><td>图文</td><td>5237</td><td>3643</td><td>@鹿桃桃的AI百宝箱</td><td>指向 Anthropic 一手文，方向对（见 §3 校验）</td></tr>
+<tr><td>Claude Code源码曝光 底层技术硬核拆解</td><td>视频</td><td>3301</td><td>1404</td><td>@唐国梁Tommy</td><td>源码向，热度高，质量需逐条核</td></tr>
+<tr><td>拆开Claude Code：学如何设计Harness Agent</td><td>图文</td><td>1916</td><td>1205</td><td>@会敲代码的泡</td><td><strong>意外地准</strong>：5层架构 / async generator loop / 三级压缩 / allow-deny-ask 三态权限（见 §3）</td></tr>
+<tr><td>2026新方向：别再写提示词了，写Harness！</td><td>图文</td><td>1701</td><td>1591</td><td>@库森说AI</td><td>即本库"prompt→harness"主线的民间版</td></tr>
+<tr><td>Harness Engineering 已经过时了。Loop Eng…</td><td>图文</td><td>1205</td><td>918</td><td>@雾霁</td><td><strong>触发本轮最大发现</strong>：Loop Engineering（见 §4）</td></tr>
+<tr><td>讲 Harness 最透彻的一篇文章</td><td>图文</td><td>1060</td><td>704</td><td>@小盖</td><td>转述 IBM 工程师 Tejas Kumar 演讲，比喻准（见 §3）</td></tr>
+<tr><td>HarnessEngineering的四大支柱</td><td>图文</td><td>823</td><td>543</td><td>@棱镜与飞轮</td><td>框架化讲解，但<strong>含硬错</strong>（见 §3）</td></tr>
+<tr><td>Harness的6层结构</td><td>图文</td><td>666</td><td>424</td><td>@企鹅在成长</td><td>与"四支柱""三层"并存——民间无统一分层</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>信号补充（招聘/大厂，未独立核实）</strong>：<code>DeepSeek Harness 团队招新</code> / <code>DeepSeek 岗位曝光"Harness 工程师"</code> / <code>字节新发布的 Harness 手册</code> / <code>腾讯云 Multi-Agent Harness 经验</code> / <code>后端要掌握的 AI 八股：Harness 及面试题</code>。→ 指向「Harness 工程师」正在成为<strong>中文招聘市场的一个岗位名</strong>；可作为 <a class="xref" href="13.html">13</a> 市场现实、<a class="xref" href="15.html">15</a> 面试方向的旁证（<strong>需进一步核实再入正文</strong>）。</p>
+<hr>
+<h2 id="sec-3">§3 民间认知 vs 本库事实｜逐条校验 <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>这是本快照对 KB 最有用的部分：把高热笔记的说法和已核验事实对齐，标出对/简化/错。</p>
+</blockquote>
+<div class="table-wrap">
+<table>
+<thead><tr><th>#</th><th>民间说法（小红书）</th><th>校验</th><th>依据</th></tr></thead>
+<tbody>
+<tr><td>1</td><td>「模型只是大脑，让 AI 进真实世界工作的是 Harness」（@小盖 转 IBM Tejas Kumar：裸 Agent 碰到 HN 登录页就撒谎说点赞成功）</td><td>✅ <strong>准</strong>，且例子好</td><td>本库 <a class="xref" href="02.html">02</a> 元心智模型「model 负责 think，harness 负责 act/loop」；<a class="xref" href="15.html">15</a> 同款表述</td></tr>
+<tr><td>2</td><td>「Harness = 包在模型外的基础设施：工具注册表 + 上下文管理 + 护栏」</td><td>✅ <strong>准</strong>（民间分层之一）</td><td>与 <a class="xref" href="02.html">02</a> §4 的工具/上下文/停止条件/错误恢复一致</td></tr>
+<tr><td>3</td><td>「Harness Engineering 是 <strong>OpenAI 在 2026 年 2 月正式提出</strong>的方法论」（@棱镜与飞轮 四支柱）</td><td>❌ <strong>硬错</strong></td><td>该词非单家首提：Anthropic 长跑 harness 文(2025-10/11)在前，2026-03 <strong>Anthropic(3/24) 与 OpenAI(3/4) 同月</strong>把它推成行业词；学界 SJTU《Externalization》(2026-04) 并列其为四大外化支柱。详见 事实基线-2026-06 §2、<a class="xref" href="02.html">02</a> §3</td></tr>
+<tr><td>4</td><td>「context 工程也有上下文管理/工具调用/边界，和 harness 没本质区别」（热评质疑）</td><td>⚠️ <strong>混淆，但问得好</strong></td><td>二者正交：context engineering 是"喂什么"（<a class="xref" href="03.html">03</a>），harness 是"循环怎么转/谁拥有 loop/停止与恢复"（<a class="xref" href="02.html">02</a>）。可作 <a class="xref" href="15.html">15</a> 一道陷阱题</td></tr>
+<tr><td>5</td><td>拆解 Claude Code：5 层架构 / <code>while(true)</code> async generator loop / 上下文三级压缩 / ToolSearchTool 按需加载 / 记忆四层(CLAUDE.md·MEMORY.md·Skills·transcript) / 权限三态(allow·deny·ask) / yield 事件流+hooks（@会敲代码的泡）</td><td>✅ <strong>大体准、颗粒度高</strong></td><td>与 <a class="xref" href="13.html">13</a> Claude Code 拆解、<a class="xref" href="02.html">02</a> 运行时原语、<a class="xref" href="04.html">04</a> 工具/Skills 一致；可作 <a class="xref" href="13.html">13</a> 民间补充阅读</td></tr>
+<tr><td>6</td><td>「Harness Engineering 已经过时了，现在是 Loop Engineering」（@雾霁）</td><td>🟡 <strong>半对</strong>：不是"过时/取代"，是"上一层"</td><td>见 §4；Loop 是 harness 之上的调度循环，二者叠加非替代</td></tr>
+<tr><td>7</td><td>健康的反向声音：热评「每次 token 消耗放缓，'先进性'新范式就出来，目的是让你用更多 token」「loop 也过时了，现在是 sleep engineering[doge]」</td><td>🟡 <strong>值得保留的清醒</strong></td><td>呼应 <a class="xref" href="00.html">00</a>/<a class="xref" href="15.html">15</a> 对"context engineering 是否炒概念"之争——新词层出，判据是"有没有解决真问题"，而非追名词</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>一句话</strong>：社区对 Harness 的<strong>直觉对了</strong>（模型≠agent、harness 是独立工程层），但<strong>史实与边界常出错</strong>（首提归属、harness vs context 混淆）。本库正文恰好把这两处讲清，可反向用作"纠偏"素材。</p>
+<hr>
+<h2 id="sec-4">§4 新概念追踪：Loop Engineering（已核实，已并入 KB） <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<ul>
+<li><strong>是什么</strong>：harness 装备的是「单次运行」，<strong>Loop Engineering 是其上一层</strong>——那个不停<strong>定时唤醒 / 派生子 agent / 自我投喂</strong>、驱动 agent 一遍遍跑的外层循环。</li>
+<li><strong>出处（已联网核实）</strong>：起于 Peter Steinberger 在 X 的帖子（2026-06-07），二周内重塑社区话语；综述见 Cobus Greyling《Loop Engineering》、explainx 等。它<strong>不取代 harness</strong>，是 <code>prompt → context → harness → loop</code> 的第四跳。</li>
+<li><strong>小红书印证</strong>：@雾霁《Harness Engineering 已经过时了。Loop Eng…》热评精炼——「Harness 定义 Agent 跑多稳的<strong>底线</strong>，Loop 决定能力长多高的<strong>上限</strong>；一个在外部给规则，一个在内部长智慧」。</li>
+<li><strong>已并入 KB</strong>：事实基线-2026-06 §2 新增行、<a class="xref" href="overview.html">发展总脉络</a> 2026-06 条与主时间线、<a class="xref" href="02.html">02</a> §3 时间线 + §4.7 末「从 harness 到 loop」延伸 + 参考文献。</li>
+<li><strong>顺带补</strong>：同月口径还把 <strong>OpenAI《Harness engineering》(Codex, 2026-03-04)</strong> 补进基线与 <a class="xref" href="02.html">02</a>，坐实"harness engineering = 行业通用词，非单家说法"。</li>
+</ul>
+<hr>
+<h2 id="sec-5">§5 面经情报（社媒信号，未核验）→ 详见 <a class="xref" href="15.html">15</a> §9.9 <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<p><strong>公司分布</strong>（小红书近月可见，未核实真伪）：腾讯（AI 应用开发一面 / Agent 二面）、字节（大模型算法实习 / AI Agent 开发一面）、百度（后训练算法 / 手撕 tokenizer）、滴滴（Agent 后端两轮）、淘天（Agent 一面）、小红书（AI infra 一面）。</p>
+<p><strong>真实题面摘录</strong>（用于补 <a class="xref" href="15.html">15</a>，均标注"网传/未核验"）：</p>
+<ul>
+<li><strong>手撕清单</strong>（@AI实战领航员，藏3963）：self-attention、multi-head attention、KL 散度、safe softmax、AUC / 常见损失、RMSNorm / LayerNorm / BatchNorm；算法题以二分 / DP / 数组 / 字符串为主。热评：「百度让我实现一个 tokenizer：输入 Prompt 和词表，输出切完的子词」。</li>
+<li><strong>Agent 工程真题</strong>（@林北北，藏2435）：① 用 ReAct 还是 Plan-and-Execute（答：混用，大计划+局部 ReAct 纠偏）；② 怎么让模型不瞎编工具参数（答：function calling 结构化 + JSON 校验重试 + 后端默认值兜底）；③ 长短期记忆怎么存（答：短期 Redis、长期摘要/偏好抽取入向量库 + 控长度）；④ 多智能体怎么协作（答：角色锁定 + 顺序链 + 输出格式约束）。</li>
+<li><strong>2026 Agent 攻略</strong>（@AI实战领航员，藏1505）：Agent vs LLM Chain、ReAct 原理、长期记忆（RAG + 长上下文 + 递归摘要压缩）——答题要点与本库 <a class="xref" href="01.html">01</a>/<a class="xref" href="06.html">06</a> 一致。</li>
+<li><strong>七大方向</strong>（@网安-魏来 葵花宝典）：核心概念架构 / 多智能体协同 / 设计模式 / 状态管理 / Evals / Agentic RAG / 多模态——与本库 <a class="xref" href="15.html">15</a> 七大题簇高度重合。</li>
+</ul>
+<p><strong>一条来自面试官的洞察</strong>（值得入正文论据）：热评「有了 AI 以后，面试不能再背八股文了，要结合场景和实际问题……考察分析问题的思路」——这正是 <a class="xref" href="15.html">15</a> 主线"题型从算法工程师漂移到 AI 系统工程师"的<strong>民间实证</strong>。</p>
+<hr>
+<h2 id="sec-6">§6 KB 覆盖度体检 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>主题</th><th>小红书热度</th><th>本库现状</th><th>结论</th></tr></thead>
+<tbody>
+<tr><td>Harness / Harness Engineering</td><td>🔥🔥🔥</td><td><a class="xref" href="02.html">02</a> 整章 + <a class="xref" href="13.html">13</a> 案例，已含 Anthropic 3/24·4/8、Cursor、SJTU 综述、Latent Space 之争</td><td><strong>已很全</strong>；本轮补 OpenAI 同月文 + 行业词定性</td></tr>
+<tr><td>Loop Engineering</td><td>🔥（新）</td><td>此前<strong>无</strong></td><td>✅ <strong>已补</strong>（<a class="xref" href="02.html">02</a>/<a class="xref" href="overview.html">发展总脉络</a>/基线）</td></tr>
+<tr><td>Claude Code 拆解</td><td>🔥🔥</td><td><a class="xref" href="13.html">13</a> 已有</td><td>充分；民间拆解可作补充阅读</td></tr>
+<tr><td>上下文工程 / MCP / 多智能体 / RAG / 记忆 / 强化学习</td><td>🔥</td><td><a class="xref" href="03.html">03</a><a class="xref" href="04.html">04</a><a class="xref" href="08.html">08</a><a class="xref" href="07.html">07</a><a class="xref" href="06.html">06</a><a class="xref" href="16.html">16</a> 均成章</td><td>已覆盖；社媒多为科普简化版，无需并入</td></tr>
+<tr><td>面经 / 八股 / 手撕</td><td>🔥🔥</td><td><a class="xref" href="15.html">15</a> 已有题库</td><td>本轮新增 §9.9「网传面经速览」作方向补充</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>结论</strong>：本库对 Harness 主线的覆盖<strong>已领先中文社区</strong>；社媒的增量价值集中在两点——<strong>捕捉最新命名（Loop Engineering）</strong> 与 <strong>沉淀真实面经方向</strong>，两者都已落地。</p>
+<hr>
+<h2 id="sec-7">§7 本轮已落地的 KB 改动 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<ol>
+<li>事实基线-2026-06 §2：新增 <code>OpenAI《Harness engineering》(Codex, 2026-03-04)</code>、<code>Loop Engineering(2026-06-07)</code> 两行。</li>
+<li><a class="xref" href="overview.html">发展总脉络</a>：2026-06 条加 Loop Engineering；§7 主时间线 2026 H1 行加「harness/loop engineering 成行业词」；</li>
+<li><a class="xref" href="02.html">02</a>（Harness 运行时）：§3 时间线补 OpenAI 文 + 2026-06 Loop Engineering 行；§4.7 末新增「从 harness 到 loop」延伸段；§10 参考补 OpenAI / Loop Engineering 两条。</li>
+<li><a class="xref" href="15.html">15</a>（面试题库）：新增 §9.9「网传面经速览（小红书，未核验）」。</li>
+<li>本文件：情报快照本身（README 已加指针）。</li>
+</ol>
+<hr>
+<h2 id="sec-8">§8 复现方法 &amp; 参考 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<p><strong>复现（本机）</strong>：服务由 <code>~/Projects/xiaohongshu-mcp/</code> 的二进制经 LaunchAgent 常驻 <code>:18060</code>，已注册进本项目 <code>.mcp.json</code>。采集脚本：<code>harvest.py</code>（批量搜索，带超时熔断+自动重启+warmup）、<code>detail_fetch.py</code>（详情）。重登：<code>xiaohongshu-login-darwin-arm64</code>（单张二维码扫码，<strong>勿高频刷新</strong>）。</p>
+<p><strong>参考（已联网核实的一手/二手）</strong>：</p>
+<ul>
+<li>OpenAI, <em>Harness engineering: leveraging Codex in an agent-first world</em>, 2026-03 — <a href="https://openai.com/index/harness-engineering/" target="_blank" rel="noopener noreferrer">https://openai.com/index/harness-engineering/</a></li>
+<li>Anthropic, <em>Harness design for long-running application development</em>, 2026-03-24 — <a href="https://www.anthropic.com/engineering/harness-design-long-running-apps" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/harness-design-long-running-apps</a></li>
+<li>Cobus Greyling, <em>Loop Engineering</em>, 2026-06 — <a href="https://cobusgreyling.substack.com/p/loop-engineering" target="_blank" rel="noopener noreferrer">https://cobusgreyling.substack.com/p/loop-engineering</a> （源起 Peter Steinberger X, 2026-06-07）</li>
+<li>Latent Space, <em>Is Harness Engineering real?</em>, 2026 — <a href="https://www.latent.space/p/ainews-is-harness-engineering-real" target="_blank" rel="noopener noreferrer">https://www.latent.space/p/ainews-is-harness-engineering-real</a></li>
+<li>SJTU, <em>Externalization in LLM Agents: …and Harness Engineering</em>, 2026-04 — <a href="https://arxiv.org/abs/2604.08224" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2604.08224</a></li>
+</ul>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="17.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">17 · 互操作协议与 Agent 经济</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">§1 一句话结论</a></li>
+  <li class="toc__item"><a href="#sec-2">§2 Harness 线热度榜（社媒信号，未核验）</a></li>
+  <li class="toc__item"><a href="#sec-3">§3 民间认知 vs 本库事实｜逐条校验</a></li>
+  <li class="toc__item"><a href="#sec-4">§4 新概念追踪：Loop Engineering（已核实，已并入 KB）</a></li>
+  <li class="toc__item"><a href="#sec-5">§5 面经情报（社媒信号，未核验）→ 详见 <a class="xref" href="15.html">15</a> §9.9</a></li>
+  <li class="toc__item"><a href="#sec-6">§6 KB 覆盖度体检</a></li>
+  <li class="toc__item"><a href="#sec-7">§7 本轮已落地的 KB 改动</a></li>
+  <li class="toc__item"><a href="#sec-8">§8 复现方法 &amp; 参考</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
