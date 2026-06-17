@@ -1,0 +1,430 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>05 · 规划与任务分解 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">05 · 规划与任务分解 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link is-active" href="05.html" aria-current="page"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>05 · 规划与任务分解（Planning &amp; Task Decomposition）</h1>
+<blockquote>
+<p><strong>定位</strong>：Agent 在「Think」之后、「Act」之前的那一层——把一个模糊的大目标，变成一串可执行、可调度、可追踪的子任务。 上游接 <a class="xref" href="01.html">01</a> 推理范式，下游接 <a class="xref" href="04.html">04</a> 工具调用与 <a class="xref" href="08.html">08</a> 多智能体编排，全程依赖 <a class="xref" href="03.html">03</a> 上下文工程托底。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：先讲规划在 Agent 链路里解决什么（§2）→ 从 CoT 到产品化 Tasks 的演进主线（§3）→ 四条分解策略 + plan-then-execute vs interleaved + TODO 工程模式 + 反思回路 + 计划遵守度的机制（§4）→ 横向谱系表（§5）→ 五组争议（§6）→ Anthropic / Cognition / Cursor / Manus 等大厂取舍（§7）→ 我的判断（§8）→ 面试考点（§9）→ 参考文献（§10）。</p>
+<p><strong>核心结论（先记这 5 条）</strong>：</p>
+<ol>
+<li><strong>规划的本质是「上下文管理」而非「智能体数量」。</strong> 长程任务失败的主因不是模型不够聪明，而是全局目标在长轨迹里 salience 衰减、被局部决策淹没（lost-in-the-middle / 目标漂移）。把计划「复诵」进近端上下文，是当前最有效的廉价解法。</li>
+<li><strong>plan-then-execute 与 interleaved（边想边做）不是对错之争，而是「环境不确定性」的函数。</strong> 工具可靠、边界清晰 → 一次性规划省 token、抗失败、可并行（ReWOO / LLMCompiler）；环境非平稳、初始信息不全 → 交错执行更鲁棒（ReAct / ADaPT）。</li>
+<li><strong>「LLM 不会规划」是被过度简化的结论——成绩高度取决于测的是哪一版 Blocksworld。</strong> 标准版上推理模型 o1-preview 已达 97.8%、GPT-4 也有 34.6%；可一旦换成语义混淆的 Mystery 版，o1-preview 跌到 52.8%、GPT-4 仅 0.16%，o1 在更难的 110 实例集也只有 23.63%（远未饱和）。即低分主要属于混淆版或前代模型，而非「LLM 根本不会规划」；脆弱性仍真实存在，由此分叉出两条路线：外包给符号规划器（LLM+P / LLM-Modulo），或用训练 + 搜索 + 反思把端到端规划「兜」到够用（Plan-and-Act / ToT）。</li>
+<li><strong>反思（self-correction）只有挂靠可靠外部信号才有正收益。</strong> 无外部反馈的纯内省式自纠，在推理任务上往往不升反降。</li>
+<li><strong>2025–2026 的工业落点是把「计划」做成一等原语</strong>：只读、状态安全、可人审的 plan mode + 结构化 Tasks（Claude Code），以及可持久化、可复用的计划工件（Cursor <code>.cursor/plans/</code>），而不再是临时 prompt 技巧。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>在 Think–Act–Observe 循环（见 <a class="xref" href="01.html">01</a>）里，「规划与任务分解」是把<strong>单步决策</strong>升级为<strong>多步全局策略</strong>的那一层。它要回答三个问题：</p>
+<ul>
+<li><strong>要不要先想清楚整盘棋？</strong>（plan-then-execute vs 反应式 interleaved）</li>
+<li><strong>大目标怎么切成可执行的小块？</strong>（任务分解的策略与粒度）</li>
+<li><strong>执行漂移了怎么办？</strong>（计划遵守度、重规划、反思纠错）</li>
+</ul>
+<p><strong>它解决的工程痛点</strong>：</p>
+<ol>
+<li><strong>短视贪心（myopia）</strong>：纯 ReAct 式逐步决策容易走一步看一步，在长程依赖任务上「一步错、满盘皆输」。</li>
+<li><strong>上下文爆炸与目标漂移</strong>：随着轨迹变长，Token 窗口被工具输出填满，最初的用户目标被挤到上下文中段而「失焦」（lost-in-the-middle，见 <a class="xref" href="03.html">03</a>）。</li>
+<li><strong>不可调度</strong>：没有显式计划，就无法做并行函数调用、子任务委派、进度追踪与人审检查点。</li>
+<li><strong>不可观测</strong>：人类（和上层 orchestrator）需要一个能看、能改、能审计的「计划工件」来介入。</li>
+</ol>
+<p><strong>在链路中的位置</strong>：规划层吃 <a class="xref" href="01.html">01</a> 产出的推理，吐出结构化子任务，交给 <a class="xref" href="04.html">04</a> 工具层执行；当子任务需要并行或专家化时，升级为 <a class="xref" href="08.html">08</a> 多智能体编排；计划本身的存活与复诵依赖 <a class="xref" href="03.html">03</a> 上下文工程与 <a class="xref" href="06.html">06</a> 记忆系统；plan mode 的「只读安全」属性归 <a class="xref" href="12.html">12</a> 安全节管。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络 <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线：<strong>CoT（隐式线性推理）→ 显式 plan-then-execute / 神经符号外包 → 分解框架 → 自适应按需分解 → 产品化一等原语</strong>。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2022-01</strong></td><td><strong>Chain-of-Thought（Wei et al., Google）</strong></td><td>把中间推理步骤显式写出即可解锁多步推理，证明「让模型先想再答」有效。但 CoT 是线性、隐式的，并未分离 plan 与 execute——埋下主线问题：能 step-by-step 思考，能否先 plan 再 act？</td></tr>
+<tr><td><strong>2022-05</strong></td><td><strong>Least-to-Most Prompting（Zhou et al.）</strong></td><td>第一个把复杂问题显式拆成「由易到难」的子问题序列再逐个求解，把「分解」确立为独立能力（SCAN 16%→99%）。</td></tr>
+<tr><td><strong>2022-10</strong></td><td><strong>ReAct（Yao et al.）+ Decomposed Prompting（Khot et al.）</strong></td><td>ReAct 确立 Reason→Act→Observe 交错范式，成为「反应式/即时规划」一极；DecomP 提出可委派给子模型库的模块化分解，支持递归再分解。</td></tr>
+<tr><td><strong>2023-02</strong></td><td><strong>《On the Planning Abilities of LLMs》批判（Valmeekam &amp; Kambhampati, ASU）</strong></td><td>标准 Blocksworld 上 GPT-4 仅 34.6%、语义混淆的 Mystery 版更跌到 0.16%。这记「冷水」直接催生两条路线：要么显式结构化、要么外包给符号规划器。（2024 年以推理模型 o1-preview 复测：标准 97.8%、Mystery 52.8%、更难 110 实例集仅 23.63%，未饱和——详见 §6 争议三）</td></tr>
+<tr><td><strong>2023-03</strong></td><td><strong>AutoGPT / BabyAGI（社区）</strong></td><td>首批产品化自主体：维护显式任务清单、自动拆子任务并循环重排优先级，把「任务分解 + TODO」带进大众开发者视野——但空转、目标漂移也促使社区追求更可控的结构。</td></tr>
+<tr><td><strong>2023-03</strong></td><td><strong>HuggingGPT / JARVIS（微软亚研 × 浙大）</strong></td><td>四阶段（任务规划→选模型→执行→汇总）先把请求解析成带依赖的任务列表，是「decomposition-first 先分解后执行」的范式样板。</td></tr>
+<tr><td><strong>2023-04</strong></td><td><strong>LLM+P（Liu, Stone et al., UT Austin）</strong></td><td>对「LLM 不会可靠规划」的直接回应：不让 LLM 亲自规划，而是把 NL 翻成 PDDL 交经典规划器求最优解再翻回来。开创「LLM 当翻译器、符号求解器保证可靠性」的外包路线。</td></tr>
+<tr><td><strong>2023-05</strong></td><td><strong>Plan-and-Solve（Wang et al., ACL 2023）+ ReWOO（Xu et al.）+ Tree of Thoughts（Yao et al.）</strong></td><td>PS 把零样本 CoT 升级为显式「先规划分解→再执行」；ReWOO 把推理与观测解耦、一次性出全计划，token 降约 5x 且抗工具失败；ToT 把线性规划扩成带回溯的树搜索（Game of 24：4%→74%）。</td></tr>
+<tr><td><strong>2023-11</strong></td><td><strong>ADaPT（Prasad et al., UNC/AI2）</strong></td><td>自适应分解：<strong>仅在执行器 LLM 做不动时才递归拆解</strong>，让粒度同时匹配任务复杂度与模型能力，回应「静态计划僵化」。</td></tr>
+<tr><td><strong>2023-12</strong></td><td><strong>LLMCompiler（Kim et al., UC Berkeley）</strong></td><td>把计划编译成函数调用 DAG 并行调度，较 ReAct 提速最高 3.7x、省成本 6.7x——体现「计划即可被编排优化」。</td></tr>
+<tr><td><strong>2024-02</strong></td><td><strong>《Understanding the Planning of LLM Agents: A Survey》（Huang et al.）</strong></td><td>首个系统综述，把规划归纳为<strong>任务分解 / 计划选择 / 外部模块 / 反思 / 记忆</strong>五类，给本领域提供权威坐标。</td></tr>
+<tr><td><strong>2024-05</strong></td><td><strong>LLM-Modulo（Kambhampati et al., ICML 2024）</strong></td><td>争议的综合解：「LLM 不能独立规划，但能在 LLM-Modulo 框架里辅助规划」——generate-test-critique 循环，LLM 出方案、可靠外部 critic（如 VAL 验 PDDL）把关。</td></tr>
+<tr><td><strong>2024-12</strong></td><td><strong>Anthropic《Building Effective Agents》</strong></td><td>官方定调，区分「静态工作流分解」与「模型自主规划」5 种模式（prompt chaining / orchestrator-workers 等），提出 start simple、按需升级的取舍基线。</td></tr>
+<tr><td><strong>2025-03</strong></td><td><strong>Plan-and-Act（Erdogan et al., ICML 2025）</strong></td><td>显式分离 Planner 与 Executor，用合成数据训练规划器，WebArena-Lite 取 57.58% SOTA，代表 plan-then-execute 的工程化成熟。</td></tr>
+<tr><td><strong>2025-06</strong></td><td><strong>「规划分解之争」集中爆发</strong></td><td>Anthropic《multi-agent 研究系统》vs Cognition《Don't Build Multi-Agents》vs LangChain《How and when to build multi-agent systems》同月发布——围绕「拆给并行 subagent 是否可靠」形成一手论战，核心是 context engineering。</td></tr>
+<tr><td><strong>2025–2026</strong></td><td><strong>产品化一等原语</strong></td><td>Cursor 1.2 Agent To-dos（2025-07）→ Claude Code plan mode + TodoWrite 升级为带依赖/阻塞的结构化 Tasks（TaskCreate/TaskUpdate/TaskGet/TaskList，2026）→ Cursor 3.2 <code>/multitask</code> 异步 subagent（2026-04）。规划从临时清单演进为可人审、状态安全的一等 UX 原语（Cursor 的计划工件还可跨会话持久化复用）。</td></tr>
+<tr><td><strong>2026-04</strong></td><td><strong>《Evaluating Plan Compliance in Autonomous Programming Agents》</strong></td><td>对 SWE-agent 16,991 条轨迹做首个大规模「计划遵守度」分析：长轨迹中初始计划因 salience 下降被执行漂移，且<strong>周期性提醒可缓解违背</strong>——直击「计划易被执行漂移」的痛点。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 四条分解策略主线 <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>策略</th><th>代表</th><th>机制一句话</th><th>适用边界</th></tr></thead>
+<tbody>
+<tr><td><strong>序列分解</strong></td><td>Least-to-Most</td><td>把问题排成由易到难的子问题链，后一步可用前一步答案</td><td>子问题间有清晰的难度/依赖序，组合泛化任务</td></tr>
+<tr><td><strong>模块化/可委派分解</strong></td><td>Decomposed Prompting、HuggingGPT</td><td>把子任务委派给专用子提示/子模型（可递归、可替换）</td><td>工具/专家异构、需要调度编排</td></tr>
+<tr><td><strong>递归按需分解</strong></td><td>ADaPT</td><td><strong>只在执行失败时</strong>才把子任务进一步拆开</td><td>任务难度不均、模型能力不确定，怕过度/不足分解</td></tr>
+<tr><td><strong>自组装推理结构</strong></td><td>Self-Discover</td><td>让模型从原子推理模块自拼出任务专属的规划结构再执行</td><td>同类任务批量、想省推理算力（10–40x）</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>选型直觉：<strong>预先知道步骤</strong> → 序列/模块化分解；<strong>不知道会不会卡</strong> → 按需递归分解；<strong>同类任务反复跑</strong> → 自组装结构复用。</p>
+</blockquote>
+<h3 id="sec-4-2">4.2 plan-then-execute vs interleaved <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>这是本节最核心的取舍轴。两种循环的伪代码对照：</p>
+<pre data-lang="python"><code># A. Interleaved（ReAct 式）：边想边做，每步都可重规划
+state = init(task)
+while not done(state):
+    thought = llm.reason(state)        # 基于最新观测推理
+    action  = llm.act(thought, state)  # 立刻决定下一个动作
+    obs     = env.execute(action)      # 拿到真实反馈
+    state   = update(state, thought, action, obs)
+# 优点：观测驱动、即时纠错、抗环境非平稳
+# 缺点：贪心短视、长程依赖弱、每步都吃一次 LLM 调用
+
+# B. Plan-then-execute（ReWOO/Plan-and-Solve 式）：一次性出全计划再执行
+plan = llm.plan(task)                  # 一次推理产出完整蓝图（带占位符 #E1,#E2…）
+results = {}
+for step in plan:                      # 计划与观测解耦，可并行
+    args = bind(step.args, results)    # 用前序结果填占位
+    results[step.id] = tools[step.tool](args)
+answer = llm.solve(task, plan, results)# 最后一次性汇总
+# 优点：省 token（ReWOO 约 5x）、抗单点工具失败、可编译成 DAG 并行（LLMCompiler）
+# 缺点：静态计划遇意外反馈即失效，开放环境不鲁棒
+</code></pre>
+<p><strong>ADaPT 是两派之间的折中桥</strong>——它默认让 executor 直接做（interleaved 的乐观），失败才递归 <code>plan()</code> 拆细（plan-then-execute 的兜底）：</p>
+<pre data-lang="python"><code>def adapt(task, depth):
+    ok = executor.try(task)            # 先乐观执行
+    if ok or depth &gt; MAX: return ok
+    subtasks, logic = planner.decompose(task)  # 做不动才拆
+    return combine(logic, [adapt(s, depth+1) for s in subtasks])
+</code></pre>
+<p><strong>LLMCompiler 则证明「计划可被当作程序优化」</strong>：Planner 产出函数调用 DAG，Task-Fetching Unit 解析依赖并把无依赖的节点并行派发，Executor 并发执行——把「规划」从一串文本变成可调度的执行图（详见 <a class="xref" href="04.html">04</a> 并行工具调用）。</p>
+<h3 id="sec-4-3">4.3 TODO / plan 工程模式：把计划复诵进近端上下文 <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p>生产 Agent 的关键发现（Manus、Claude Code）：<strong>持续重写的 TODO/计划文件，本质是一种对抗 lost-in-the-middle 的注意力操纵手段</strong>。把全局目标反复写到上下文末尾（近端、高 salience），模型每一步决策都能「看见」原始目标，缓解目标漂移。</p>
+<p>代价：Manus 实测约 <strong>1/3 的动作</strong>耗在更新清单本身。所以工程上要权衡「复诵频率 × token 成本」，Manus 后来转向独立 planner→executor subagent 架构。Claude Code 把它做成产品原语：<code>TodoWrite</code> 的 <code>pending/in_progress/completed</code> 三态机，2026 升级为 <code>TaskCreate/TaskUpdate/TaskGet/TaskList</code> 四件套、支持依赖与阻塞（<code>addBlocks</code>/<code>addBlockedBy</code>）的结构化 Tasks（按官方文档为会话内作用域，不跨会话持久化）。</p>
+<h3 id="sec-4-4">4.4 反思纠错回路（reflection）与它的边界 <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>Reflexion / Self-Refine / DEPS 用「语言化反馈 + 迭代精炼」改进决策（不更新权重）：生成→自评/环境反馈→反思写入记忆→重试。<strong>但有效性有硬边界</strong>：Huang et al.《LLMs Cannot Self-Correct Reasoning Yet》证明，<strong>无外部反馈时</strong>的纯内省式自纠在推理任务上往往不升反降。结论：反思必须挂靠可靠验证信号（单测、执行结果、检索证据、符号 critic），否则是负收益（详见 §6 争议二）。</p>
+<h3 id="sec-4-5">4.5 计划遵守度（plan adherence）：一个被低估的新问题 <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<p>有了好计划不等于会照做。2026 年对 SWE-agent 16,991 条轨迹的分析发现：<strong>长轨迹中初始计划的 salience 下降、局部决策主导，导致执行漂移</strong>；而<strong>周期性插入计划提醒</strong>能显著缓解违背、提升成功率；反直觉的是，<strong>一个糟糕的计划比没有计划更伤性能</strong>，过早塞入与模型内部解题策略不一致的额外阶段也会拖累表现。这正是 smolagents <code>planning_interval</code>（每 N 步插一个不调工具的「重规划步」）的工程动机（把「计划遵守度」做成一类可量化的评估指标，详见 <a class="xref" href="09.html">09</a>）。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系 <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方案</th><th>规划时机</th><th>分解方式</th><th>交错?</th><th>可靠性来源</th><th>Token 效率</th><th>最适场景</th></tr></thead>
+<tbody>
+<tr><td><strong>CoT</strong></td><td>隐式</td><td>线性思维链</td><td>—</td><td>模型本身</td><td>高</td><td>单轮多步推理</td></tr>
+<tr><td><strong>Least-to-Most</strong></td><td>静态前置</td><td>由易到难序列</td><td>否</td><td>提示结构</td><td>中</td><td>组合泛化</td></tr>
+<tr><td><strong>ReAct</strong></td><td>动态/即时</td><td>不显式</td><td>是</td><td>环境观测</td><td>低（每步调用）</td><td>非平稳交互环境</td></tr>
+<tr><td><strong>HuggingGPT</strong></td><td>静态前置</td><td>模块化任务图</td><td>否</td><td>工具/专家模型</td><td>中</td><td>多模态工具编排</td></tr>
+<tr><td><strong>Plan-and-Solve</strong></td><td>静态前置</td><td>计划列表</td><td>否</td><td>提示结构</td><td>高</td><td>零样本数理推理</td></tr>
+<tr><td><strong>ReWOO</strong></td><td>静态前置</td><td>蓝图 + 占位符</td><td>否（解耦观测）</td><td>计划一致性</td><td><strong>很高（约5x）</strong></td><td>工具链清晰、怕工具失败</td></tr>
+<tr><td><strong>Tree of Thoughts</strong></td><td>搜索式</td><td>思维树 + 回溯</td><td>否（前瞻）</td><td>自评估 + 搜索</td><td>低（多分支）</td><td>需探索/试错</td></tr>
+<tr><td><strong>ADaPT</strong></td><td>自适应</td><td>失败时递归拆</td><td>半交错</td><td>失败信号</td><td>中</td><td>难度不均的长程任务</td></tr>
+<tr><td><strong>LLMCompiler</strong></td><td>静态前置</td><td>函数调用 DAG</td><td>否（并行）</td><td>依赖图 + 并发</td><td>高（3.7x 提速）</td><td>可并行的多工具调用</td></tr>
+<tr><td><strong>LLM+P</strong></td><td>外包</td><td>NL→PDDL</td><td>否</td><td><strong>经典规划器（最优性保证）</strong></td><td>中</td><td>可形式化的封闭域</td></tr>
+<tr><td><strong>Self-Discover</strong></td><td>静态前置</td><td>自组装推理结构</td><td>否</td><td>结构复用</td><td>高（推理算力降10–40x）</td><td>同类任务批量</td></tr>
+<tr><td><strong>Plan-and-Act</strong></td><td>静态前置（可重规划）</td><td>Planner/Executor 分离</td><td>半交错</td><td>训练 + 合成数据</td><td>中</td><td>长程 Web/GUI 任务</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议一：plan-then-execute vs interleaved（先规划 vs 边做边想） <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>A 方（先整体规划）</strong>：ReWOO（Binfeng Xu）、Plan-and-Solve（Lei Wang）、Plan-and-Act（Erdogan）、LangChain plan-and-execute、Cognition「前置 scoping」。论据：一次性出全计划省 token（ReWOO 约 5x）、抗工具失败、便于并行编排（LLMCompiler 的 DAG）、长程更稳。</li>
+<li><strong>B 方（交错执行）</strong>：ReAct（Shunyu Yao）、ADaPT（Prasad/Khot）、smolagents <code>planning_interval</code>（Hugging Face）。论据：真实环境非平稳，初始信息不全，静态全计划遇意外反馈即崩；交错可即时纠错、把决策锚定在观测上。</li>
+<li><strong>折中</strong>：ADaPT「按需分解」、smolagents「周期性重规划」被视为桥梁——默认乐观执行，卡住或定期才重规划。</li>
+</ul>
+<h3 id="sec-6-2">争议二：反思/自纠真有效，还是经常帮倒忙？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>有效派</strong>：Reflexion（Shinn）、Self-Refine（Madaan）、DEPS（Zihao Wang）——语言化反思 + 迭代能跨试错持续提升，<strong>尤其有外部/环境反馈时</strong>。</li>
+<li><strong>质疑派</strong>：Huang &amp; Denny Zhou《Cannot Self-Correct Yet》——无外部反馈的内省式自纠在推理上往往不升反降。</li>
+<li><strong>裁决</strong>：分歧的真正变量是「<strong>有没有可靠的外部验证信号</strong>」。有信号（单测/执行/检索）→ 反思有效；纯内省 → 风险大于收益。</li>
+</ul>
+<h3 id="sec-6-3">争议三：LLM 该自己规划，还是外包给符号规划器？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>怀疑/外包派</strong>：Kambhampati &amp; Valmeekam（ASU）——标准 Blocksworld 推理模型可达 97.8%，但语义混淆的 Mystery 版骤降（GPT-4 0.16%、o1-preview 52.8%）、更难的 110 实例集 o1 仅 23.63%（未饱和），据此论证 LLM 是近似检索器、自我验证不可靠，应交 PDDL + 经典规划器（LLM+P）或外部 critic（LLM-Modulo）。</li>
+<li><strong>乐观/内生派</strong>：Plan-and-Act（Erdogan）、Self-Discover（Pei Zhou）、ToT（Yao）、AutoGPT/BabyAGI 阵营——靠训练、树搜索回溯、自组装结构，LLM 在真实长程任务可达 SOTA，无需封闭域符号求解器；规划能力随规模涌现，对许多真实任务「够用」。</li>
+<li><strong>综合解</strong>：LLM-Modulo 的 generate-test-critique——LLM 出方案、可靠外部 critic 把关，混合架构而非纯端到端。</li>
+</ul>
+<h3 id="sec-6-4">争议四：复杂任务该拆给并行 subagent，还是单线程线性智能体？ <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>拆分并行派</strong>：Anthropic multi-agent 研究系统（orchestrator/lead + subagent，读多/广度任务 +90.2%）、LangChain（Harrison Chase）。论据：读多、广度优先、可并行探索的任务提速明显。</li>
+<li><strong>不要拆派</strong>：Cognition《Don't Build Multi-Agents》——并行 subagent 上下文割裂、「行动隐含决策」冲突难合并（Flappy Bird 两 subagent 风格打架的例子）；应单线程连续上下文，必要时才压缩历史。</li>
+<li><strong>共识地带</strong>：写类/需合并的任务交单一主智能体；<strong>可靠性的核心是 context engineering，不是智能体数量</strong>；multi-agent 代价约 15x token，只对高价值可并行任务划算。</li>
+</ul>
+<h3 id="sec-6-5">争议五：计划是「持久化可编辑工件」还是「临时上下文产物」？且要不要人审？ <a class="heading-anchor" href="#sec-6-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>工件化 + 人审</strong>：Cursor Plan Mode（计划是可编辑 Markdown，存 <code>.cursor/plans/</code>、可跨会话持久化复用）、Claude Code 的 plan mode 人审检查点 + 会话内作用域的结构化 Tasks。论据：先让人改边界再执行，降低跑偏成本。</li>
+<li><strong>临时化 + 自动化</strong>：Anthropic lead agent 把 plan 写进 memory 主要为防上下文超限、随任务消解；Devin 把规划当作可优化的延迟点（官方 2025 复盘：问题求解提速约 4x、资源效率约 2x、PR 合并率 34%→67%），把人审视为延迟成本。论据：规划本身是可优化的延迟/准确率权衡点，应尽快动手。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A：Anthropic — multi-agent 研究系统（orchestrator-workers） <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<p>Lead/orchestrator agent 先用 extended thinking 规划策略、<strong>把计划写进外部 memory</strong>（防上下文超限），再按复杂度决定 subagent 数量（简单查询 1 个 / 3–10 次工具调用，复杂可 10+）。<strong>关键契约</strong>：每个子任务必须给「目标、输出格式、工具与来源指引、清晰边界」，否则 subagent 重复劳动或留空。 <strong>工程取舍</strong>：表现 +90.2% 的代价是约 <strong>15x</strong> 于普通对话的 token，只对高价值、可并行任务划算；写类合成刻意保留单线程。这与官方《Building Effective Agents》的「start simple、按需升级」一脉相承（详见 <a class="xref" href="08.html">08</a>）。</p>
+<h3 id="sec-7-2">案例 B：Cognition（Devin）— 单线程 + 前置 scoping + RL 压缩规划 <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<p>Cognition 是「不要 multi-agent」的旗手：用一个会把孤立子任务委派给<strong>自己</strong>（独立 sandbox）的单线程智能体，靠共享完整 trace（而非单条消息）保证决策一致性。 <strong>工程取舍</strong>：会话开始先分析任务、搜代码库、产出初步计划供人审改，再自主执行；官方 2025 复盘的量化进步是<strong>问题求解提速约 4x、资源效率约 2x、PR 合并率从 34% 升到 67%</strong>。明确弱点是「中途反复加需求会变差」——把「一次性把边界定清 + 可验证产出」当作产品契约。</p>
+<h3 id="sec-7-3">案例 C：Anthropic Claude Code — plan mode + Tasks 的安全/上下文定位 <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<p>走 explore→plan→code→commit 四阶段：Shift+Tab 进入<strong>只读</strong> plan mode 先产计划、设人审批检查点，通过后再用结构化 Tasks（带依赖/阻塞，会话内作用域）执行。 <strong>两个一手工程信号</strong>：①《Claude Code auto mode》把 plan mode 与 todo 划入「<strong>不能修改状态</strong>」的安全工具白名单，自动放行、无需分类器审查（auto mode 整体只挡约 0.4% 良性命令、漏放约 17% 过激动作，所以 plan mode 的只读属性是 defense-in-depth 的一环，详见 <a class="xref" href="12.html">12</a>）；②一切围绕上下文管理——「窗口填满即降智」，TODO 既是分解也是上下文锚点（详见 <a class="xref" href="03.html">03</a>）。</p>
+<h3 id="sec-7-4">案例 D：Manus — 从 todo.md 复诵到 planner/executor 分离 <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<p>一手复盘：持续重写 <code>todo.md</code> 把全局计划复诵进近端注意力，对抗 lost-in-the-middle 与目标漂移；但实测约 1/3 动作耗在更新清单，遂转向独立 planner→executor subagent 架构。是「规划产品化真实权衡」的活教材。</p>
+<h3 id="sec-7-5">案例 E：Cursor — 可视可编辑 To-dos + <code>/multitask</code> 折中回摆 <a class="heading-anchor" href="#sec-7-5" aria-label="锚点">#</a></h3>
+<p>Cursor 1.2 把长任务自动拆成带依赖的 To-dos，聊天中持续可见、随进度更新、可推 Slack；Plan Mode 的计划是可编辑 Markdown、存 <code>.cursor/plans/</code> 复用、可把选定 to-dos 派给新 agent。3.2（2026-04）推出 <code>/multitask</code>：在「单线程更可靠」共识下，仍把<strong>可并行</strong>的子任务交异步 subagent 编队——代表工程上的折中回摆。</p>
+<blockquote>
+<p>横向对比：Anthropic/Cursor 倾向「拆 + 人审 + 工件化」，Cognition 倾向「单线程 + 前置定清 + RL 压缩」。差异根源是任务画像——读多/广度 vs 写多/需合并。（这些厂商在编码/研究/Web 等场景的完整规划案例横评见 <a class="xref" href="13.html">13</a>）</p>
+</blockquote>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非事实陈述），可证伪、欢迎打脸。</strong></p>
+</blockquote>
+<p><strong>判断一：规划之争的「正确答案」正在从『选范式』收敛到『选控制器』。</strong> plan-then-execute vs interleaved 吵了三年，真正的工程结论不是某一方胜出，而是<strong>需要一个元控制器，按「环境不确定性 × 工具可靠性 × 任务长度」动态选择</strong>何时一次性规划、何时交错、何时重规划。ADaPT 的「失败才拆」、smolagents 的 <code>planning_interval</code> 都是这个控制器的雏形，但它们用的是固定启发式（失败信号 / 固定间隔）。下一步会是<strong>模型自决重规划时机</strong>——把「现在该不该重新规划」也变成一个可学习的决策。今天还没有公认判据，这是本节最值钱的开放问题。</p>
+<p><strong>判断二：Kambhampati 学派「LLM 不会规划」的结论，正在被「LLM 不会从零规划，但很会改计划」悄悄绕过。</strong> 那 0.16%–23.63% 的低分（Mystery 版 GPT-4 仅 0.16%、o1 在 110 难例集 23.63%）是「让 LLM 在封闭域、且多在语义混淆/超难实例上从空白生成可执行最优计划」的成绩；而真实产品里 LLM 干的是<strong>在人/工具/检索给的脚手架上做增量规划与修补</strong>——这恰好是它的强项。所以我认为符号外包（LLM+P）会留在「可形式化的封闭域」（机器人、调度、形式验证），而开放域的主战场属于「LLM 出方案 + 廉价可验证 critic（单测/类型检查/执行结果）」的 LLM-Modulo 变体。<strong>关键不是要不要 critic，而是在没有 PDDL 的开放任务里，怎么造出等价于 VAL 的廉价可靠 critic</strong>——目前最现实的答案是「可执行环境本身」（编译器、测试、沙箱）。</p>
+<p><strong>判断三：TODO/Tasks 的真正价值一半是给模型的、一半是给人的，别混为一谈。</strong> 把计划复诵进上下文对模型有因果增益（对抗 salience 衰减，2026 plan-compliance 论文给了证据）；但持久化、依赖、跨会话、可推 Slack 这些，<strong>主要服务于人类可观测性与可控性</strong>，对模型最终成功率的边际增益递减。工程上别为了「看起来很 agentic」而过度工程化清单——Manus 的 1/3 动作浪费就是警告。<strong>复诵要短、要近端、要高频；治理要外置、异步、按需。</strong></p>
+<p><strong>常见坑（踩过的人才懂）</strong>：</p>
+<ol>
+<li><strong>过度规划/overthinking</strong>：上来就把任务拆成 20 步细计划，结果环境一变全废，还白烧 token。对策：分解粒度匹配难度，按需递归。</li>
+<li><strong>计划漂移不自知</strong>：长轨迹里执行早就偏离初始计划，但没人提醒。对策：周期性复诵计划 + 在关键检查点对照核验。</li>
+<li><strong>无信号反思</strong>：让模型「再想想对不对」却没有外部验证——大概率把对的改错。对策：反思必须挂可执行/可检索信号。</li>
+<li><strong>过早 multi-agent 化</strong>：为不需要并行的任务上 orchestrator，换来 15x token 和上下文割裂。对策：先 single-agent + TODO，证明不够再拆。</li>
+<li><strong>糟糕计划比没计划更糟</strong>（2026 实证）：别为了「有计划」而塞一个与模型解题习惯冲突的烂计划。</li>
+</ol>
+<p><strong>最佳实践清单</strong>：① 默认从「single-agent + 显式 TODO + explore→plan→code→commit」起步；② 工具可靠且边界清晰 → plan-then-execute + DAG 并行；环境非平稳 → 交错 + 按需重规划；③ 子任务下发必须带「目标/输出格式/工具/边界」四要素契约；④ 反思一律挂外部验证信号；⑤ 高风险任务用只读 plan mode + 人审检查点门控；⑥ 计划默认临时驻留上下文，只有真正需要跨会话/团队协作才工件化持久化。</p>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>plan-then-execute 与 interleaved（ReAct）的本质区别与各自适用场景？</strong> 要点：前者一次性出全计划、推理与观测解耦（ReWOO/Plan-and-Solve），省 token、抗工具失败、可并行编排，适合工具可靠 + 边界清晰；后者边观测边决策（ReAct），抗环境非平稳、即时纠错，但贪心短视、每步一次调用。判别变量＝环境不确定性 × 工具可靠性 × 任务长度。</li>
+<li><strong>任务分解的四条主线及适用边界？</strong> 序列（Least-to-Most）/ 模块化可委派（DecomP、HuggingGPT）/ 递归按需（ADaPT）/ 自组装结构（Self-Discover）。会说每条的代表与「什么时候用哪个」即合格。</li>
+<li><strong>反思/自纠在什么条件下有正收益？</strong> 要点：必须有可靠外部反馈（单测、执行结果、检索证据、符号 critic）；无外部信号的纯内省式自纠在推理任务上往往不升反降（Huang《Cannot Self-Correct Yet》）。</li>
+<li><strong>为什么说『规划的核心是上下文工程而非智能体数量』？</strong> 长轨迹里全局目标 salience 衰减、被局部决策淹没（lost-in-the-middle）；复诵计划进近端上下文是廉价解；multi-agent 反而割裂上下文、放大 context engineering 难度（Cognition）。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>设计一个能处理长程编码任务（如修复跨多文件的 bug）的规划子系统。</strong> 期望覆盖：①入口 explore（搜代码库、画依赖）；② 只读 plan mode 产出可审计划 + 人审检查点；③ 把计划落成带依赖的 Tasks（DAG）；④ 读类子任务可并行下发（带目标/格式/工具/边界四要素契约），写类合并交单一主智能体；⑤ 周期性复诵计划对抗漂移 + 执行结果作为反思验证信号；⑥ 上下文预算管理（窗口填满即降智）；⑦ 失败时 ADaPT 式按需递归拆解。加分：讨论 plan-then-execute vs 交错的动态切换判据、token/延迟取舍。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>写出 ADaPT 风格「按需递归分解」的伪代码，并说明停止条件。</strong> 见 §4.2：先乐观执行 executor.try()，成功或超深度即返回；失败才 planner.decompose() 拆子任务，对每个子任务递归，再按 logic（and/or）组合。停止条件：执行成功、达到最大递归深度、或不可再分。考点是「分解时机 = 失败信号」而非预先全拆。</li>
+</ol>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>「multi-agent 并行一定比 single-agent 快又好」对吗？</strong> 错。并行 subagent 上下文割裂、「行动隐含决策」冲突难合并，写类任务结果难统一；代价约 15x token，只有读多/广度优先/高价值任务才划算（Anthropic +90.2% vs Cognition「Don't Build Multi-Agents」）。</li>
+<li><strong>「计划越详细越好」对吗？</strong> 错。过度规划导致僵化与 analysis-paralysis；2026 plan-compliance 实证表明<strong>糟糕的计划比没计划更伤性能</strong>，过早塞入与模型解题策略不一致的阶段会拖累表现。应按需分解、粒度匹配难度。</li>
+<li><strong>「让 LLM 自我反思就能纠错」对吗？</strong> 不一定。无外部验证信号时内省式自纠常常不升反降；反思的收益高度依赖可靠外部反馈。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li>Wei et al. (2022) <em>Chain-of-Thought Prompting Elicits Reasoning in LLMs</em> — <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2201.11903</a> ｜ 显式中间推理步骤激发多步推理，本节脉络起点（但仍是线性隐式，未分离 plan/execute）。</li>
+<li>Zhou et al. (2022) <em>Least-to-Most Prompting</em> — <a href="https://arxiv.org/abs/2205.10625" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2205.10625</a> ｜ 首个把复杂问题显式拆成由易到难子问题序列，确立「分解」为独立能力（SCAN 16%→99%）。</li>
+<li>Khot et al. (2022) <em>Decomposed Prompting</em> — <a href="https://arxiv.org/abs/2210.02406" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.02406</a> ｜ 模块化分解：子任务委派给专用子提示/子模型库，支持递归再分解与替换。</li>
+<li>Yao et al. (2022) <em>ReAct: Synergizing Reasoning and Acting</em> — <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> ｜ Reason-Act-Observe 交错范式，「反应式/即时规划」基线，plan-then-execute 的主要对照。</li>
+<li>Wang et al. (2023) <em>DEPS: Describe, Explain, Plan and Select</em> — <a href="https://arxiv.org/abs/2302.01560" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.01560</a> ｜ 开放世界交互式规划：失败时自解释纠错 + 可训练目标选择器，带反思的规划。</li>
+<li>Valmeekam &amp; Kambhampati et al. (2023) <em>On the Planning Abilities of LLMs</em> — <a href="https://arxiv.org/abs/2302.06706" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.06706</a> ｜ Blocksworld 实测：标准版 GPT-4 34.6%、语义混淆 Mystery 版骤降至 0.16%，怀疑派实证基石（低分主要在混淆版而非标准版）。</li>
+<li>Valmeekam &amp; Kambhampati et al. (2024) <em>Blocksworld 复测（推理模型 o1-preview）</em> — <a href="https://arxiv.org/abs/2409.13373" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2409.13373</a> ｜ 标准 Blocksworld 97.8%、语义混淆 Mystery 52.8%、更难 110 实例集仅 23.63%（未饱和），把「LLM 不会规划」修正为「会，但对混淆/超难实例仍脆」，是 §6 争议三的更新证据。</li>
+<li>Shinn et al. (2023) <em>Reflexion: Verbal Reinforcement Learning</em> — <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> ｜ 语言化反馈存入情节记忆、跨试错改进，反思纠错回路代表作。</li>
+<li>Shen et al. (2023) <em>HuggingGPT / JARVIS</em> — <a href="https://arxiv.org/abs/2303.17580" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.17580</a> ｜ LLM 作控制器：任务规划→选模型→执行→汇总，decomposition-first 产品化样板。</li>
+<li>Madaan et al. (2023) <em>Self-Refine: Iterative Refinement with Self-Feedback</em> — <a href="https://arxiv.org/abs/2303.17651" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.17651</a> ｜ 单 LLM 兼任生成/批评/精炼，自反馈迭代，7 类任务平均约 +20%。</li>
+<li>Liu, Stone et al. (2023) <em>LLM+P</em> — <a href="https://arxiv.org/abs/2304.11477" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.11477</a> ｜ NL→PDDL→经典规划器→NL，神经符号外包路线开创者。</li>
+<li>Wang et al. (2023) <em>Plan-and-Solve Prompting</em> (ACL 2023) — <a href="https://arxiv.org/abs/2305.04091" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.04091</a> ｜ 零样本「先规划分解→再执行」，把隐式 CoT 升级为显式 plan-then-execute。</li>
+<li>Yao et al. (2023) <em>Tree of Thoughts</em> — <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.10601</a> ｜ 带自评估与回溯的思维树搜索（Game of 24：4%→74%），带前瞻的规划。</li>
+<li>Xu et al. (2023) <em>ReWOO: Decoupling Reasoning from Observations</em> — <a href="https://arxiv.org/abs/2305.18323" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.18323</a> ｜ 一次性出全计划再批量执行，token 约降 5x 且抗工具失败，plan-then-execute 标志作。</li>
+<li>Huang et al. (2023) <em>LLMs Cannot Self-Correct Reasoning Yet</em> — <a href="https://arxiv.org/abs/2310.01798" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.01798</a> ｜ 无外部反馈的内省式自纠常不升反降，反思有效性的边界证据。</li>
+<li>Prasad et al. (2023) <em>ADaPT: As-Needed Decomposition and Planning</em> — <a href="https://arxiv.org/abs/2311.05772" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.05772</a> ｜ 仅在执行失败时递归分解，粒度自适应难度（ALFWorld/WebShop/TextCraft 最高 +28/+27/+33%）。</li>
+<li>Kim et al. (2023) <em>An LLM Compiler for Parallel Function Calling</em> — <a href="https://arxiv.org/abs/2312.04511" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2312.04511</a> ｜ 计划编译成函数调用 DAG 并行调度，较 ReAct 提速 3.7x、省成本 6.7x。</li>
+<li>Huang et al. (2024) <em>Understanding the Planning of LLM Agents: A Survey</em> — <a href="https://arxiv.org/abs/2402.02716" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.02716</a> ｜ 五类法（分解/选择/外部模块/反思/记忆），领域选型坐标。</li>
+<li>Zhou et al. (2024) <em>Self-Discover: LLMs Self-Compose Reasoning Structures</em> — <a href="https://arxiv.org/abs/2402.03620" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.03620</a> ｜ 从原子模块自组装任务专属规划结构，较 CoT 最高 +32%、推理算力降 10–40x。</li>
+<li>Kambhampati et al. (2024) <em>LLMs Can't Plan, But Can Help Planning in LLM-Modulo Frameworks</em> (ICML 2024) — <a href="https://arxiv.org/abs/2402.01817" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.01817</a> ｜ generate-test-critique 混合架构，争议的综合解。</li>
+<li>Erdogan et al. (2025) <em>Plan-and-Act</em> (ICML 2025) — <a href="https://arxiv.org/abs/2503.09572" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.09572</a> ｜ Planner/Executor 分离 + 合成数据训练规划器，WebArena-Lite 57.58% SOTA。</li>
+<li>(2026) <em>Evaluating Plan Compliance in Autonomous Programming Agents</em> — <a href="https://arxiv.org/abs/2604.12147" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2604.12147</a> ｜ SWE-agent 16,991 轨迹首个大规模「计划遵守度」分析：长轨迹漂移、周期提醒可缓解、烂计划比没计划更糟。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文 <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li>Lilian Weng (2023) <em>LLM Powered Autonomous Agents</em> — <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer">https://lilianweng.github.io/posts/2023-06-23-agent/</a> ｜ 最具影响力的 agent 综述博文，把 Planning 拆为分解 + 反思，工程界规划心智模型来源。</li>
+<li>LangChain (2023) <em>Plan-and-Execute Agents</em> — <a href="https://www.langchain.com/blog/plan-and-execute-agents" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/plan-and-execute-agents</a> ｜ planner/executor 分离搬进生产框架，灵感点名 BabyAGI 与 Plan-and-Solve；代价是「需多得多的模型调用」。</li>
+<li>Anthropic (2024) <em>Building Effective Agents</em> — <a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/building-effective-agents</a> ｜ 区分工作流分解（prompt chaining）与自主规划（orchestrator-workers），start simple、按需升级的取舍基线。</li>
+<li>Anthropic (2025) <em>How we built our multi-agent research system</em> — <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> ｜ lead agent 规划写入 memory、按复杂度起 subagent、子任务四要素契约；+90.2% 代价约 15x token。</li>
+<li>Cognition (2025) <em>Don't Build Multi-Agents</em> — <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> ｜ 反对并行 subagent（共享完整 trace、行动隐含决策冲突），主张单线程连续上下文，可靠性核心是 context engineering。</li>
+<li>Cognition (2025) <em>Devin's 2025 Performance Review</em> — <a href="https://cognition.ai/blog/devin-annual-performance-review-2025" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/devin-annual-performance-review-2025</a> ｜ 一手运营复盘：擅长前期理解代码库/画架构，但「清晰前置 scoping + 可验证产出」才适合自主规划，中途加需求会变差。</li>
+<li>OpenAI (2025) <em>A practical guide to building agents</em> — <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer">https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf</a> ｜ manager pattern vs decentralized handoff，建议从 single-agent 起步、必要时才 multi-agent。</li>
+<li>LangChain / Harrison Chase (2025) <em>How and when to build multi-agent systems</em> — <a href="https://www.langchain.com/blog/how-and-when-to-build-multi-agent-systems" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/how-and-when-to-build-multi-agent-systems</a> ｜ 读多任务适合 multi-agent、写任务交单一主智能体；子任务必须配详细指令；context engineering 是工程师第一要务。</li>
+<li>Manus / Yichao 'Peak' Ji (2025) <em>Context Engineering for AI Agents: Lessons from Building Manus</em> — <a href="https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus" target="_blank" rel="noopener noreferrer">https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus</a> ｜ 重写 todo.md 复诵全局计划抗 lost-in-the-middle；约 1/3 动作耗在更新清单，后转 planner→executor subagent。</li>
+<li>Hugging Face (2025) <em>Building good agents (smolagents — periodic planning)</em> — <a href="https://huggingface.co/docs/smolagents/tutorials/building_good_agents" target="_blank" rel="noopener noreferrer">https://huggingface.co/docs/smolagents/tutorials/building_good_agents</a> ｜ <code>planning_interval</code> 把「周期性重规划」做成框架级开关，支持 human-in-the-loop 改计划。</li>
+<li>Anthropic (2026) <em>How we built Claude Code auto mode</em> — <a href="https://www.anthropic.com/engineering/claude-code-auto-mode" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/claude-code-auto-mode</a> ｜ plan mode 与 todo 被划入「不修改状态」安全工具白名单自动放行，印证规划/待办在权限模型里是只读低风险动作。</li>
+<li>Cursor (2025) <em>Agent Planning, Better Context &amp; Faster Tab (1.2 Changelog)</em> — <a href="https://cursor.com/changelog/1-2" target="_blank" rel="noopener noreferrer">https://cursor.com/changelog/1-2</a> ｜ Agent To-dos：长任务拆成带依赖待办、持续可见随进度更新、可推 Slack。</li>
+<li>Cursor (2025) <em>Plan Mode (Docs)</em> — <a href="https://cursor.com/docs/agent/plan-mode" target="_blank" rel="noopener noreferrer">https://cursor.com/docs/agent/plan-mode</a> ｜ 计划是可编辑 Markdown、存 <code>.cursor/plans/</code> 复用、可把选定 to-dos 派给新 agent，规划＝可编辑可复用工件。</li>
+<li>Cursor (2026) <em>Multitask, Worktrees, and Multi-root Workspaces (3.2 Changelog)</em> — <a href="https://cursor.com/changelog/04-24-26" target="_blank" rel="noopener noreferrer">https://cursor.com/changelog/04-24-26</a> ｜ <code>/multitask</code> 异步 subagent 并行，在「单线程更可靠」共识下保留显式并行入口（折中回摆）。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li>Anthropic (2025) <em>Todo Lists / Task Tracking (Agent SDK Docs)</em> — <a href="https://code.claude.com/docs/en/agent-sdk/todo-tracking" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/agent-sdk/todo-tracking</a> ｜ <code>pending/in_progress/completed</code> 三态机演进为带依赖/阻塞的 Task 工具（<code>TaskCreate/TaskUpdate/TaskGet/TaskList</code>，会话内作用域），规划产品化权威口径。</li>
+<li>Anthropic (2025) <em>Claude Code Best Practices (explore→plan→code→commit)</em> — <a href="https://code.claude.com/docs/en/best-practices" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/best-practices</a> ｜ 非平凡任务四阶段，核心是上下文管理与 TDD 反馈环。</li>
+<li>Kambhampati et al. (2024) <em>Position: LLMs Can't Plan…</em> (PMLR v235) — <a href="https://proceedings.mlr.press/v235/kambhampati24a.html" target="_blank" rel="noopener noreferrer">https://proceedings.mlr.press/v235/kambhampati24a.html</a> ｜ ICML 2024 官方收录版，LLM-Modulo 立场论文。</li>
+</ul>
+<hr>
+<blockquote>
+<p>交叉链接：<a class="xref" href="01.html">01</a> 推理范式（CoT/ReAct/Reflexion）｜<a class="xref" href="03.html">03</a> 上下文工程（lost-in-the-middle / TODO 锚点）｜<a class="xref" href="04.html">04</a> 工具与 MCP（DAG 并行调用）｜<a class="xref" href="06.html">06</a> 记忆系统（计划写入 memory）｜<a class="xref" href="08.html">08</a> 多智能体编排（orchestrator-workers）｜<a class="xref" href="09.html">09</a> 评估（plan adherence）｜<a class="xref" href="12.html">12</a> 安全与对抗（plan mode 只读门控）｜<a class="xref" href="13.html">13</a> 大厂案例研究</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="04.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">04 · 工具与 MCP</span>
+  </a>
+  <a class="pager__link pager__link--next" href="06.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">06 · 记忆系统</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 四条分解策略主线</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 plan-then-execute vs interleaved</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 TODO / plan 工程模式：把计划复诵进近端上下文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 反思纠错回路（reflection）与它的边界</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 计划遵守度（plan adherence）：一个被低估的新问题</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议一：plan-then-execute vs interleaved（先规划 vs 边做边想）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议二：反思/自纠真有效，还是经常帮倒忙？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议三：LLM 该自己规划，还是外包给符号规划器？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议四：复杂任务该拆给并行 subagent，还是单线程线性智能体？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-5">争议五：计划是「持久化可编辑工件」还是「临时上下文产物」？且要不要人审？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A：Anthropic — multi-agent 研究系统（orchestrator-workers）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B：Cognition（Devin）— 单线程 + 前置 scoping + RL 压缩规划</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C：Anthropic Claude Code — plan mode + Tasks 的安全/上下文定位</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 D：Manus — 从 todo.md 复诵到 planner/executor 分离</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-5">案例 E：Cursor — 可视可编辑 To-dos + <code>/multitask</code> 折中回摆</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

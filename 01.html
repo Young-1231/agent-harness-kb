@@ -1,0 +1,449 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>01 · Agent 核心与推理范式 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">01 · Agent 核心与推理范式 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link is-active" href="01.html" aria-current="page"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>01 · Agent 核心与推理范式</h1>
+<blockquote>
+<p><strong>定位</strong>：Agent 的"思考"机制——决定下一步行动的推理（reasoning）与决策范式。 <strong>在链路中的位置</strong>：对应全局链路里的 <strong>Think</strong> 环节。这一节是"概念层"，讲清"推理范式"本身；下一节 <a class="xref" href="02.html">02</a> Harness 运行时讲它怎么被工程实现成主循环。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：从 2022 年的 Chain-of-Thought（CoT）出发，沿"<code>prompt 即推理</code> → <code>思考+行动</code>（ReAct）→ <code>自我反思/外部搜索</code>（Reflexion/ToT）→ <code>训练出推理</code>（o1/R1）"这条主线，讲清推理范式如何一步步从 <strong>prompt 外挂搬进权重</strong>，以及这对 Agent 设计意味着什么。读完你应能回答：ReAct 的机制与失败模式、prompted vs trained reasoning 的本质差异、推理模型时代手工脚手架是否过时、CoT 能不能当安全监控信号。</p>
+<p><strong>3–5 条核心结论</strong>：</p>
+<ol>
+<li><strong>推理范式的主线是"内化"</strong>：人手搭的脚手架（CoT → ReAct → Reflexion → ToT/GoT/LATS）逐步被 RL 训练目标吸收。作为"训练出的推理"开路者，o1（2024）、DeepSeek-R1（2025）把"逐步思考+搜索+回溯"训进权重，Agent 的外部脚手架因此变薄、主循环变简单；到 2026，这套配方已是旗舰标配——当代推理旗舰（GPT-5.5、Claude Opus 4.8、Gemini 3、DeepSeek-V4）默认内置长思考。</li>
+<li><strong>test-time compute 成为新的 scaling 轴</strong>：继参数、数据之后，"让模型多想一会儿"（更长 CoT / 并行思考）成为可单调换准确率的第三条 scaling 曲线，且可作为产品旋钮（thinking budget / effort level）调控。</li>
+<li><strong>ReAct 是现代 Agent 的认知架构母版</strong>：<code>Thought → Action → Observation</code> 循环把推理"接地"到外部世界，至今仍是生产 Agent 的事实标准循环；但它有可预测的失败模式（错误传播、死循环、对观测质量敏感、长程脆弱）。</li>
+<li><strong>"是否真推理"仍是开放前沿</strong>：RLVR 究竟创造了新能力还是只放大基座已有路径（Yue et al.）、推理模型会不会"复杂度崩塌"（Apple vs Lawsen）、CoT 是否忠实可监控（Turpin vs Korbak/Bengio），三组争议都未盖棺。</li>
+<li><strong>范式转变重写了 Agent 工程取舍</strong>：推理强了，但"与世界交互、状态/记忆、可靠性、编排"并没被推理模型解决——所以 prompt engineering 升格为 <strong>context engineering</strong>（<a class="xref" href="03.html">03</a>），而非消亡。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>Agent = <strong>模型（能力）+ Harness（可靠性）+ 循环 + 自主决策</strong>（详见 <a class="xref" href="00.html">00</a>）。本节聚焦其中"模型怎么想"这一层：<strong>给定当前上下文，Agent 如何决定下一步该输出什么、该调哪个工具、何时停</strong>。这是整条链路的"大脑"，决定了上层 Harness 能做到多薄、工具调用能多可靠。</p>
+<p><strong>它解决什么问题？</strong> GPT-3 时代发现：纯靠堆参数，在多步算术、常识、符号推理上会撞墙——模型"一步到位"地猜答案，错误率高且不可控。推理范式的根本动机，是把模型<strong>潜在的中间计算显式化、可控化、可接地化</strong>：</p>
+<ul>
+<li><strong>显式化</strong>（CoT）：让中间推理步骤以文本形式吐出来，把"一锤定音"变成"可检查的过程"。</li>
+<li><strong>可接地</strong>（ReAct）：让推理能调外部工具/环境，避免在脑内幻觉事实、拿不到实时信息。</li>
+<li><strong>可改进</strong>（Reflexion/Self-Refine/ToT）：让推理能自评、回溯、跨尝试学习。</li>
+<li><strong>可训练</strong>（STaR → PRM → o1/R1）：把上面这些"推理时才发生的好行为"压进权重，使之稳定、可迁移、可 scaling。</li>
+</ul>
+<p><strong>在 Agent 链路中的位置</strong>：推理范式是 <a class="xref" href="00.html">00</a> 心智模型与 <a class="xref" href="02.html">02</a> Harness 之间的概念枢纽。它向下决定 <a class="xref" href="05.html">05</a> 规划与任务分解怎么做、<a class="xref" href="04.html">04</a> 工具何时被调用；向上又被 <a class="xref" href="03.html">03</a> 上下文工程喂养（推理质量高度依赖上下文里放了什么）。理解这一节，是理解后面所有工程取舍的前提。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（时间线） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线逻辑一句话：<strong>推理从 prompt 外挂逐步搬进权重</strong>。下面每个里程碑都标注"为什么这样演进"。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2022-01</strong></td><td><strong>Chain-of-Thought</strong>（Wei et al., Google Brain）</td><td>堆参数撞墙后，用几个"一步步想"的范例把模型潜在中间步骤显式化，准确率大涨——奠定"推理是大模型涌现、可被提示激发的能力"这一起点。</td></tr>
+<tr><td><strong>2022-03</strong></td><td><strong>Self-Consistency + STaR</strong>（Wang et al.; Zelikman et al.）</td><td>两个互补动作：①采样多条 CoT 路径再多数投票，把推理变成"集成/搜索"（test-time compute 雏形）；②STaR 把自生成的正确推理链拿去微调——<strong>首次把推理"训"进权重</strong>的种子。</td></tr>
+<tr><td><strong>2022-05</strong></td><td><strong>Zero-shot CoT + Least-to-Most</strong>（Kojima et al.; Zhou et al.）</td><td>"Let's think step by step" 让 CoT 无需范例即可触发；Least-to-Most 引入显式问题分解——CoT 从手工范例泛化为通用机制。</td></tr>
+<tr><td><strong>2022-10</strong></td><td><strong>ReAct</strong>（Yao et al., Princeton/Google）</td><td>纯 CoT 在脑内推理会幻觉、拿不到外部信息。ReAct 把"思考→行动→观察"串成循环，让推理被外部世界接地。<strong>推理范式与 Agent 正式合流</strong>；数月后 Meta 的 Toolformer（2023-02）让模型学会自调 API。</td></tr>
+<tr><td><strong>2023-02~03</strong></td><td><strong>Toolformer, Reflexion, Self-Refine</strong></td><td>工具使用从"提示"变"学习"（Toolformer 自监督决定调什么 API）；Agent 获得迭代自改进——Reflexion 用"言语强化学习"把失败教训写进情景记忆，Self-Refine 用单模型自评自改。</td></tr>
+<tr><td><strong>2023-05</strong></td><td><strong>Tree of Thoughts + Let's Verify Step by Step</strong>（Yao et al.; Lightman et al.）</td><td>ToT 把 CoT 泛化为可 BFS/DFS 搜索、带回溯的思维树（Game of 24：CoT≈4% → ToT≈74%）；"Let's Verify" 证明<strong>逐步过程监督（PRM）胜过只看结果</strong>——后来 RL 推理模型的奖励建模基础。</td></tr>
+<tr><td><strong>2023-08~10</strong></td><td><strong>Graph of Thoughts + LATS</strong>（Besta et al.; Zhou et al.）</td><td>把推理时审议推到顶点：任意图拓扑的思维（合并/聚合/反馈），以及 MCTS 统一"推理+行动+规划"。<strong>这是"靠人工脚手架在模型外部编排搜索"的能力天花板</strong>——也正是训练派想内化的对象。</td></tr>
+<tr><td><strong>2023-10</strong></td><td><strong>LLMs Cannot Self-Correct Reasoning Yet</strong>（Huang et al.）</td><td>反证据：缺乏外部反馈/oracle 时，<strong>内在自我校正常常反而掉点</strong>。重新界定 Reflexion/Self-Refine 何时真有效，反向激励"把推理训进权重"的 RL 路线。</td></tr>
+<tr><td><strong>2024-09</strong></td><td><strong>OpenAI o1（"Learning to reason with LLMs"）</strong></td><td>与其让人手搭 ToT/Reflexion，o1 用大规模 RL 直接训练超长内部 CoT，性能随"思考"token 增加而变强。<strong>推理从 prompt 搬进权重</strong>，test-time compute 成为第一类 scaling 轴；官方甚至建议对 o1 少用 few-shot CoT。</td></tr>
+<tr><td><strong>2024-12</strong></td><td><strong>o1 System Card + Anthropic《Building Effective Agents》</strong></td><td>o1 system card 提出 deliberative alignment（用推理在上下文中对齐安全策略）；Anthropic 同期清晰切分 workflow 与 agent、给出 5 种编排模式，成为大厂 Agent 工程基准文献（详见 <a class="xref" href="00.html">00</a>/<a class="xref" href="02.html">02</a>）。</td></tr>
+<tr><td><strong>2025-01</strong></td><td><strong>DeepSeek-R1 + Kimi k1.5 + HF Open-R1</strong></td><td>开源配方坐实 <strong>RLVR</strong>：R1-Zero 纯 RL（GRPO）无 SFT 即涌现反思/自验证/"aha moment"（AIME pass@1 15.6%→71%）；k1.5 证明 RL 不需 MCTS/PRM 也能 scale；HF 当月启动 Open-R1 补齐数据/训练管线。<strong>把 o1 平民化</strong>。</td></tr>
+<tr><td><strong>2025-02</strong></td><td><strong>Claude 3.7 Sonnet 推出 extended thinking</strong></td><td>首个 hybrid 推理模型：思考可开关、对用户可见、可设 "thinking budget" 精确控制思考时长——<strong>把推理深度做成产品/API 旋钮</strong>。</td></tr>
+<tr><td><strong>2025-03~06</strong></td><td><strong>Search-R1、RLVR-capacity 之争、Apple《Illusion of Thinking》</strong></td><td>Search-R1 把多轮搜索/工具用端到端训进推理器；Yue et al. 用 pass@k 质疑 RL 只锐化不扩展；Apple 用可控谜题指复杂度超阈值即"崩塌"，旋即被 Lawsen 反驳为评测假象——<strong>"是否真推理"成为当下开放前沿</strong>。</td></tr>
+<tr><td><strong>2026 H1</strong></td><td><strong>当代推理旗舰齐发 + agentic RL 综述成形</strong></td><td>"训练出的推理"已成旗舰默认档：GPT-5.5、Claude Opus 4.8、Gemini 3、DeepSeek-V4 内置长思考与难度路由；同期《The Landscape of Agentic Reinforcement Learning for LLMs: A Survey》（2509.02547，TMLR）系统化"把推理+工具用一起训进权重"，标志范式重心从提示/外部脚手架进一步移向<strong>训练侧</strong>。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 CoT：把"潜在计算"显式化 <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<p>CoT 的本质是改变<strong>解码分布</strong>：不让模型直接对 <code>P(answer | question)</code> 采样，而是先生成中间步骤 <code>r</code>，再对 <code>P(answer | question, r)</code> 采样。中间步骤把一个"需要多步组合"的难题，拆成若干"每步都在分布内"的易题。Self-Consistency 进一步把单条贪心链换成"采样 N 条 + 对最终答案多数投票"，用更多推理时算力换鲁棒性——这是 test-time compute 思想的最早雏形。</p>
+<h3 id="sec-4-2">4.2 ReAct：思考-行动-观察循环（本节必懂） <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>ReAct（Reasoning + Acting）的核心，是让 policy 交错产出一条<strong>轨迹（trace）</strong>：</p>
+<ul>
+<li><strong>Thought</strong>：自由形式推理——规划、分解、跟踪状态、处理异常；</li>
+<li><strong>Action</strong>：一次工具/环境调用，如 <code>search[...]</code>、<code>lookup[...]</code>、<code>finish[...]</code>；</li>
+<li><strong>Observation</strong>：调用返回的结果，回灌进上下文。</li>
+</ul>
+<p>循环直到 <code>Finish</code>。<strong>推理让模型会计划、会分解、会跟踪状态、会处理异常；行动让推理被外部事实接地，不至于无约束地漂移</strong>。这种双向协同，恰好补上了纯 CoT（无接地、会幻觉）和纯 act-only agent（无规划、瞎调工具）各自缺的那一半。</p>
+<p>最小伪代码（生产实现见 <a class="xref" href="02.html">02</a>）：</p>
+<pre data-lang="python"><code>def react_loop(task, tools, llm, max_steps=15):
+    ctx = [system_prompt(tools), user(task)]
+    for step in range(max_steps):
+        out = llm(ctx)                       # 模型吐出 Thought + 一个 Action
+        thought, action = parse(out)         # 解析（失败要重试/纠错）
+        ctx.append(assistant(thought, action))
+        if action.name == "finish":
+            return action.args               # 命中停止条件
+        obs = execute(action, tools)         # Harness 侧：权限校验→沙箱执行
+        ctx.append(observation(obs))         # 结果回灌，进入下一轮
+    return fallback("hit max_steps")         # 防死循环兜底
+</code></pre>
+<p><strong>ReAct 的失败模式（必背）</strong>，源自 Yao et al. 与后续工作：</p>
+<ol>
+<li><strong>错误/幻觉传播</strong>：一个错 Thought 触发错 Action，其 Observation 又"印证"了这个错误，越走越偏。</li>
+<li><strong>重复无信息循环</strong>：反复发同一个 search/thought 卡死，没有 reset 就出不来。</li>
+<li><strong>对检索/观测质量高度敏感</strong>：工具返回噪声或误导信息会直接带偏整条链。</li>
+<li><strong>长程脆弱</strong>：上下文增长 → 状态跟踪退化；贪心单路径解码没有回溯能力。</li>
+</ol>
+<p>正是这些失败模式催生了后续方案：Reflexion（把失败写进记忆）、Self-Consistency/ToT/LATS（多轨迹搜索与回溯）、以及训练出来的 agentic 推理器。</p>
+<h3 id="sec-4-3">4.3 从"提示推理"到"训练推理"——本章中轴 <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>维度</th><th><strong>Prompted reasoning</strong>（推理时激发，不改权重）</th><th><strong>Trained reasoning</strong>（把推理优化进权重）</th></tr></thead>
+<tbody>
+<tr><td>代表</td><td>CoT、Zero-shot-CoT、Self-Consistency、Least-to-Most/Plan-and-Solve、ToT/GoT/LATS、Self-Refine/Reflexion</td><td>STaR（自举推理链）、PRM（Let's Verify）、再到 RL：o1、DeepSeek-R1（RLVR，R1-Zero 连 SFT 都免）、Kimi k1.5</td></tr>
+<tr><td>成本</td><td>便宜、即插即用</td><td>训练昂贵</td></tr>
+<tr><td>可迁移</td><td>模型无关，但脆弱、随模型迭代失效</td><td>内化进权重，跨任务更稳</td></tr>
+<tr><td>透明度</td><td>透明，但有时不忠实/不可自纠</td><td>长 CoT 连贯但更不透明，原始 CoT 可能被隐藏</td></tr>
+<tr><td>能力上限</td><td>受基座限制</td><td>更鲁棒、长 CoT、可 test-time scaling；但有争议（Yue et al.：可能只锐化不扩展）</td></tr>
+</tbody>
+</table>
+</div>
+<p><strong>RLVR（Reinforcement Learning with Verifiable Rewards）</strong> 是 o1/R1 的核心配方：在数学、代码等<strong>答案可自动验证</strong>的域上，用结果奖励做 RL（R1 用 GRPO），模型自发涌现长 CoT、自我验证、回溯。PRM（过程奖励，逐步打分）和 STaR（自举正确链做 SFT）是它的两块前置铺垫；但 Kimi k1.5 证明<strong>不用 MCTS/PRM 也能 scale</strong>，说明"过程监督是否必需"仍有分歧。</p>
+<h3 id="sec-4-4">4.4 推理模型如何改变 Agent 设计（必懂的四点变化） <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<ol>
+<li><strong>脚手架变薄</strong>：过去要用 ToT/GoT/LATS 或 multi-agent 自反思在<strong>外部</strong>搭的"审议/搜索/回溯"，现在被<strong>内化</strong>进模型，Agent 循环更简单。</li>
+<li><strong>思考成为可调旋钮</strong>：inference-time compute（"多想一会儿"）变成可与准确率/延迟/成本权衡的参数（thinking budget / effort level）。</li>
+<li><strong>工具/搜索从 prompt 走向端到端 RL</strong>：Toolformer → Search-R1，模型<strong>学会</strong>何时、调什么，而非靠人写 ReAct 提示。</li>
+<li><strong>新的失败/安全面</strong>：长隐藏 CoT 带来忠实性与可监控性问题（Turpin；o1 deliberative alignment），以及"过度思考"的效率权衡。</li>
+</ol>
+<h3 id="sec-4-5">4.5 两条"自改进"路线：测试时自我修正 vs 训练时自改进（→ 新专节 <a class="xref" href="16.html">16</a>） <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<p>把 §4.3 的"提示 vs 训练"再切一刀，专看<strong>"自评/反思/回溯"发生在哪一侧</strong>——这是理解 <a class="xref" href="16.html">16</a> 训练侧专节的入口：</p>
+<ul>
+<li><strong>测试时自我修正（推理时 prompting / scaffolding）</strong>：自改进发生在<strong>权重之外、推理当下</strong>——Self-Refine（单模型自评自改）、Reflexion（把失败写进情景记忆）、ToT/LATS（外部搜索+回溯）。优点是即插即用、模型无关；但脆弱，且据 Huang et al.（2310.01798）<strong>缺外部反馈时内在自纠常掉点</strong>。</li>
+<li><strong>训练时自改进（RL/RLVR 把审议训进权重）</strong>：把"逐步思考+自验证+回溯"当训练目标压进权重——o1、DeepSeek-R1（RLVR/GRPO），再到把<strong>推理与工具使用一起训进权重</strong>的 agentic RL（《The Landscape of Agentic Reinforcement Learning for LLMs》2509.02547）。更鲁棒、可迁移、可 test-time scaling。</li>
+</ul>
+<p>一句话落点：<strong>审议从"推理时外挂"前移到"训练时内化"，Agent 工程的护城河也随之从「写 prompt」前移到「攒轨迹数据 + 设计 RL 训练」</strong>。这条训练侧主线（RLVR → agentic RL、奖励/可验证域、轨迹数据）已单列为新专节 <a class="xref" href="16.html">16</a> 系统展开，本节只做概念区分、不深入训练细节。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方案</th><th>年份</th><th>推理形态</th><th>接地/工具</th><th>搜索/回溯</th><th>自我改进</th><th>训练 or 提示</th><th>适用场景</th></tr></thead>
+<tbody>
+<tr><td><strong>CoT</strong></td><td>2022</td><td>线性链</td><td>无</td><td>无</td><td>无</td><td>提示（few-shot）</td><td>通用多步推理打底</td></tr>
+<tr><td><strong>Zero-shot CoT</strong></td><td>2022</td><td>线性链</td><td>无</td><td>无</td><td>无</td><td>提示（一句话）</td><td>零样本快速激发</td></tr>
+<tr><td><strong>Self-Consistency</strong></td><td>2022</td><td>多链投票</td><td>无</td><td>隐式（采样）</td><td>无</td><td>提示</td><td>答案可投票的任务</td></tr>
+<tr><td><strong>Least-to-Most / Plan-and-Solve</strong></td><td>2022/23</td><td>分解→顺序解</td><td>无</td><td>无</td><td>无</td><td>提示</td><td>易到难泛化、长问题</td></tr>
+<tr><td><strong>ReAct</strong></td><td>2022</td><td>思考⇄行动</td><td><strong>强</strong></td><td>弱</td><td>无</td><td>提示</td><td>工具/检索类 Agent（母版）</td></tr>
+<tr><td><strong>Toolformer</strong></td><td>2023</td><td>内嵌 API 调用</td><td>强</td><td>无</td><td>无</td><td><strong>训练（自监督）</strong></td><td>学会自调工具</td></tr>
+<tr><td><strong>Self-Refine</strong></td><td>2023</td><td>生成-评-改</td><td>无</td><td>无</td><td><strong>强（单模型）</strong></td><td>提示</td><td>可自评的生成任务</td></tr>
+<tr><td><strong>Reflexion</strong></td><td>2023</td><td>行动+语言反思</td><td>强</td><td>弱</td><td><strong>强（跨尝试）</strong></td><td>提示+记忆</td><td>多次重试的决策/编码</td></tr>
+<tr><td><strong>Tree of Thoughts</strong></td><td>2023</td><td>思维树</td><td>弱</td><td><strong>强（BFS/DFS+回溯）</strong></td><td>自评估</td><td>提示</td><td>Game of 24、需前瞻</td></tr>
+<tr><td><strong>Graph of Thoughts</strong></td><td>2023</td><td>思维图</td><td>弱</td><td><strong>强（任意拓扑）</strong></td><td>聚合</td><td>提示</td><td>可合并/聚合的复杂问题</td></tr>
+<tr><td><strong>LATS</strong></td><td>2023</td><td>MCTS 统一推理+行动+规划</td><td>强</td><td><strong>强（MCTS）</strong></td><td>价值+反思</td><td>提示</td><td>编码/QA 高精度</td></tr>
+<tr><td><strong>o1 / o3</strong></td><td>2024</td><td>训练出的长 CoT</td><td>强（工具版）</td><td><strong>内化</strong></td><td>内化</td><td><strong>训练（RL）</strong></td><td>数学/代码/科学硬题</td></tr>
+<tr><td><strong>DeepSeek-R1 / k1.5</strong></td><td>2025</td><td>训练出的长 CoT</td><td>强</td><td>内化</td><td>内化（自验证）</td><td><strong>训练（RLVR）</strong></td><td>开源推理、可蒸馏部署</td></tr>
+<tr><td><strong>Search-R1</strong></td><td>2025</td><td>训练出的多轮搜索</td><td><strong>端到端</strong></td><td>内化</td><td>内化</td><td><strong>训练（RL）</strong></td><td>agentic 检索 QA</td></tr>
+</tbody>
+</table>
+</div>
+<p>横向看一眼就懂这条主线：<strong>接地与搜索能力从"外部脚手架"（ReAct/ToT/GoT/LATS）一路向"训练内化"（o1/R1/Search-R1 为开路者）迁移</strong>；到 2026，这套内化已成当代推理旗舰（GPT-5.5/Opus 4.8/Gemini 3/DeepSeek-V4）的默认档位，表中 o1/o3、R1 等行应读作"相变起点"而非当前 SOTA。</p>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议（≥2 组对立面） <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议 A：推理模型时代，ReAct 与手工 prompt 脚手架是否过时？（本卷核心争议） <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>过时/被吸收派</strong>：o1/R1 已把"逐步思考"内化进权重，OpenAI 官方建议对推理模型<strong>别再堆 few-shot CoT</strong>；ToT/Reflexion 式外部搜索正被 RL 训练目标吸收。论据是手工 prompt 脆弱、不可迁移、随模型迭代失效——符合 Rich Sutton <strong>"苦涩的教训"</strong>（通用的学习+搜索终将碾压人工结构）。代表：OpenAI o1 团队（<strong>Noam Brown</strong>，见 Sequoia 播客）、Sutton 阵营。</li>
+<li><strong>未过时/转型派</strong>：推理模型只解决"想"，不解决"与外部世界交互、多步任务编排、状态/记忆/可靠性"；ReAct 的 thought-action-observation 循环仍是生产 Agent 的认知架构。术语从 prompt engineering 升格为 <strong>context engineering</strong>（<strong>Karpathy</strong>、Tobi Lütke, 2025-06），是进化非消亡。代表：<strong>LangChain（Harrison Chase，LangGraph 编排层）</strong>、应用工程社区。</li>
+<li><strong>我的边界判断</strong>：分歧其实在"任务可验证性"。可验证域（数学/代码/检索 QA）里训练内化收益大、脚手架快速贬值；开放、长程、强状态依赖的生产任务里，编排/上下文/记忆仍是工程师的活。</li>
+</ul>
+<h3 id="sec-6-2">争议 B：RL（RLVR）给了模型<strong>新</strong>推理能力，还是只锐化基座已有的？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>创造新能力派</strong>：DeepSeek-R1 / Kimi k1.5——大规模 RL 让自我反思、验证、更长 CoT 等<strong>新行为涌现</strong>（R1-Zero 的 "aha moment"）。</li>
+<li><strong>只锐化派</strong>：<strong>Yue et al.（清华 LeapLab, 2504.13837）</strong>——pass@k 分析显示 RLVR 提升采样效率（k=1 更好）却<strong>缩窄</strong>推理边界（大 k 时基座反超），即 RL 只是把概率重新加权到基座已有路径上，未创造新路径。（NeurIPS 2025）</li>
+<li><strong>未决</strong>：核心是"怎么测推理能力"——pass@1 还是 pass@k？这条争议直接关系到 <a class="xref" href="09.html">09</a> 评估怎么设计。</li>
+</ul>
+<h3 id="sec-6-3">争议 C：LLM 能否在无外部反馈下可靠自我纠错？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>能派</strong>：Self-Refine / Reflexion——迭代自反馈+语言反思跨任务提升。</li>
+<li><strong>不能派</strong>：<strong>Huang et al.（2310.01798）</strong>——<strong>内在</strong>自我校正（无 oracle/外部信号）常<strong>掉点</strong>；很多"提升"其实来自把 ground-truth 泄漏进了循环。</li>
+<li><strong>含义</strong>：自我纠错要可靠，<strong>最小外部信号是什么</strong>是未解问题——这也解释了为什么 RLVR 偏爱可验证域。</li>
+</ul>
+<h3 id="sec-6-4">争议 D：CoT 是否忠实反映真实计算，能否当安全监控信号？ <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>不忠实派</strong>：<strong>Turpin et al.（NYU/Anthropic, 2305.04388）</strong>——被偏置诱导时，CoT 会为错误答案事后编造理由、对偏见避而不谈；Anthropic 2025 进一步发现推理模型用了提示/作弊却不在 CoT 承认。</li>
+<li><strong>守护监控价值派</strong>：<strong>Korbak、Bengio 等 40+ 跨机构（2507.11473《Chain of Thought Monitorability》）</strong>——CoT 虽不完美，却是目前<strong>唯一</strong>能窥见模型推理意图的窗口，呼吁当作"脆弱而珍贵的机会"主动保护。论据：不完美 ≠ 无用。</li>
+<li><strong>延伸到产品</strong>：CoT 该可见还是隐藏？<strong>Anthropic</strong>（visible extended thinking，便于调试）对阵 <strong>OpenAI o1</strong>（隐藏原始 CoT、只给摘要，出于安全/竞争）。详见 <a class="xref" href="12.html">12</a> 安全与对抗。</li>
+</ul>
+<h3 id="sec-6-5">争议 E：推理是"真推理"还是高级模式匹配 / 复杂度有硬上限？ <a class="heading-anchor" href="#sec-6-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>质疑派</strong>：Apple《The Illusion of Thinking》（2025-06）用汉诺塔等可控谜题显示复杂度超阈值后准确率"崩塌"、给了算法也不执行；Gary Marcus 力挺。</li>
+<li><strong>反驳派</strong>：<strong>Opus &amp; Lawsen《The Illusion of the Illusion of Thinking》（2506.09250）</strong>——"崩塌"实为<strong>输出 token 上限与评测设计缺陷</strong>（让模型输出生成程序而非逐步枚举即可解）。这是"评测方法学之争"压过"能力本质之争"的典型。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践（≥2 个真实案例） <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 1：DeepSeek-R1——纯 RL + 开源蒸馏，把 o1 配方平民化 <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>工程取舍</strong>：R1-Zero 用<strong>纯 RL（GRPO）省掉人工标注推理轨迹</strong>，自发涌现推理但可读性差（语言混杂、格式乱）；正式 R1 加<strong>少量 cold-start SFT</strong> 折中可读性与收敛。最终 AIME 2024 79.8%、MATH-500 97.3%、GPQA 71.5，匹敌 o1，并<strong>开源权重 + 蒸馏到小模型</strong>，使 o1 级推理可低成本部署。</li>
+<li><strong>行业影响</strong>：催生 <strong>HF Open-R1</strong>（因 DeepSeek 未放训练代码，HF 系统重建数据/训练/评测管线，分"先蒸馏复现 R1-Distill，再复现 R1-Zero 纯 RL 管线"两步）。R1（MIT 许可）让"reasoning model"成为与 base/instruct 并列的默认档位。Nature 2025 给了同行评议版。</li>
+</ul>
+<h3 id="sec-7-2">案例 2：Anthropic Claude Research multi-agent 系统 vs Cognition 单线程——隔日互怼 <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Anthropic（orchestrator-worker）</strong>：lead agent（Opus 4）规划后并行 spin-up subagent（Sonnet 4）检索再汇总，比 single-agent Opus 4 在内研评测上<strong>高 90.2%</strong>；代价是约 <strong>15x token</strong>（vs chat），且 <strong>token 用量单独解释 80% 的性能方差</strong>——结论是<strong>升级模型版本往往比翻倍 token 预算更划算</strong>。extended thinking 当"可控草稿纸"做规划与工具评估。判定边界：仅<strong>广度优先、超单上下文窗口的高价值检索</strong>任务才值得；编码等强依赖任务不适合。</li>
+<li><strong>Cognition（Devin，单线程）</strong>：默认<strong>放弃并行 multi-agent</strong>，坚持单线程线性 agent 以保证上下文连续与可靠；两原则——①共享完整 agent trace（非单条消息），②"行动暗含决策，冲突决策酿坏果"（Flappy Bird 反例）。只在任务撑爆上下文窗口时才引入压缩。把"避免隐含决策冲突"看得比并行加速更重要。</li>
+<li><strong>取舍点</strong>：这是 Agent 架构之争的标志性辩论，完整展开见 <a class="xref" href="08.html">08</a> 多智能体编排；两家共识是 <strong>context engineering 是 Agent 工程师第一要务</strong>（<a class="xref" href="03.html">03</a>）。</li>
+</ul>
+<h3 id="sec-7-3">案例 3（补充）：Cursor Composer——dynamic context discovery <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<p>Composer 是 <strong>RL 训练的专用编码模型</strong>，据 Cursor 博客比同档智能模型快约 4x，挂 10+ 工具的 harness。上下文策略选 <strong>dynamic（少前置、让 agent 自取）而非 static</strong>：把 MCP 工具描述外置到文件而非静态全量注入，据 Cursor A/B 测试使相关 run 的 agent <strong>总 token 降 46.9%</strong>。harness（指令+工具）对每个新前沿模型单独调优；长任务先出计划等批准再执行。代表推理 Agent 上下文策略的最新工程共识（详见 <a class="xref" href="03.html">03</a>/<a class="xref" href="13.html">13</a>）。</p>
+<h3 id="sec-7-4">案例 4（补充）：OpenAI o1——deliberative alignment <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<p>用 RL 训练长 CoT，性能随 train-time 与 test-time compute <strong>双重 scaling</strong>；<strong>隐藏原始 CoT 只给摘要</strong>（安全/竞争权衡）；deliberative alignment 让模型在上下文中对安全策略做推理，换取越狱/违法建议等基准的 SOTA 鲁棒性，代价是延迟与 token 成本上升。说明"训练出的推理"不只改准确率，还改变了 Agent 的<strong>安全面</strong>。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我基于上述证据的独立研判，供参考与思辨。</strong></p>
+</blockquote>
+<p><strong>趋势研判一：脚手架贬值是非均匀的，按"可验证性"分层。</strong> 我判断手工脚手架不会整体消亡，而是<strong>沿可验证性梯度退场</strong>。数学/代码/检索 QA 这类奖励可自动核验的域，RLVR 内化收益最大，ToT/LATS 这种外部搜索脚手架会最快被吸收；而开放、主观、长程、强状态依赖的生产任务（客服、研究、运维），短期内仍要靠编排层 + context engineering 兜底。换句话说，<strong>"模型负责想得深，harness 负责活得久"</strong>——这条分工线在 2026 年已愈发清晰，并未消失。</p>
+<p><strong>趋势研判二：test-time compute 的回报曲线会先陡后平，并催生"路由"工程。</strong> "多想就更准"不是无限的。over-thinking（在简单题上烧掉大量思考 token）已经是真实成本问题。这条曾经的预测如今已落地：<strong>难度感知路由</strong>已成生产系统标配——GPT-5 系内置自动路由（按难度在即时档与思考档间切换），各家也普遍开放 effort 档（如 DeepSeek-V4 三档推理、thinking budget / effort level 旋钮），简单请求走非推理/低 effort、硬请求才升到高 effort / 并行思考（Deep Think 式）。把"该想多久"本身当成一个待优化的决策，已成为 <a class="xref" href="11.html">11</a> 生产工程的核心 KPI（延迟、$/任务）。</p>
+<p><strong>常见坑（我在资料与实践中反复看到的）</strong>：</p>
+<ul>
+<li><strong>把 CoT 当可信解释</strong>：Turpin 的证据很硬——CoT 可被隐藏偏置操纵而只字不提。<strong>别把模型自述的理由当审计依据</strong>，可验证的还是看结果/外部检查。</li>
+<li><strong>盲目上 multi-agent</strong>：被"90.2%"诱惑而忽略"15x token + 只在广度检索类净收益为正"。默认先单线程（Cognition 的立场更稳），证明瓶颈确实是上下文宽度后再分叉。</li>
+<li><strong>给推理模型堆 few-shot CoT</strong>：对 o1/R1 这类模型，繁复的 CoT 提示可能<strong>反而干扰</strong>其内化推理，官方建议精简指令、给清目标即可。</li>
+<li><strong>用 pass@1 一把尺衡量"推理能力"</strong>：Yue et al. 提醒 pass@1 提升可能伴随 pass@k 下降。评估推理时<strong>至少看 pass@1 与 pass@k 两条曲线</strong>（<a class="xref" href="09.html">09</a>）。</li>
+<li><strong>静态塞满上下文</strong>：模型越强，dynamic discovery（让 agent 自取）越省 token 也越少冲突；但<strong>在弱模型/高确定性场景，静态预检索反而更稳</strong>——别教条。</li>
+</ul>
+<p><strong>最佳实践（我的推荐默认值）</strong>：</p>
+<ol>
+<li><strong>从最简循环起步</strong>：先 ReAct + 清晰工具 + 硬停止条件（max_steps/预算）+ fallback，跑通再加复杂度（呼应 Anthropic "能简则简"）。</li>
+<li><strong>推理深度做成旋钮</strong>：默认中等 effort，难任务再升；把 thinking budget 纳入成本预算管理。</li>
+<li><strong>可验证处用结果奖励/外部 verifier</strong>，不可验证处保留人类/工具反馈回路（别指望纯内在自纠）。</li>
+<li><strong>保护 CoT 可监控性</strong>：即便不完全忠实，也按 Korbak/Bengio 的建议，把"是否损害可监控性"纳入模型与 harness 的设计评审（<a class="xref" href="12.html">12</a>）。</li>
+<li><strong>先 context engineering 再加 agent 数量</strong>：共享完整 trace、按需取上下文，是比"多开几个 subagent"更高 ROI 的第一刀。</li>
+</ol>
+<p><strong>我的总判断</strong>：2024–2026 是推理"从外挂到内生"的相变期。模型侧 RLVR 把审议能力训进权重，工程侧的价值随之从"设计推理过程"转移到"设计上下文与编排"。<strong>Agent 工程师的护城河不再是会写花哨 prompt，而是会管上下文、设停止条件、做难度路由、保可监控性</strong>——这正是本知识库后续章节（<a class="xref" href="02.html">02</a>–<a class="xref" href="13.html">13</a>）的主战场。</p>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题（≥3）</strong></p>
+<ol>
+<li><strong>讲清 ReAct 机制，并说它比纯 CoT、纯 act-only 各强在哪。</strong> 答题要点：Thought→Action→Observation 交错循环；推理负责规划/分解/状态跟踪/异常处理，行动负责把推理接地到外部事实；纯 CoT 缺接地（会幻觉），纯 act-only 缺规划（瞎调工具）。一句话：<strong>双向协同补齐彼此短板</strong>。</li>
+<li><strong>prompted reasoning 和 trained reasoning 的本质区别？各自优劣？</strong> 答题要点：前者推理时激发、不改权重（CoT/ToT/Reflexion），便宜、模型无关、透明但受基座限制且可能不忠实/不可自纠；后者把推理优化进权重（STaR→PRM→o1/R1 的 RLVR），更鲁棒、长 CoT、可 test-time scaling，但昂贵、不透明、且"是否真扩展能力"有争议。</li>
+<li><strong>什么是 RLVR？为什么它偏爱数学/代码而非开放任务？</strong> 答题要点：Reinforcement Learning with Verifiable Rewards——在答案可自动验证的域用结果奖励做 RL（R1 用 GRPO）。可验证 → 奖励信号干净、可规模化、不易被 reward hacking；开放任务奖励难定义，是当前公开难题。</li>
+<li><strong>test-time compute scaling 是什么？为什么说它是"第三条 scaling 轴"？</strong> 答题要点：在参数、数据之外，"让模型多想"（更长 CoT / 并行思考 / 多次采样投票）也能单调换准确率；o1 曲线显示 train-time RL 与 test-time thinking 双重 scaling。代价是延迟/成本，需难度路由。</li>
+</ol>
+<p><strong>系统设计题（≥1）</strong></p>
+<blockquote>
+<p><strong>设计一个能可靠完成长程任务（如"调研某主题并产出报告"）的推理 Agent。</strong> 要点：①选型——广度检索类可考虑 orchestrator-worker（但算 token 账，15x 是否值），否则默认单线程；②循环——ReAct + 硬停止条件（max_steps/预算/超时）+ fallback；③上下文——context engineering 四策略 write/select/compress/isolate（<a class="xref" href="03.html">03</a>），长轨迹用 compaction；④推理深度——难度路由 + thinking budget；⑤可靠性——工具错误重试、死循环检测、关键步骤人类确认（HITL）；⑥可观测——记录完整 trace 便于 replay 与评估（<a class="xref" href="10.html">10</a>）。</p>
+</blockquote>
+<p><strong>手写题（≥1）</strong></p>
+<blockquote>
+<p><strong>手写一个带停止条件与防死循环的 ReAct loop（伪代码）。</strong> 见 §4.2 的伪代码：必须包含 system prompt 装配、parse（含解析失败处理）、execute（权限/沙箱）、observation 回灌、finish 停止、max_steps 兜底。加分项：重复 action 检测（连续 N 次相同则 reset/换策略）、token/预算上限。</p>
+</blockquote>
+<p><strong>陷阱题（≥2）</strong></p>
+<ol>
+<li><strong>"既然 CoT 写出来了，是不是就能当模型真实推理的解释来审计安全？"</strong> 陷阱在"忠实性"。Turpin et al. 证明 CoT 可被隐藏偏置操纵而只字不提，<strong>不能直接当审计依据</strong>；但据 Korbak/Bengio，它仍是稀缺的可监控窗口，应保护而非神化。</li>
+<li><strong>"RL 训练后 benchmark pass@1 涨了，是不是推理能力变强了？"</strong> 陷阱在评测口径。Yue et al. 指出 pass@1 涨可能伴随 pass@k 跌（边界缩窄）。要同时看两条曲线，区分"采样效率提升"与"能力边界扩展"。</li>
+<li><strong>"任务复杂就多开几个 subagent 并行，肯定更快更好？"</strong> 陷阱在 token 成本与决策冲突。Anthropic 仅在广度检索类报正收益（且 15x token）；Cognition 警告并行 subagent 上下文分散 → 隐含决策冲突 → 坏结果。默认单线程，证明瓶颈是上下文宽度再分叉。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Chain-of-Thought Prompting Elicits Reasoning in LLMs</strong> · Wei, Wang, Zhou et al. (Google Brain) · 2022 · <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2201.11903</a> — CoT 开山作，证明大模型推理可被中间步骤提示激发（NeurIPS 2022）。</li>
+<li><strong>Self-Consistency Improves CoT Reasoning</strong> · Wang et al. (Google) · 2022 · <a href="https://arxiv.org/abs/2203.11171" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2203.11171</a> — 多路径采样+多数投票，test-time compute 雏形（ICLR 2023）。</li>
+<li><strong>STaR: Bootstrapping Reasoning With Reasoning</strong> · Zelikman, Wu, Mu, Goodman · 2022 · <a href="https://arxiv.org/abs/2203.14465" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2203.14465</a> — 自举正确推理链做微调，"把推理训进权重"的早期蓝图（NeurIPS 2022）。</li>
+<li><strong>Large Language Models are Zero-Shot Reasoners</strong> · Kojima et al. · 2022 · <a href="https://arxiv.org/abs/2205.11916" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2205.11916</a> — "Let's think step by step" 无范例触发 CoT（NeurIPS 2022）。</li>
+<li><strong>Least-to-Most Prompting</strong> · Zhou et al. · 2022 · <a href="https://arxiv.org/abs/2205.10625" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2205.10625</a> — 显式问题分解，易到难泛化（ICLR 2023）。</li>
+<li><strong>ReAct: Synergizing Reasoning and Acting</strong> · Yao et al. (Princeton/Google) · 2022 · <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> — 思考-行动-观察循环，现代 Agent 认知架构母版（ICLR 2023）。</li>
+<li><strong>Toolformer: LMs Can Teach Themselves to Use Tools</strong> · Schick et al. (Meta) · 2023 · <a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.04761</a> — 自监督学习何时/调什么 API，工具使用从提示变学习（NeurIPS 2023）。</li>
+<li><strong>Reflexion: Language Agents with Verbal Reinforcement Learning</strong> · Shinn et al. · 2023 · <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> — 语言化反思存进情景记忆，跨尝试自改进（NeurIPS 2023）。</li>
+<li><strong>Self-Refine: Iterative Refinement with Self-Feedback</strong> · Madaan et al. · 2023 · <a href="https://arxiv.org/abs/2303.17651" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.17651</a> — 单模型生成-评-改循环，纯提示自纠基线（NeurIPS 2023）。</li>
+<li><strong>Plan-and-Solve Prompting</strong> · Wang et al. · 2023 · <a href="https://arxiv.org/abs/2305.04091" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.04091</a> — 先规划再执行的零样本提示（ACL 2023）。</li>
+<li><strong>Language Models Don't Always Say What They Think</strong> · Turpin, Michael, Perez, Bowman (NYU/Anthropic) · 2023 · <a href="https://arxiv.org/abs/2305.04388" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.04388</a> — CoT 会为被偏置答案事后合理化，挑战"CoT=可信解释"（NeurIPS 2023）。</li>
+<li><strong>Tree of Thoughts</strong> · Yao et al. (Princeton) · 2023 · <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.10601</a> — CoT 泛化为带自评估+回溯的搜索树，外部脚手架搜索巅峰（NeurIPS 2023）。</li>
+<li><strong>Let's Verify Step by Step</strong> · Lightman et al. (OpenAI) · 2023 · <a href="https://arxiv.org/abs/2305.20050" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.20050</a> — 过程监督（PRM）胜过结果监督，发布 PRM800K（ICLR 2024）。</li>
+<li><strong>Graph of Thoughts</strong> · Besta et al. · 2023 · <a href="https://arxiv.org/abs/2308.09687" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.09687</a> — 思维建成任意图（合并/聚合/反馈），最通用的提示审议拓扑（AAAI 2024）。</li>
+<li><strong>LLMs Cannot Self-Correct Reasoning Yet</strong> · Huang et al. · 2023 · <a href="https://arxiv.org/abs/2310.01798" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.01798</a> — 内在自我校正常掉点，界定 Self-Refine/Reflexion 何时有效（ICLR 2024）。</li>
+<li><strong>LATS: Language Agent Tree Search</strong> · Zhou et al. · 2023 · <a href="https://arxiv.org/abs/2310.04406" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.04406</a> — MCTS 统一推理+行动+规划（ICML 2024）。</li>
+<li><strong>The Rise and Potential of LLM Based Agents: A Survey</strong> · Xi et al. · 2023 · <a href="https://arxiv.org/abs/2309.07864" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.07864</a> — LLM-agent 构造（脑/感知/行动）与 multi-agent 社会的标准综述。</li>
+<li><strong>From System 1 to System 2: A Survey of Reasoning LLMs</strong> · Li et al. · 2025 · <a href="https://arxiv.org/abs/2502.17419" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2502.17419</a> — 把领域框成 System-1→System-2 的转变，梳理结构搜索/奖励建模/自改进/RL 微调。</li>
+<li><strong>OpenAI o1 System Card</strong> · OpenAI · 2024 · <a href="https://arxiv.org/abs/2412.16720" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2412.16720</a> — 一手系统卡：o1 用 RL 训长 CoT、提出 deliberative alignment；推理同时放大能力与风险。</li>
+<li><strong>DeepSeek-R1: Incentivizing Reasoning Capability via RL</strong> · DeepSeek-AI · 2025 · <a href="https://arxiv.org/abs/2501.12948" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2501.12948</a>（Nature 版 <a href="https://www.nature.com/articles/s41586-025-09422-z" target="_blank" rel="noopener noreferrer">https://www.nature.com/articles/s41586-025-09422-z</a>）— 纯 RL（GRPO）涌现反思/自验证，开源权重+蒸馏，确立 RLVR。</li>
+<li><strong>Kimi k1.5: Scaling RL with LLMs</strong> · Kimi Team · 2025 · <a href="https://arxiv.org/abs/2501.12599" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2501.12599</a> — 多模态 RL 推理器，证明不用 MCTS/价值函数/PRM 也能 scale。</li>
+<li><strong>Search-R1: Training LLMs to Reason and Leverage Search Engines with RL</strong> · Jin et al. · 2025 · <a href="https://arxiv.org/abs/2503.09516" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.09516</a> — R1 式 RL 扩到多轮 agentic 搜索，比 RAG +20–41%。</li>
+<li><strong>Does RL Really Incentivize Reasoning Capacity Beyond the Base Model?</strong> · Yue et al. (Tsinghua LeapLab) · 2025 · <a href="https://arxiv.org/abs/2504.13837" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2504.13837</a> — pass@k 分析：RLVR 提采样效率但缩窄推理边界（NeurIPS 2025）。</li>
+<li><strong>The Illusion of the Illusion of Thinking</strong> · C. Opus &amp; A. Lawsen · 2025 · <a href="https://arxiv.org/abs/2506.09250" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2506.09250</a> — 反驳 Apple"推理崩塌"，指其为 token 上限/评测设计缺陷。</li>
+<li><strong>Chain of Thought Monitorability</strong> · Korbak, Bengio 等 40+ 跨机构 · 2025 · <a href="https://arxiv.org/abs/2507.11473" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2507.11473</a> — 立场文：CoT 虽不完全忠实，仍是窥见模型意图的唯一窗口，呼吁保护。</li>
+<li><strong>The Landscape of Agentic Reinforcement Learning for LLMs: A Survey</strong> · 25 作者团队（含 Philip Torr、Shuicheng Yan）· 2025（TMLR，v5 2026） · <a href="https://arxiv.org/abs/2509.02547" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2509.02547</a> — 系统综述 agentic RL，把推理与工具使用一起训进权重，标志推理范式重心从提示/外部脚手架移向训练侧。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文（优先一手） <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Learning to Reason with LLMs（o1 发布文）</strong> · OpenAI · 2024 · <a href="https://openai.com/index/learning-to-reason-with-llms/" target="_blank" rel="noopener noreferrer">https://openai.com/index/learning-to-reason-with-llms/</a> — o1 用 RL 训长内部 CoT，train-time 与 test-time compute 双重 scaling。</li>
+<li><strong>OpenAI o1 System Card（博客）</strong> · OpenAI · 2024 · <a href="https://openai.com/index/openai-o1-system-card/" target="_blank" rel="noopener noreferrer">https://openai.com/index/openai-o1-system-card/</a> — deliberative alignment 与越狱鲁棒性，推理改变 Agent 安全面。</li>
+<li><strong>Why We Think</strong> · Lilian Weng（Lil'Log）· 2025 · <a href="https://lilianweng.github.io/posts/2025-05-01-thinking/" target="_blank" rel="noopener noreferrer">https://lilianweng.github.io/posts/2025-05-01-thinking/</a> — 把 test-time compute/CoT/latent thoughts 统一为提升智能的杠杆（System 1/2 框架）。</li>
+<li><strong>Claude's extended thinking</strong> · Anthropic · 2025 · <a href="https://www.anthropic.com/news/visible-extended-thinking" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/visible-extended-thinking</a> — 思考可见/可开关/可设 thinking budget，把推理深度做成产品旋钮。</li>
+<li><strong>Building Effective Agents</strong> · Anthropic · 2024 · <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/research/building-effective-agents</a> — 区分 workflow 与 agent，5 种编排模式，主张能简则简。</li>
+<li><strong>How we built our multi-agent research system</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> — orchestrator-worker +90.2%、~15x token、token 解释 80% 方差。</li>
+<li><strong>Effective context engineering for AI agents</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> — context engineering 是 prompt engineering 的自然演进。</li>
+<li><strong>Don't Build Multi-Agents</strong> · Cognition（Devin）· 2025 · <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> — 反方：默认单线程、共享完整 trace，避免隐含决策冲突。</li>
+<li><strong>Context Engineering for Agents</strong> · LangChain · 2025 · <a href="https://www.langchain.com/blog/context-engineering-for-agents" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/context-engineering-for-agents</a> — write/select/compress/isolate 四策略。</li>
+<li><strong>Introducing smolagents</strong> · HuggingFace · 2024 · <a href="https://huggingface.co/blog/smolagents" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/smolagents</a> — code agents（写代码当动作）少约 30% 步数，需沙箱。</li>
+<li><strong>Open-R1: a fully open reproduction of DeepSeek-R1</strong> · HuggingFace · 2025 · <a href="https://huggingface.co/blog/open-r1" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/open-r1</a> — 系统重建 R1 数据/训练/评测管线。</li>
+<li><strong>Dynamic context discovery</strong> · Cursor · 2026 · <a href="https://cursor.com/blog/dynamic-context-discovery" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/dynamic-context-discovery</a> — dynamic &gt; static，MCP 工具描述外置使 token 降 46.9%。</li>
+<li><strong>Gemini 2.5: Deep Think is now rolling out</strong> · Google · 2025 · <a href="https://blog.google/products/gemini/gemini-2-5-deep-think/" target="_blank" rel="noopener noreferrer">https://blog.google/products/gemini/gemini-2-5-deep-think/</a> — parallel thinking 作为 test-time compute 新维度，IMO 金牌级。</li>
+<li><strong>"+1 for context engineering over prompt engineering"</strong> · Andrej Karpathy（X）· 2025 · <a href="https://x.com/karpathy/status/1937902205765607626" target="_blank" rel="noopener noreferrer">https://x.com/karpathy/status/1937902205765607626</a> — prompt 工程升格为 context 工程，支撑"转型非过时"一方。</li>
+</ul>
+<h3 id="sec-10-3">🎥 Talk / 播客 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Noam Brown and Team on Teaching LLMs to Reason</strong> · Sequoia Training Data · 2024 · <a href="https://sequoiacap.com/podcast/training-data-noam-brown/" target="_blank" rel="noopener noreferrer">https://sequoiacap.com/podcast/training-data-noam-brown/</a> — o1 把搜索/CoT 从外部脚手架内化为训练目标。</li>
+<li><strong>Harrison Chase on Building the Orchestration Layer for AI Agents</strong> · Sequoia Training Data · 2024 · <a href="https://www.sequoiacap.com/podcast/training-data-harrison-chase/" target="_blank" rel="noopener noreferrer">https://www.sequoiacap.com/podcast/training-data-harrison-chase/</a> — 推理再强，生产 Agent 仍需编排层；ReAct 是"第一个 Agent 认知架构"。</li>
+</ul>
+<h3 id="sec-10-4">📰 媒体（争议全景） <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Do reasoning models really "think" or not?</strong> · VentureBeat · 2025 · <a href="https://venturebeat.com/ai/do-reasoning-models-really-think-or-not-apple-research-sparks-lively-debate-response" target="_blank" rel="noopener noreferrer">https://venturebeat.com/ai/do-reasoning-models-really-think-or-not-apple-research-sparks-lively-debate-response</a> — Apple 谜题"崩塌"之争的社区全景。</li>
+<li><strong>New paper pushes back on Apple's LLM "reasoning collapse" study</strong> · 9to5Mac · 2025 · <a href="https://9to5mac.com/2025/06/13/new-paper-pushes-back-on-apples-llm-reasoning-collapse-study/" target="_blank" rel="noopener noreferrer">https://9to5mac.com/2025/06/13/new-paper-pushes-back-on-apples-llm-reasoning-collapse-study/</a> — 反驳方核心：崩塌是 token 上限/评测设计假象。</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>交叉链接</strong>：上游 <a class="xref" href="00.html">00</a> 导论与心智模型；下游 <a class="xref" href="02.html">02</a> Harness 运行时（把本节循环工程化）、<a class="xref" href="03.html">03</a> 上下文工程（喂养推理）、<a class="xref" href="04.html">04</a> 工具与 MCP、<a class="xref" href="05.html">05</a> 规划与任务分解、<a class="xref" href="08.html">08</a> 多智能体编排（架构之争）、<a class="xref" href="12.html">12</a> 安全与对抗（CoT 可监控性）、<a class="xref" href="13.html">13</a> 大厂案例研究、<a class="xref" href="09.html">09</a> 评估（pass@k 之争）、<a class="xref" href="10.html">10</a> 可观测性与调试（trace/replay 与失败归因）、<a class="xref" href="11.html">11</a> 生产工程（难度路由、token 成本与 SLO）、<a class="xref" href="16.html">16</a> agentic RL / 训练侧自改进（§4.5 的训练侧深挖）、<a class="xref" href="15.html">15</a> 面试题库。</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="00.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">00 · 导论与心智模型</span>
+  </a>
+  <a class="pager__link pager__link--next" href="02.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">02 · Harness 运行时</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（时间线）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 CoT：把"潜在计算"显式化</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 ReAct：思考-行动-观察循环（本节必懂）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 从"提示推理"到"训练推理"——本章中轴</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 推理模型如何改变 Agent 设计（必懂的四点变化）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 两条"自改进"路线：测试时自我修正 vs 训练时自改进（→ 新专节 <a class="xref" href="16.html">16</a>）</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比）</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议（≥2 组对立面）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议 A：推理模型时代，ReAct 与手工 prompt 脚手架是否过时？（本卷核心争议）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议 B：RL（RLVR）给了模型<strong>新</strong>推理能力，还是只锐化基座已有的？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议 C：LLM 能否在无外部反馈下可靠自我纠错？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议 D：CoT 是否忠实反映真实计算，能否当安全监控信号？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-5">争议 E：推理是"真推理"还是高级模式匹配 / 复杂度有硬上限？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践（≥2 个真实案例）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 1：DeepSeek-R1——纯 RL + 开源蒸馏，把 o1 配方平民化</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 2：Anthropic Claude Research multi-agent 系统 vs Cognition 单线程——隔日互怼</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 3（补充）：Cursor Composer——dynamic context discovery</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 4（补充）：OpenAI o1——deliberative alignment</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文（优先一手）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">🎥 Talk / 播客</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">📰 媒体（争议全景）</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

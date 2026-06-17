@@ -1,0 +1,441 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>08 · 多智能体编排 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">08 · 多智能体编排 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link is-active" href="08.html" aria-current="page"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>08 · 多智能体编排（Multi-Agent Orchestration）</h1>
+<blockquote>
+<p><strong>定位</strong>：当 <a class="xref" href="02.html">02</a> 的单条 agent loop 不够用时，把多个 agent 组织起来协作的那一层。 上游是 <a class="xref" href="01.html">01</a> 的推理范式与 <a class="xref" href="02.html">02</a> 的 harness 运行时；本节专讲"多个循环怎么拼"——任务分解见 <a class="xref" href="05.html">05</a>，上下文如何切分见 <a class="xref" href="03.html">03</a>，跨 agent 记忆见 <a class="xref" href="06.html">06</a>，评测难点见 <a class="xref" href="09.html">09</a>，编排引发的安全面见 <a class="xref" href="12.html">12</a>，产品级案例见 <a class="xref" href="13.html">13</a>。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：定位与动机 → 历史脉络（2022 ReAct 到 2026 的关键里程碑）→ 核心原理（编排五型 + handoff/subagent/上下文隔离 + 共享状态 + 单写者原则）→ 方法谱系横向对比 → 四组核心争议 → 大厂案例（Anthropic / Cognition / OpenAI / LangGraph）→ 我的判断 → 面试考点 → 参考文献。</p>
+<p><strong>5 条核心结论</strong>：</p>
+<ol>
+<li><strong>默认 single-agent，multi-agent 是有门槛的升级，不是默认架构。</strong> OpenAI、Anthropic、Cognition 三家一线团队给开发者的第一建议高度一致：先把 single-agent（<a class="xref" href="02.html">02</a> 的 ReAct 循环）做到极限，被复杂度逼着才上 multi-agent（《A Practical Guide to Building Agents》, 2025；《Building Effective Agents》, 2024）。</li>
+<li><strong>multi-agent 的增益与代价都是真实的，分界线是"任务形态"而非"对错"。</strong> Anthropic 的 orchestrator-worker 在广度优先研究任务上比单体 Opus 4 高 <strong>90.2%</strong>，但烧掉约 <strong>15×</strong> 于聊天的 token（《How we built our multi-agent research system》, 2025）；Cognition 在高度互依的编码任务上得出相反结论。两者并不真正矛盾——只读/可并行 → multi-agent 赢；需共享演化状态 → 单线程赢。</li>
+<li><strong>可靠性的根因是上下文工程，不是 agent 数量。</strong> multi-agent 最高发的失败是"agent 间错位"（MAST 失败分类法，Cemri et al., 2025）。Cognition 的<strong>单写者原则</strong>（single-writer：只让一个 agent 改状态，其余只贡献"智能"不贡献"动作"）是当前最务实的处方。</li>
+<li><strong>编排拓扑是一条光谱</strong>：自由对话（AutoGen）↔ 显式状态图（LangGraph）↔ 单线程（Cognition），OpenAI 的 handoff + guardrails 居中。supervisor 中央路由准且可审计，swarm 去中心化快（实测端到端约 −40% 延迟）但难追踪。</li>
+<li><strong>"辩论/集成"与"角色协作"是两条不同动机的路线，且都被质疑性价比。</strong> 在等算力（thinking-token）预算下，multi-agent 辩论常常打不过单体 + self-consistency，增益更多来自模型异构而非辩论本身（Smit et al., 2023；Zhang et al., 2025）；Tran &amp; Kiela（2026）用数据处理不等式给 single-agent 侧提供了最锋利的理论论据。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>single-agent（<a class="xref" href="02.html">02</a>）的内核是 ReAct 的 <code>reason → act → observe</code> 循环：一个模型、一段连续上下文、一条线性轨迹。<strong>多智能体编排要解决的是这条单线轨迹撞上的三堵墙</strong>：</p>
+<ul>
+<li><strong>上下文墙</strong>：一个深度研究任务要读几十个网页，全塞进单一上下文窗口会爆，且"中间信息"会被淹没（<a class="xref" href="03.html">03</a> 的 context rot）。把搜索分给多个<strong>独立上下文</strong>的 subagent，能把"信息卫生"问题分而治之。</li>
+<li><strong>并行墙</strong>：single-agent 的工具调用本质串行，N 个互不依赖的子问题只能一个个做。multi-agent 让"广度优先"探索真正并行，把墙钟时间（wall-clock）压下来。</li>
+<li><strong>专精墙</strong>：一个通用 prompt 很难同时是"严谨的规划者 + 挑剔的审查者 + 高产的码农"。角色专业化（CAMEL/MetaGPT 路线）让每个 agent 带定制 system prompt、受限工具集、甚至不同模型档位。</li>
+</ul>
+<p><strong>在 Agent 链路里的位置</strong>：多智能体编排是 harness（<a class="xref" href="02.html">02</a>）之上的<strong>组织层</strong>。它复用 harness 的单循环作为"工人"，自己负责更高层的问题——谁负责什么（profiling）、谁跟谁说话（communication topology）、状态放哪（shared state）、何时停（termination）、结果怎么合（aggregation）。这正是 IJCAI 2024 survey（Guo et al.）给这个子领域画出的四张地图：profiling、communication、capability acquisition、orchestration。</p>
+<p>但要先泼一盆冷水：<strong>Anthropic《Building Effective Agents》明确把 multi-agent 列为"能不上就别上"的重型选项</strong>——先用 workflow（预定义代码路径）和 single-agent，只有当任务确实"无法预测子任务、需要动态分解"时，才升级到 orchestrator-workers。本节后面的争议，本质都是在为"这条升级线该画在哪"吵架。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络 <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>一句话主线：<strong>single-agent 原子（ReAct, 2022）→ 自主循环失控（AutoGPT, 2023）→ 两条并行路线：角色协作（CAMEL/AutoGen/MetaGPT）与 辩论/集成（Multi-Agent Debate）→ 生产编排（LangGraph/Agents SDK, 2024–25）→ 反思潮（MAST + Cognition vs Anthropic 隔日对撞, 2025）→ 收敛为"窄模式 + 协议层 + 框架整合"（2026）。</strong></p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2022-10</strong></td><td><strong>ReAct</strong>（Yao et al., arXiv 2210.03629）</td><td>把"推理 + 行动"交织成一个循环，定义了 single-agent 的原子形态。multi-agent 的每个"工人"都继承这条循环——这是一切的零点。</td></tr>
+<tr><td><strong>2023-03</strong></td><td><strong>AutoGPT / BabyAGI 病毒式爆红</strong></td><td>"给个目标就走开"的全自动单循环引爆全网，却暴露不会澄清需求、目标漂移、死循环。这股挫败感直接催生"用角色/结构约束 agent"的下一步。</td></tr>
+<tr><td><strong>2023-03</strong></td><td><strong>CAMEL</strong>（Li et al., KAUST, arXiv 2303.17760）</td><td>首个角色扮演双 agent 框架（AI user + AI assistant），用 inception prompting 自驱协作。第一次把"分工"作为单体的替代方案提出——multi-agent 协作范式由此开端。</td></tr>
+<tr><td><strong>2023-04</strong></td><td><strong>Generative Agents / Smallville</strong>（Park et al., Stanford+Google, arXiv 2304.03442）</td><td>25 个带记忆-反思-规划的 agent 涌现出信息扩散、群体协调（情人节派对口口相传扩散）。把 multi-agent 从"工具"升格为"研究对象"，奠定 agent 社会范式。</td></tr>
+<tr><td><strong>2023-05</strong></td><td><strong>Multi-Agent Debate</strong>（Du et al., MIT/Google, arXiv 2305.14325）</td><td>多个 LLM 副本多轮辩论后收敛答案，显著提升事实性与推理。把 multi-agent 重新诠释为"推理/校验机制"而非角色扮演——开辟与"角色协作"并行的<strong>第二条路线</strong>。</td></tr>
+<tr><td><strong>2023-07/08</strong></td><td><strong>ChatDev / MetaGPT</strong>（2307.07924 / 2308.00352）</td><td>把人类公司 SOP 与流水线角色（PM-架构师-工程师-QA）编码进 agent，端到端产出可执行代码库。自由对话易各说各话，引入组织结构压制混乱——"让 multi-agent 可用"的关键工程化一步。</td></tr>
+<tr><td><strong>2023-08</strong></td><td><strong>AutoGen</strong>（Microsoft, arXiv 2308.08155）</td><td>通用"可对话 agent"框架，支持动态对话模式 + 工具/代码执行。把零散论文范式抽象成可编程基础设施，标志从"学术演示"转向"人人可搭的平台"。（2026-04 Microsoft Agent Framework 1.0 GA 将 AutoGen 与 Semantic Kernel 统一成一个栈，原 AutoGen 转维护态。）</td></tr>
+<tr><td><strong>2024-01</strong></td><td><strong>LangGraph 发布</strong>（LangChain）</td><td>用有状态有向图（循环、条件分支、持久化、人类在环）做编排。生产要的是可靠可控有状态，而非靠巧妙 prompt 自由聊天——编排从"agent 互相对话"升级为"显式状态图"。</td></tr>
+<tr><td><strong>2024-02 / 06</strong></td><td><strong>More Agents Is All You Need</strong>（Tencent, 2402.05120）+ <strong>Mixture-of-Agents</strong>（2406.04692）</td><td>前者证明朴素采样投票随 agent 数单调涨；后者用纯 OSS 模型分层聚合在 AlpacaEval 2.0 打到 65.1% 超过 GPT-4-Omni。并行/集成确实带来真能力，不只是堆算力。</td></tr>
+<tr><td><strong>2024-10 → 2025-03</strong></td><td><strong>OpenAI Swarm（实验）→ Agents SDK（生产）</strong></td><td>以 handoff（交接）为原语，补上 guardrails、tracing、会话管理。连大厂也收敛到"轻量 handoff + 护栏 + 可观测性"，multi-agent 进入工业化标准化阶段。</td></tr>
+<tr><td><strong>2025-03</strong></td><td><strong>MAST 失败分类法</strong>（Cemri et al., UC Berkeley, arXiv 2503.13657, NeurIPS 2025）</td><td>由约 150 条专家标注 trace（κ=0.88）归纳出 14 种失败模式 / 3 大类（规范缺陷、agent 间错位、校验缺失），再以 LLM-judge 把标注扩展成 1600+ 条的 MAST-Data（涵盖 7 框架 / 200+ 任务）；发现相对 single-agent 增益常很小。把领域从"能力叙事"扳向"可靠性叙事"。</td></tr>
+<tr><td><strong>2025-06-12/13</strong></td><td><strong>Cognition《Don't Build Multi-Agents》vs Anthropic《multi-agent 研究系统》</strong></td><td>两家一线团队<strong>隔日对垒</strong>给出相反结论（单线程上下文工程 vs 编排-工人并行）。本节最核心的工程辩论锚点。</td></tr>
+<tr><td><strong>2025-05 / 2026-04</strong></td><td><strong>Google A2A 协议</strong>（2025-04 发布）+ <strong>Cognition《Multi-Agents: What's Actually Working》</strong>（2026）</td><td>A2A 把 multi-agent 从"单框架编排"上推到"跨厂协议层"互操作；Cognition 反转立场，给出"写操作单线程、辅助 agent 只贡献智能"的窄模式生产结论。</td></tr>
+<tr><td><strong>2026 H1</strong></td><td><strong>A2A 一周年（2026-04）· MAF 1.0 GA（2026-04）· Anthropic《Harness design》（2026-03）· Tran &amp; Kiela（2604.02460）</strong></td><td>协议层固化 + 框架整合 + single-agent 实证反扑同时发生：<strong>A2A 满一周年</strong>坐实"跨厂协议层"（Linux Foundation 治理、150+ 组织、v1.0 首个稳定规范、Azure/AWS Bedrock AgentCore/Google Cloud 三云生产）；<strong>Microsoft Agent Framework 1.0 GA</strong> 把 AutoGen + Semantic Kernel 统一成一个栈、二者转维护态，结束微软多框架分裂；Anthropic<strong>《Harness design for long-running apps》</strong>给出 planner/generator/evaluator 三 agent + GAN 式 generator-evaluator 的长程编排骨架；<strong>Tran &amp; Kiela（2604.02460）</strong>锁定等 thinking-token 预算、用数据处理不等式给 single-agent 侧最锋利的实证反扑。三股力量把本节主线收紧为"窄模式 + 协议层 + 框架整合"。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 五种编排模式（按"输出是否需要聚合"与"控制流是否预定义"切） <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<pre><code>                         control flow
+            预定义代码路径 ───────────────► LLM 动态决定
+  顺序流水线           supervisor/层级           自由对话/swarm
+ (ChatDev/MetaGPT)    (LangGraph supervisor)     (AutoGen/Swarm)
+        │                    │                        │
+        └──── 并行/集成 (orchestrator-worker, MoA, 采样投票) ────┘
+                            辩论/同侪互评 (Du, Liang)
+</code></pre>
+<ol>
+<li><strong>顺序流水线（Sequential pipeline）</strong>：角色按 SOP 依次接力（PM→架构→编码→测试）。优点是结构清晰、可压制级联幻觉；缺点是僵化、错误会沿管线放大。代表：ChatDev、MetaGPT。</li>
+<li><strong>supervisor / 路由（最常见的生产拓扑）</strong>：一个中央 orchestrator 收所有消息、分类意图、派给专才、控制权回中心。"路由是它唯一职责"故更准、可审计；代价是每次 handoff 多一跳"翻译"、累加延迟。代表：LangGraph supervisor。</li>
+<li><strong>层级（Hierarchical / supervisor-of-supervisors）</strong>：supervisor 嵌套成团队的团队，应对大型任务。</li>
+<li><strong>并行 / 集成（Parallel / ensemble）</strong>：orchestrator 把任务拆成互不依赖的子任务并行 spawn（Anthropic），或同一问题多次采样后投票（More Agents），或分层聚合异构模型（MoA）。核心是"输出要被聚合"。</li>
+<li><strong>辩论 / 同侪互评（Debate）</strong>：多个 agent 提出并互相证伪，多轮后收敛。动机是<strong>校验与纠错</strong>，不是分工。</li>
+</ol>
+<blockquote>
+<p>★关键区分：模式 1–3 是"角色协作（分工）"路线，模式 5 是"辩论/集成（校验）"路线。二者动机不同，别混为一谈。</p>
+</blockquote>
+<h3 id="sec-4-2">4.2 三个原语：handoff vs subagent vs 上下文隔离 <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>handoff（交接）</strong>：把控制权<strong>无状态地</strong>移交给另一个专才。OpenAI Swarm 的心智模型最小：<code>Agent = system prompt + 工具列表</code>，<code>handoff = 一个返回另一个 Agent 的函数</code>。移交后原 agent 退出，专才接管后续——路由本身就是流程。</li>
+<li><strong>subagent</strong>：lead agent <strong>spawn</strong> 一个带独立上下文的工人，工人干完把<strong>结果</strong>（而非完整轨迹）回灌给 lead。Anthropic 与 Claude Code 用它做"上下文卫生"——把会淹没主对话的搜索/日志放进子上下文，只回摘要。</li>
+<li><strong>上下文隔离 vs 共享</strong>：subagent 的独立窗口让并行探索不污染主上下文（Anthropic 的主张），但代价是丢失中间决策、可能产生互相冲突的隐含假设（Cognition 的反对）。</li>
+</ul>
+<pre data-lang="python"><code># handoff（去中心化）：控制权转移，状态不带走
+def transfer_to_refund_agent():
+    return refund_agent           # 返回另一个 Agent → 框架据此切换
+
+# 子 agent（编排-工人）：spawn 工人、只取结果
+def lead_agent(query):
+    plan = llm.plan(query)                       # lead 规划
+    subtasks = decompose(plan)                   # 拆成互不依赖的子任务
+    results = parallel_map(                       # ★ 并行 spawn，独立上下文
+        lambda t: subagent.run(t, ctx=isolate()),
+        subtasks)
+    draft  = llm.synthesize(results)             # 汇总
+    return citation_agent.run(draft)             # 单独 citation pass
+</code></pre>
+<h3 id="sec-4-3">4.3 共享状态与"单写者原则" <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p>谁能改全局状态，是 multi-agent 可靠性的命门。两种主流做法：</p>
+<ul>
+<li><strong>显式共享状态（LangGraph）</strong>：一个带类型的图状态（typed graph state）+ checkpoint，所有 agent 读写同一份结构化状态，可持久化、可恢复、可人类在环。</li>
+<li><strong>消息传递 / 黑板（blackboard）</strong>：agent 间靠消息或共享内存通信，更灵活但更易错位。</li>
+</ul>
+<p><strong>Cognition 的单写者原则（single-writer）</strong>：保持"动作"单线程——<strong>只让一个 agent mutate 状态</strong>，其余 agent 只贡献"智能"（读、建议、审查）不贡献"冲突的写"。理由是"动作隐含决策"（actions carry implicit decisions）：两个并行 subagent 各自做出未明说的风格/接口假设，合并即灾难（著名的 Flappy Bird 例子——一个 subagent 画马里奥风背景，另一个画不搭的鸟）。MAST 把这类问题归为头号失败大类"inter-agent misalignment"，与之呼应。</p>
+<h3 id="sec-4-4">4.4 终止与评测 <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>何时停、几轮收敛，本身是编排难题（MAD 论文专门研究"自适应终止"）。评测尤其棘手：multi-agent 是非确定性系统，轨迹长、分叉多。Anthropic 的务实起步法值得抄：<strong>用 LLM-as-judge + ~20 条代表性 query 起步做 eval，再用人测抓边角 case</strong>（详见 <a class="xref" href="09.html">09</a>）。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系 <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方案</th><th>拓扑</th><th>控制流</th><th>上下文</th><th>代表系统</th><th>最适场景</th><th>主要风险</th></tr></thead>
+<tbody>
+<tr><td><strong>顺序流水线</strong></td><td>链式角色</td><td>预定义 SOP</td><td>沿管线传递</td><td>ChatDev / MetaGPT</td><td>流程固定的"软件公司"式产出</td><td>僵化、级联幻觉放大</td></tr>
+<tr><td><strong>Supervisor 路由</strong></td><td>中央星形</td><td>代码/LLM 混合</td><td>中央汇聚</td><td>LangGraph supervisor</td><td>意图分类 + 专才委派（客服/工单）</td><td>每跳加延迟、中央成瓶颈</td></tr>
+<tr><td><strong>层级团队</strong></td><td>supervisor 嵌套</td><td>代码为主</td><td>分层汇聚</td><td>LangGraph hierarchical</td><td>超大任务、需组织结构</td><td>协调开销大、调试难</td></tr>
+<tr><td><strong>Handoff / Swarm</strong></td><td>去中心化对等</td><td>LLM 自主</td><td>随交接传递/重置</td><td>OpenAI Swarm/Agents SDK</td><td>动态路由、对话式接管</td><td>控制分散、难追踪</td></tr>
+<tr><td><strong>Orchestrator-Worker</strong></td><td>一对多并行</td><td>LLM 动态拆</td><td><strong>隔离</strong>子上下文</td><td>Anthropic Research</td><td>广度优先、只读、可并行研究</td><td>~15× token、同步派发成瓶颈</td></tr>
+<tr><td><strong>MoA / 采样投票</strong></td><td>分层/扁平集成</td><td>代码固定</td><td>各自独立</td><td>Mixture-of-Agents</td><td>能力增强、聚合多模型</td><td>算力翻倍、延迟叠加</td></tr>
+<tr><td><strong>辩论 / 同侪互评</strong></td><td>全连接对等</td><td>轮次固定/自适应</td><td>各自 + 互读</td><td>Du / Liang MAD</td><td>重校验的事实/数学题</td><td>性价比存疑、可能"不公正裁判"</td></tr>
+<tr><td><strong>单线程 + 辅助</strong></td><td>线性主轴 + 旁路</td><td>单写者</td><td>共享完整 trace</td><td>Cognition / Devin</td><td>高度互依的编码、写操作</td><td>不能真正并行、上下文会涨</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>选型一句话：<strong>输出要"聚合" → 并行/集成/辩论；输入要"路由" → supervisor/handoff；任务"互依需共享演化状态" → 单线程 + 辅助。</strong></p>
+</blockquote>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议一（★核心★）：multi-agent 在真实产品里净有用，还是净脆弱？ <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>【有用·Anthropic】</strong>《How we built our multi-agent research system》（2025-06-13）：orchestrator-worker（lead Opus 4 规划 → 并行 spawn 3–5 个 Sonnet 4 subagent → 汇总 → 单独 citation pass）让 Claude Research 比单体 Opus 4 高 <strong>90.2%</strong>；token 用量解释了 <strong>80%</strong> 的性能方差，并行把复杂查询研究时间最多砍 <strong>90%</strong>。适用：广度优先、超出单上下文窗口、重并行工具调用的研究任务。代价坦白：约 <strong>15×</strong> 于聊天的 token，只对"高价值任务"划算——并<strong>明确承认编码等高度互依任务不适合 multi-agent</strong>。</li>
+<li><strong>【脆弱·Cognition / Walden Yan】</strong>《Don't Build Multi-Agents》（2025-06-12）：并行 subagent 割裂上下文、做出互相冲突的隐含决策 → 产出脆弱（Flappy Bird 例子）。两原则：①共享完整 agent trace 而非孤立消息；②动作隐含决策，冲突即坏结果。处方：默认单线程，溢出就用压缩模型摘要历史，subagent 只留给"答案不需要进主历史"的明确子问题。</li>
+<li><strong>谁对</strong>：Anthropic（research 团队）vs Cognition（Devin 母公司）。隔日对垒看似针锋相对，<strong>深层其实可调和</strong>——双方都同意边界在"任务形态"：只读/广度优先/可并行 → multi-agent 赢；高度互依/需共享上下文的编码 → 单线程赢。Anthropic 自己也把编码列为 multi-agent 的差场景，恰好是 Cognition 的主战场。<strong>第三方评注</strong>（Simon Willison, 2025）点出：所谓"协调"很大程度上就是把委派边界写清楚的 prompt 工程。</li>
+</ul>
+<blockquote>
+<p>📦 <strong>结案框（single-agent vs multi-agent：任务形态之争）</strong>：提出 → 2026 定论 → 现状</p>
+<ul>
+<li><strong>提出（2025-06）</strong>：Anthropic《multi-agent 研究系统》的 orchestrator-worker 在广度优先研究上比单体 Opus 4 <strong>+90.2%</strong>（代价约 <strong>15×</strong> 于聊天的 token、token 用量解释 80% 性能方差）；次日 Cognition《Don't Build Multi-Agents》给出相反结论（单线程 + 单写者，Flappy Bird 冲突案例）。隔日对撞成为本节锚点。</li>
+<li><strong>2026 定论</strong>：不是"谁对错"，而是"任务形态"分界——<strong>只读 / 广度优先 / 可并行 → multi-agent 赢；互依 / 需共享演化状态的写入 → 单线程赢</strong>。Tran &amp; Kiela《Single-Agent &gt; Multi-Agent on Multi-Hop》（arXiv 2604.02460）在<strong>等 thinking-token 预算</strong>下证 single-agent 在多跳推理反超，并用数据处理不等式给出机理（每次 handoff 只会丢信息）——把"multi-agent 更强"的旧结论限定在"算力未对齐"的语境里。</li>
+<li><strong>现状</strong>：multi-agent 已瘦身为两类窄模式（只读广度并行 + 只贡献智能不贡献动作的旁路）；"单 vs 多"的二元问法正让位给"上下文怎么切"（<a class="xref" href="03.html">03</a>），跨厂协作上移到协议层（<a class="xref" href="17.html">17</a>）。</li>
+</ul>
+</blockquote>
+<h3 id="sec-6-2">争议二：辩论/集成是真提升推理，还是昂贵的表演？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>【提升·Du/Tenenbaum/Mordatch, MIT/Google】</strong>Multi-Agent Debate（2305.14325）：多 LLM 多轮辩论显著改善数学/事实性、减少幻觉，可直接套黑盒模型。Liang et al.（2305.19118）补上裁判与 tit-for-tat 对抗"思维退化"。</li>
+<li><strong>【质疑·Smit et al. / Zhang et al. / Cemri et al.】</strong>《Should we be going MAD?》（2311.17371）系统对比发现辩论<strong>不可靠地优于</strong> self-consistency；《Stop Overvaluing MAD》（2502.08788）评测 5 种 MAD × 9 benchmark × 4 模型，结论是<strong>同构辩论几乎打不过 self-consistency，增益主要来自模型异构</strong>；MAST（2503.13657）实证 multi-agent 相对强单体增益常很小却付数倍 token。</li>
+<li><strong>谁对</strong>：辩论派 vs 实证怀疑派。共识正在形成：<strong>辩论的价值更多在"引入异构视角"而非"辩论动作本身"</strong>。</li>
+</ul>
+<h3 id="sec-6-3">争议三：上下文该隔离，还是共享完整 trace？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>【隔离·Anthropic / Cursor】</strong>subagent 独立窗口让并行探索不污染 lead；Cognition 自己在 2026 的 code-review loop 里也发现<strong>审查 agent 不带前文反而更好</strong>（context rot——短上下文改善注意力分配）。</li>
+<li><strong>【共享·Cognition 2025】</strong>单写者 + 共享完整 trace，否则 miscommunication 累积。</li>
+<li><strong>谁对</strong>：有意思的是 <strong>Cognition 前后两篇自相"翻转"</strong>——2025 说共享、2026 说审查场景该隔离。真正的判据是："context rot 主导时隔离，miscommunication 主导时共享"，至今无统一理论。</li>
+</ul>
+<h3 id="sec-6-4">争议四：编排该 LLM 自主（handoff）还是代码控制（确定性）？ <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>【via LLM】</strong>用 tools + handoffs 让模型自主规划，最灵活，适合开放式/动态路由（OpenAI decentralized、Swarm）。</li>
+<li><strong>【via code】</strong>结构化输出 + 链式 + 并行，在速度/成本/性能上更确定可预测，适合结构化流程（OpenAI manager 模式、LangGraph 状态图）。</li>
+<li><strong>谁对</strong>：OpenAI Agents SDK 文档把这对张力直接摆成两条官方路线；AutoGen/CAMEL 偏自由对话涌现派，LangGraph/Cognition 偏显式控制派，OpenAI 居中（handoff 但加护栏 + tracing）。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A：Anthropic Claude Research（orchestrator-worker 标杆） <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<p><strong>架构</strong>：lead agent（Opus 4）拆解查询 → 并行 spawn 3–5 个带<strong>独立上下文</strong>和<strong>显式目标/边界 prompt</strong> 的 subagent（Sonnet 4）→ 汇总 → 独立 citation pass 补引用。</p>
+<p><strong>工程取舍</strong>：</p>
+<ul>
+<li><strong>明知 token 是 chat 的 ~15×（single-agent 仅 ~4×）仍上 multi-agent</strong>，因为研究任务"价值高到付得起"，且 token 扩展几乎线性换性能（解释 80% 方差）。这是一条清醒的"经济学决策"，不是技术崇拜。</li>
+<li><strong>委派 prompt 的质量是首要可靠性杠杆</strong>——subagent 拿到的"目标 + 边界 + 输出格式"写得好不好，直接决定不重不漏。</li>
+<li><strong>当前瓶颈是 lead 同步派发 subagent</strong>；异步能加并行度，但会引入协调与一致性复杂度（Anthropic 明确点名为开放问题）。</li>
+<li><strong>生产可靠性靠</strong>：full tracing（只看决策模式不看对话内容以兼顾隐私）+ rainbow 部署 + checkpoint 恢复（这套生产工程化骨架见 <a class="xref" href="11.html">11</a>）。</li>
+</ul>
+<h3 id="sec-7-2">案例 B：Cognition Devin（单线程 → 窄模式的真实演进） <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<p>从《Don't Build Multi-Agents》（2025）到《Multi-Agents: What's Actually Working》（2026），Cognition 的立场不是"翻烧饼"而是<strong>收窄了适用域</strong>：</p>
+<ul>
+<li><strong>写操作始终单线程</strong>——额外 agent 只能贡献"智能"，不能贡献"动作"。</li>
+<li>三个被验证可行的窄模式：① <strong>code-review loop</strong>（无前文的审查 agent，平均每 PR 抓 2 个 bug、约 58% 为严重；反直觉地"不共享初始上下文"更好，因 context rot）；② <strong>smart friend</strong>（小模型按需调用前沿模型做难决策，本质是能力路由器）；③ <strong>manager-child 委派</strong>（必须重度 context engineering 防"过度规定"）。</li>
+<li>形态收敛为 <strong>map-reduce-and-manage</strong>：manager 拆活、children 执行、manager 综合回报。结论：那种"任意 agent 互相谈判的无结构 swarm"基本是干扰项。半年间 Devin 企业用量 8×。</li>
+</ul>
+<h3 id="sec-7-3">案例 C：OpenAI Agents SDK / Swarm（工业化收敛） <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<p>Swarm（2024-10）定位<strong>教育性</strong>、stateless、每次 <code>run()</code> 从头跑，被 Agents SDK（2025-03）取代。生产版补上 guardrails + tracing + 会话管理 + TS 支持。给开发者的默认建议很克制：<strong>先 single-agent，复杂度逼你才上 multi-agent</strong>；上 multi-agent 时在 <strong>manager（边=工具调用，聚合专才）</strong> 与 <strong>decentralized（边=handoff，专才接管）</strong> 之间按"结构化 vs 动态路由"二选一。</p>
+<h3 id="sec-7-4">案例 D：LangGraph / Deep Agents（把编排做成可选架构） <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<p>LangGraph 文档把 <strong>Supervisor（准、可审计、但每跳加延迟）vs Swarm（用 <code>Command(goto)</code> 直接移交、跳过中介、实测端到端约 −40% 延迟、更少 LLM 调用、但分散难追踪）</strong> 摆成明确权衡。2026 的 Deep Agents 进一步把规划/上下文管理/文件系统/subagent spawn 打包成开箱即用，解决"每次从裸 LangGraph 重新接线"的工程重复成本。更上一层，<strong>Google A2A 协议</strong>（2025）把互操作推到协议层，让 ADK/LangGraph/CrewAI 等不同框架、不同厂商的 agent 互相通信——这条"跨厂协议层"主线（A2A 一周年、Linux Foundation 治理、150+ 组织、v1.0 首个稳定规范）已自成一节，详见 <a class="xref" href="17.html">17</a> 互操作协议与 Agent 经济（另见 <a class="xref" href="13.html">13</a>、<a class="xref" href="14.html">14</a>）。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我基于上述材料的独立研判。</strong></p>
+</blockquote>
+<p><strong>趋势研判。</strong> 我判断三件事是确定的方向：</p>
+<ol>
+<li><strong>"multi-agent vs single-agent"这个二元问法会过时，被"上下文怎么切"取代。</strong> LangChain 的调和最接近本质——真正的杠杆是 <strong>context handoff（上下文如何在边界上传递）</strong>，agent 数量只是它的副产品。Anthropic 的"隔离子上下文"和 Cognition 的"共享 trace 单写者"看似对立，其实是同一道题（如何在并行度与一致性之间取舍）的两个解。未来赢家不是站队哪一派，而是能<strong>按子任务动态选择隔离 or 共享</strong>的系统。</li>
+<li><strong>multi-agent 已"瘦身"成两类窄形态</strong>：（a）<strong>只读的广度并行</strong>（research/检索 fan-out），（b）<strong>只贡献智能不贡献动作的旁路</strong>（code-review、smart-friend 能力路由）。Cognition 2026 把生产形态收敛为 <strong>map-reduce-and-manage</strong> 窄模式、Anthropic 2025 收敛为 orchestrator-worker，两家不约而同落到这两类，绝非巧合——它们恰好绕开了"多写者冲突"这个根本矛盾。那种"5–6 个 agent 平等协商写同一个 repo"的科幻图景，在可预见的将来是<strong>反模式</strong>。</li>
+<li><strong>协议层（A2A/MCP）与编排层已分离</strong>。MCP（<a class="xref" href="04.html">04</a>）解决"agent↔工具"，A2A 解决"agent↔agent"（协议层与 agent 经济自成一节，见 <a class="xref" href="17.html">17</a>）。随着跨厂 agent 互操作标准化落地（A2A 一周年并入 Linux Foundation 治理、150+ 组织、v1.0 首个稳定规范），"单框架内编排"的护城河正在变窄，价值上移到<strong>可观测性（<a class="xref" href="10.html">10</a>）、评测（<a class="xref" href="09.html">09</a>）、上下文工程（<a class="xref" href="03.html">03</a>）、生产工程（<a class="xref" href="11.html">11</a>）</strong>这些横切层——这与 <a class="xref" href="02.html">02</a> 里"核心 loop 被厂商商品化"的判断同源。</li>
+<li><strong>编排（推理期）之外还有一条正交路径：训练侧（<a class="xref" href="16.html">16</a>）</strong>。本节谈的全是"怎么把现成的循环拼起来"——属于推理期编排；让 single-agent/multi-agent 的协作、工具使用与角色专精变强，还可以从 agentic RL 直接训练（见 <a class="xref" href="16.html">16</a>），二者互补而非替代。把 multi-agent 的能力增益完全归给"编排花样"，会忽略"训练让 single-agent 直接变强"这条更省 token 的路（与 Tran &amp; Kiela 的实证反扑同向）。</li>
+</ol>
+<p><strong>常见坑（我见过/推断的高频翻车点）：</strong></p>
+<ul>
+<li><strong>把 token 当免费的。</strong> multi-agent 默认就是 10–15× 成本。没有"任务价值 &gt; 成本"的明确账，上 multi-agent 就是给老板烧钱。先问"这个查询值不值 15× token"。</li>
+<li><strong>委派 prompt 写得含糊。</strong> subagent 不重不漏全靠"目标 + 边界 + 输出 schema"。含糊的委派 = subagent 各自脑补 = MAST 的 inter-agent misalignment。</li>
+<li><strong>盲目并行写操作。</strong> 这是 Flappy Bird 灾难的根源。<strong>任何会 mutate 共享状态的动作都应单线程化</strong>，这条几乎没有例外。</li>
+<li><strong>拿辩论当银弹。</strong> 在等算力预算下，先试"单体 + self-consistency 投票"，打不过再考虑辩论；且优先引入<strong>异构模型</strong>而非同构副本。</li>
+<li><strong>没有 compute-controlled 评测。</strong> 不锁 token 预算去比单 vs 多，得到的"multi-agent 更强"很可能只是算力混淆（Tran &amp; Kiela 的核心警告）。</li>
+</ul>
+<p><strong>最佳实践（我的处方）：</strong></p>
+<ol>
+<li><strong>默认 single-agent</strong>，把 <a class="xref" href="02.html">02</a> 的循环、<a class="xref" href="03.html">03</a> 的 compaction 做到极限再说。</li>
+<li>升级到 multi-agent 前过三道闸：<strong>子任务真的互不依赖吗？上下文能干净切分吗？任务价值付得起 N× token 吗？</strong> 三个都"是"才上。</li>
+<li><strong>首选 supervisor + 单写者</strong>：中央可审计、写操作单线程，辅助 agent 只读只建议。</li>
+<li><strong>从一开始就做 tracing 和 compute-controlled eval</strong>——multi-agent 的 bug 不可观测就无法归因（MAST 的 14 种失败模式大多需要轨迹级回放才能定位）。</li>
+</ol>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>single-agent vs multi-agent 怎么选？</strong> 要点：默认 single-agent；multi-agent 只在"子任务独立 + 上下文可干净切分 + 任务价值付得起 ~10–15× token"时才赢。引数据：Anthropic +90.2%/15× token；Tran &amp; Kiela 在等 token 预算下 single-agent 反超（数据处理不等式：每次 handoff 只会丢信息）。分界是任务形态（只读并行 vs 互依写入），不是绝对对错。</li>
+<li><strong>列举并区分主流编排拓扑。</strong> 要点：顺序流水线（ChatDev/MetaGPT）、supervisor 路由（最常见）、层级团队、handoff/swarm（去中心化）、orchestrator-worker 并行、辩论/集成。再点出"角色协作（分工）"与"辩论/集成（校验）"是两条不同动机的路线。</li>
+<li><strong>handoff、subagent、上下文隔离三者的区别？</strong> 要点：handoff = 无状态控制权转移（Swarm，路由即流程）；subagent = spawn 独立上下文工人、只回结果（Anthropic，做信息卫生）；上下文隔离 = 并行不污染但丢中间决策，对立面是 Cognition 的"共享完整 trace + 单写者"。</li>
+</ol>
+<p>4.（陷阱）<strong>multi-agent 辩论一定比 single-agent 强吗？</strong> 要点：不一定。等算力下常打不过 self-consistency，增益多来自模型异构而非辩论本身（Smit 2023；Zhang 2025）。</p>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>设计一个深度研究 agent（输入一个开放问题，产出带引用的报告）。</strong> 要点：orchestrator-worker——lead 规划并拆成互不依赖的子查询 → 并行 spawn 带独立上下文 + 明确目标/边界 prompt 的 subagent → 汇总 → <strong>单独 citation pass</strong> 补引用。可靠性：LLM-as-judge + ~20 query 起步做 eval、full tracing、checkpoint 恢复。坦白成本：~15× token，靠"任务高价值"justify。说清为何<strong>不</strong>把它做成多写者并行（会冲突）。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>手写一个 supervisor 路由循环。</strong> 评分点：中央 LLM 分类意图 → 选 worker → 调用 → 结果回中心 → 判断是否完成 → 循环；带 <code>max_turns</code> 兜底、终止条件、单写者状态。</li>
+</ol>
+<pre data-lang="python"><code>def supervisor(query, workers, state, max_turns=10):
+    state["task"] = query
+    for _ in range(max_turns):
+        decision = router_llm(state)              # 分类意图，选下一步
+        if decision.done:
+            return decision.answer
+        w = workers[decision.worker]              # 路由到专才
+        result = w.run(decision.subtask, read_only_view(state))  # 只读视图
+        state = merge(state, result, writer="supervisor")        # ★ 单写者
+    return finalize(state)                          # max_turns 兜底
+</code></pre>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>"agent 越多越好"对吗？</strong> 要点：错。MAST 14 种失败模式显示增益常 marginal 却付数倍 token；最高发失败是 inter-agent misalignment。More Agents 的单调增益只在"朴素采样投票"这一窄设定成立，不能外推到协作写入。</li>
+<li><strong>两个 subagent 并行改同一个文件会怎样？</strong> 要点：隐含决策冲突（Flappy Bird）。处方：单写者原则——写操作单线程，其余 agent 只贡献智能不贡献动作。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> — Yao et al., 2022（ICLR 2023）· <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> · single-agent 的 reason-act-observe 循环，multi-agent 每个工人的内核。</li>
+<li><strong>Reflexion: Language Agents with Verbal Reinforcement Learning</strong> — Shinn et al., 2023（NeurIPS）· <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> · 言语反思 + 情景记忆，single-agent 用它替代"批判 agent"。</li>
+<li><strong>CAMEL: Communicative Agents for "Mind" Exploration</strong> — Li et al. (KAUST), 2023（NeurIPS）· <a href="https://arxiv.org/abs/2303.17760" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.17760</a> · 首个角色扮演双 agent 框架，角色协作范式起点。</li>
+<li><strong>Generative Agents: Interactive Simulacra of Human Behavior</strong> — Park et al. (Stanford+Google), 2023（UIST）· <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.03442</a> · 25-agent Smallville 涌现社会协调，agent 社会范式。</li>
+<li><strong>Improving Factuality and Reasoning through Multiagent Debate</strong> — Du et al. (MIT/Google), 2023（ICML 2024）· <a href="https://arxiv.org/abs/2305.14325" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.14325</a> · 多 LLM 多轮辩论提升事实性，"辩论"路线锚点。</li>
+<li><strong>Encouraging Divergent Thinking in LLMs through Multi-Agent Debate (MAD)</strong> — Liang et al., 2023（EMNLP 2024）· <a href="https://arxiv.org/abs/2305.19118" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.19118</a> · 加裁判与 tit-for-tat 对抗"思维退化"，研究自适应终止。</li>
+<li><strong>Should we be going MAD? A Look at Multi-Agent Debate Strategies</strong> — Smit et al., 2023（ICML 2024）· <a href="https://arxiv.org/abs/2311.17371" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.17371</a> · 系统对比：辩论不可靠地优于 self-consistency，早期严谨怀疑者。</li>
+<li><strong>Stop Overvaluing Multi-Agent Debate</strong> — Zhang et al., 2025 · <a href="https://arxiv.org/abs/2502.08788" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2502.08788</a> · 5 MAD × 9 benchmark × 4 模型：增益主要来自模型异构而非辩论本身。</li>
+<li><strong>ChatDev: Communicative Agents for Software Development</strong> — Qian et al. (OpenBMB), 2023（ACL 2024）· <a href="https://arxiv.org/abs/2307.07924" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.07924</a> · 虚拟软件公司 + chat-chain，顺序流水线编排范例。</li>
+<li><strong>MetaGPT: Meta Programming for a Multi-Agent Collaborative Framework</strong> — Hong et al., 2023（ICLR 2024）· <a href="https://arxiv.org/abs/2308.00352" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.00352</a> · 把人类 SOP 编码进 agent，流水线角色压制级联幻觉。</li>
+<li><strong>AutoGen: Multi-Agent Conversation Framework</strong> — Wu et al. (Microsoft), 2023 · <a href="https://arxiv.org/abs/2308.08155" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.08155</a> · 通用可对话 agent 框架，自由对话涌现派基础设施。</li>
+<li><strong>AgentVerse: Facilitating Multi-Agent Collaboration</strong> — Chen et al. (OpenBMB), 2023（ICLR 2024）· <a href="https://arxiv.org/abs/2308.10848" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.10848</a> · 按任务动态招募/重组专家，证明 group 可超 single-agent。</li>
+<li><strong>More Agents Is All You Need</strong> — Li et al. (Tencent), 2024（TMLR）· <a href="https://arxiv.org/abs/2402.05120" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.05120</a> · 采样投票（Agent Forest）随 agent 数单调涨，并行集成的 scaling 结果。</li>
+<li><strong>Mixture-of-Agents Enhances LLM Capabilities</strong> — Wang et al., 2024（ICLR 2025）· <a href="https://arxiv.org/abs/2406.04692" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2406.04692</a> · 分层聚合纯 OSS 模型在 AlpacaEval 2.0 达 65.1% 超 GPT-4-Omni。</li>
+<li><strong>LLM-based Multi-Agents: A Survey of Progress and Challenges</strong> — Guo et al., 2024（IJCAI）· <a href="https://arxiv.org/abs/2402.01680" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.01680</a> · 基础 survey：profiling/communication/capability/orchestration 四张地图。</li>
+<li><strong>A Survey on LLM-based Multi-Agent System: Recent Advances and New Frontiers in Application</strong> — Chen et al. (HIT), 2024 · <a href="https://arxiv.org/abs/2412.17481" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2412.17481</a> · 应用向 survey，覆盖编排模式与通信拓扑到 2024 底。</li>
+<li><strong>Why Do Multi-Agent LLM Systems Fail? (MAST)</strong> — Cemri et al. (UC Berkeley), 2025（NeurIPS 2025）· <a href="https://arxiv.org/abs/2503.13657" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.13657</a> · 首个失败分类法：14 模式 / 3 大类，把领域扳向可靠性。</li>
+<li><strong>Single-Agent LLMs Outperform Multi-Agent Systems on Multi-Hop Reasoning Under Equal Thinking Token Budgets</strong> — Tran &amp; Kiela (Stanford), 2026 · <a href="https://arxiv.org/abs/2604.02460" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2604.02460</a> · 锁定 thinking-token 预算后 single-agent 反超，用数据处理不等式论证"每次 handoff 只丢信息"。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文 <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>How we built our multi-agent research system</strong> — Anthropic Engineering, 2025 · <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> · orchestrator-worker 标杆；+90.2%、~15× token、研究时间 −90%、token 解释 80% 方差。</li>
+<li><strong>Building Effective Agents</strong> — Anthropic, 2024 · <a href="https://www.anthropic.com/engineering/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/building-effective-agents</a> · 编排"宪法"：分清 workflows vs agents，给出 orchestrator-workers，主张"能不上框架/multi-agent 就别上"。</li>
+<li><strong>Don't Build Multi-Agents</strong> — Cognition (Walden Yan), 2025 · <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> · 反方一手立场：共享完整 trace + 单线程写；Flappy Bird 案例。</li>
+<li><strong>Multi-Agents: What's Actually Working</strong> — Cognition, 2026 · <a href="https://cognition.ai/blog/multi-agents-working" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/multi-agents-working</a> · 反转后的窄模式结论：写单线程、辅助 agent 只贡献智能；code-review/smart-friend/manager-child 三可行模式。</li>
+<li><strong>How and when to build multi-agent systems</strong> — LangChain, 2025 · <a href="https://www.langchain.com/blog/how-and-when-to-build-multi-agent-systems" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/how-and-when-to-build-multi-agent-systems</a> · 用上下文工程调和争议：真正的杠杆是 context handoff 而非 agent 数。</li>
+<li><strong>A Practical Guide to Building Agents</strong> — OpenAI, 2025 · <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer">https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf</a> · single vs multi 分类学；manager vs decentralized 两范式；先 single-agent 起步。</li>
+<li><strong>Anthropic multi-agent 研究系统（评注）</strong> — Simon Willison, 2025 · <a href="https://simonwillison.net/2025/Jun/14/multi-agent-research-system/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/Jun/14/multi-agent-research-system/</a> · 第三方评注：点出隔日对撞语境，强调"协调 = 委派边界的 prompt 工程"。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Orchestrating multiple agents</strong> — OpenAI Agents SDK Docs, 2025 · <a href="https://openai.github.io/openai-agents-python/multi_agent/" target="_blank" rel="noopener noreferrer">https://openai.github.io/openai-agents-python/multi_agent/</a> · via LLM vs via code 两条路线；Agents-as-Tools vs Handoffs 两模式。</li>
+<li><strong>openai/swarm</strong> — OpenAI, 2024 · <a href="https://github.com/openai/swarm" target="_blank" rel="noopener noreferrer">https://github.com/openai/swarm</a> · 教育性极简原语：Agent = prompt + 函数，handoff = 返回另一 Agent 的函数；已被 Agents SDK 取代。</li>
+<li><strong>Multi-agent architectures (supervisor vs swarm)</strong> — LangGraph Docs, 2025 · <a href="https://langchain-ai.github.io/langgraph/concepts/multi_agent/" target="_blank" rel="noopener noreferrer">https://langchain-ai.github.io/langgraph/concepts/multi_agent/</a> · supervisor（准/可审计/加延迟）vs swarm（<code>Command(goto)</code> 直接移交/约 −40% 延迟）权衡。</li>
+<li><strong>langgraph-supervisor</strong> — LangChain, 2025 · <a href="https://github.com/langchain-ai/langgraph-supervisor-py" target="_blank" rel="noopener noreferrer">https://github.com/langchain-ai/langgraph-supervisor-py</a> · supervisor 模式生产参考实现，可嵌套成层级团队。</li>
+<li><strong>Create custom subagents</strong> — Claude Code Docs (Anthropic), 2025 · <a href="https://code.claude.com/docs/en/sub-agents" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/sub-agents</a> · subagent 作"上下文卫生"工具：独立窗口 + 受限工具 + 可路由 Haiku 4.5 控成本，只回摘要。</li>
+<li><strong>smolagents</strong> — Hugging Face, 2025 · <a href="https://github.com/huggingface/smolagents" target="_blank" rel="noopener noreferrer">https://github.com/huggingface/smolagents</a> · 代码优先轻量框架，CodeAgent 把动作写成 Python；multi-agent 走 managed agent 组合。</li>
+<li><strong>Announcing the Agent2Agent Protocol (A2A)</strong> — Google Developers Blog, 2025 · <a href="https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/" target="_blank" rel="noopener noreferrer">https://developers.googleblog.com/en/a2a-a-new-era-of-agent-interoperability/</a> · 跨厂 agent 互操作协议，把编排推到协议层（现归 Linux Foundation 治理）。</li>
+</ul>
+<h3 id="sec-10-4">🎥 Talk <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>What's next for AI agentic workflows</strong> — Andrew Ng, Sequoia AI Ascent 2024 · <a href="https://www.youtube.com/watch?v=sal78ACtGTc" target="_blank" rel="noopener noreferrer">https://www.youtube.com/watch?v=sal78ACtGTc</a> · 用 self-reflection / tool use / multi-agent collaboration 等设计模式论证 agentic workflow 的能力跃升，multi-agent 协作的高人气科普锚点。</li>
+</ul>
+<hr>
+<blockquote>
+<p>交叉链接：<a class="xref" href="00.html">00</a> 心智模型 · <a class="xref" href="01.html">01</a> 推理范式 · <a class="xref" href="02.html">02</a> Harness 运行时 · <a class="xref" href="03.html">03</a> 上下文工程 · <a class="xref" href="05.html">05</a> 规划与任务分解 · <a class="xref" href="06.html">06</a> 记忆系统 · <a class="xref" href="09.html">09</a> 评估 · <a class="xref" href="10.html">10</a> 可观测性与调试 · <a class="xref" href="11.html">11</a> 生产工程 · <a class="xref" href="12.html">12</a> 安全与对抗 · <a class="xref" href="13.html">13</a> 大厂案例 · <a class="xref" href="14.html">14</a> 技术栈速查 · <a class="xref" href="15.html">15</a> 面试题库 · <a class="xref" href="16.html">16</a> Agent 训练与强化学习 · <a class="xref" href="17.html">17</a> 互操作协议与 Agent 经济</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="07.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">07 · 检索与 RAG</span>
+  </a>
+  <a class="pager__link pager__link--next" href="09.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">09 · 评估</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 五种编排模式（按"输出是否需要聚合"与"控制流是否预定义"切）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 三个原语：handoff vs subagent vs 上下文隔离</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 共享状态与"单写者原则"</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 终止与评测</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议一（★核心★）：multi-agent 在真实产品里净有用，还是净脆弱？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议二：辩论/集成是真提升推理，还是昂贵的表演？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议三：上下文该隔离，还是共享完整 trace？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议四：编排该 LLM 自主（handoff）还是代码控制（确定性）？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A：Anthropic Claude Research（orchestrator-worker 标杆）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B：Cognition Devin（单线程 → 窄模式的真实演进）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C：OpenAI Agents SDK / Swarm（工业化收敛）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 D：LangGraph / Deep Agents（把编排做成可选架构）</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">🎥 Talk</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

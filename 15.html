@@ -1,0 +1,503 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>15 · 面试题库 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">15 · 面试题库 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link is-active" href="15.html" aria-current="page"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>15 · 面试题库</h1>
+<blockquote>
+<p><strong>定位</strong>：把 <a class="xref" href="00.html">00</a>–<a class="xref" href="14.html">14</a>（及进阶的 <a class="xref" href="16.html">16</a>/<a class="xref" href="17.html">17</a>）的知识"出栈"成可在面试现场说清楚的答案。本节既是<strong>复习索引</strong>，也是<strong>可直接刷的题库</strong>——概念题、系统设计题、手写题、项目深挖（STAR）、行为题、陷阱清单一应俱全。 <strong>在链路中的位置</strong>：这是知识库的"出口层"。前面各节负责把机制讲透，本节负责把机制翻译成<strong>面试官能给分的信号</strong>。读完你应能在 45 分钟的 loop 里，把"模型 vs harness""single-agent vs multi-agent""RAG vs 长上下文""刷榜 vs 评估工程"这些母题一口气讲清。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：先讲清 2024–2026 年 AI 工程师面试的<strong>范式迁移</strong>（从"推反向传播"到"设计 agent 系统"），再把整条技术主线压成一个可背诵的心智模型，然后给出<strong>方法谱系表（七大题簇）</strong>、<strong>七组争议的"陷阱 vs 正确姿势"</strong>、<strong>大厂案例当弹药</strong>，最后是<strong>独立分析</strong>与<strong>完整题库</strong>。</p>
+<p><strong>3–5 条核心结论</strong>：</p>
+<ol>
+<li><strong>面试在追赶生产现实</strong>。题目从"从零训模型/推导 BP"转向 RAG 架构、agentic 系统设计、评估方法（LLM-as-judge / golden set）、上下文工程、延迟-成本三角。五大核心题簇（LLM 基础 / RAG / agentic 系统设计 / 评测 / LLM 产品系统设计）覆盖约 90% 的 loop，高级岗再加两簇进阶——<strong>Agent 训练与 RL</strong>（<a class="xref" href="16.html">16</a>）与<strong>互操作协议与 Agent 经济</strong>（<a class="xref" href="17.html">17</a>），合计<strong>七大题簇</strong>。在生产 agent 里，<strong>LLM 调用本身只占约 20%，其余 80% 是工程</strong>（KDnuggets, 2025）。</li>
+<li><strong>一条主线串起所有考点</strong>：让模型<strong>会想</strong>（CoT/ReAct）→ <strong>能用工具</strong>（function calling/MCP）→ 把推理<strong>训进权重</strong>（o1/R1）→ 把上下文<strong>工程化</strong>（context engineering）→ 把产品化/评估/安全<strong>工程化</strong>（Devin/SWE-bench/multi-agent/lethal trifecta）。能讲清这条线、并标注每步的演进动因，就赢了一半。</li>
+<li><strong>"模型 vs harness"是面试的元心智模型</strong>：推理模型 ≠ agent。<strong>model 负责 think，harness 负责 act/loop</strong>（工具调用、停止条件、错误恢复、状态、检查点）。Devin 与 SWE-bench 的核心启示都是"差异化在 harness 不在模型"。</li>
+<li><strong>争议题考的是判断力，不是站队</strong>。multi-agent、RAG vs 长上下文、是否还要手写 ReAct、框架 vs 手写、context engineering 是否炒概念、刷榜 vs 评估——每一组的正确姿势都是"给出反向判据 + 何时用哪个"，而不是非黑即白。</li>
+<li><strong>稳定性 &gt; 一次跑通</strong>。τ-bench（<strong>2024 原论文口径</strong>）用 <code>pass^k</code>（连续 k 次都对）揭示 SOTA &lt;50%、零售 <code>pass^8</code> &lt;25%；其继任者 <strong>τ²-bench</strong>（2025，dual-control，agent 与用户共改共享状态）进一步收紧口径；面试只报 <code>pass@1</code> 是减分项。<strong>eval 即新的系统设计</strong>。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>本节解决的问题：<strong>前 14 节把你"教会了"，但面试现场考的是"你能不能在压力下、用对方听得懂的语言、在白板上把取舍讲清楚"</strong>。这两件事差很远。很多人能背 ReAct 论文，却答不出"给你 4 个工具循环调用的 agent，你会上 multi-agent 吗"——因为这考的不是知识点，而是<strong>判断力 + 反向判据 + 工程取舍</strong>。</p>
+<p><strong>为什么 2024–2026 面试变了？</strong> 三股力量叠加：(1) 模型能力外溢——基座越来越强，"会不会调 API、会不会写 attention"不再是区分度；(2) 生产落地——公司真在跑 agent，踩过 token 爆炸、提示注入、评测污染的坑，于是把这些坑搬进面试；(3) 工程纪律成型——2024.12 Anthropic《Building Effective Agents》、2025 context engineering 正名、lethal trifecta 安全框架，给了面试官<strong>共同语言</strong>。结果就是题型从"算法工程师"漂移到"AI 系统工程师"。</p>
+<p><strong>在 Agent 链路中的位置</strong>：这一节是所有节的"汇流口"。概念题落在 <a class="xref" href="01.html">01</a>/<a class="xref" href="07.html">07</a>；系统设计题落在 <a class="xref" href="02.html">02</a>/<a class="xref" href="04.html">04</a>/<a class="xref" href="05.html">05</a>/<a class="xref" href="08.html">08</a>；手写题落在 <a class="xref" href="01.html">01</a>/<a class="xref" href="03.html">03</a>；评估题落在 <a class="xref" href="09.html">09</a>/<a class="xref" href="10.html">10</a>；安全题落在 <a class="xref" href="12.html">12</a>；成本题落在 <a class="xref" href="11.html">11</a>。本节不重新讲机制，而是教你<strong>怎么把它们组织成答案</strong>。需要细节时跳回对应节即可（每道题都标了 [[NN]] 链接）。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（时间线） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线一句话：<strong>面试题随"技术主线 + 生产踩坑"同步演进</strong>。下面每个里程碑都标注它"为什么变成面试题"。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进 / 为什么成为面试题</th></tr></thead>
+<tbody>
+<tr><td><strong>2020</strong></td><td><strong>RAG</strong>（Lewis et al., NeurIPS）</td><td>确立"参数化记忆 + 非参数化检索"范式。所有"如何接私有知识 / 减幻觉"系统设计题的祖先；面试问"为什么要 RAG"必须能回溯到这里。</td></tr>
+<tr><td><strong>2022.01</strong></td><td><strong>Chain-of-Thought</strong>（Wei et al.）</td><td>"推理能被 prompting 诱发"。概念题高频项；也是"prompted vs trained reasoning"对比的左端。</td></tr>
+<tr><td><strong>2022.10</strong></td><td><strong>ReAct</strong>（Yao et al.）+ <strong>LangChain 开源</strong>（Harrison Chase）</td><td><code>think→act→observe</code> 定义 agent 主循环最小原语，同月 LangChain 让它可复用，开启"框架时代"。<strong>手写 ReAct loop 至今是最高频手写题</strong>。</td></tr>
+<tr><td><strong>2023.03–06</strong></td><td><strong>AutoGPT/BabyAGI 病毒走红</strong>（3月）+ <strong>GPT-4 + function calling</strong>（6月）</td><td>"全自主 agent"首次出圈但极脆弱，暴露 demo 与生产的鸿沟（"是否过度炒作"争议起点）；function calling 把工具 I/O 从"解析自然语言"升级为结构化调用。</td></tr>
+<tr><td><strong>2023</strong></td><td><strong>Agent 学术爆发年</strong>：Reflexion / Generative Agents / AutoGen / MetaGPT / CAMEL / ToT / Self-RAG</td><td>反思、记忆、multi-agent、树搜索、agentic RAG 一次性铺开。<strong>今天题库的概念骨架基本在这一年定型</strong>。</td></tr>
+<tr><td><strong>2023.10</strong></td><td><strong>SWE-bench 发布</strong>（Jimenez et al., ICLR 2024）</td><td>评估从静态 benchmark（HumanEval）转向真实仓库级任务，催生"eval 即系统设计"——2025–26 几乎必有一轮 golden set / 轨迹评估 / 防污染。</td></tr>
+<tr><td><strong>2024.02</strong></td><td><strong>Gemini 1.5 Pro 100 万 token 上下文</strong></td><td>直接点燃"RAG is dead"之争，把"长上下文 vs 检索"推成核心争议题。理解二者经济学（成本/时延/Lost-in-the-Middle）成为分水岭。</td></tr>
+<tr><td><strong>2024.03</strong></td><td><strong>Devin 发布</strong>（Cognition，号称首个 AI 软件工程师）</td><td>coding agent 产品化标志。证明差异化在 harness（sandbox/plan/工具集）而非模型——"<strong>模型 vs harness</strong>"成为面试核心心智模型。</td></tr>
+<tr><td><strong>2024.09</strong></td><td><strong>OpenAI o1 发布</strong>（训练出的推理模型；2025.01 DeepSeek-R1 开源复刻 RL 路线）</td><td>推理从"prompt 诱发"转向"RL 训进权重"。引出"推理模型时代还要不要手写 ReAct"争议；R1 把推理能力与成本同时打下来。</td></tr>
+<tr><td><strong>2024.11</strong></td><td><strong>MCP 发布</strong>（Anthropic，11/25）</td><td>工具/上下文接入标准化，解决 M×N 集成爆炸（"AI 的 USB-C"）。2025 起 MCP 架构（client/server/transport）成为面试新必考点。</td></tr>
+<tr><td><strong>2024.12</strong></td><td><strong>Anthropic《Building Effective Agents》</strong></td><td>给出 agent vs workflow 权威定义 + 5 种编排模式，主张"简单可组合优于复杂框架"，同时点燃"框架 vs 手写"争议。几乎是当下 agent 面试的标准引用。</td></tr>
+<tr><td><strong>2025.06</strong></td><td><strong>multi-agent 分裂周 + context engineering 正名 + lethal trifecta</strong></td><td>同周内 Anthropic《multi-agent 研究系统》对撞 Cognition《Don't Build Multi-Agents》；Tobi Lütke(6/18)、Karpathy(6/25) 把"context engineering"正名；Simon Willison 提出"lethal trifecta"。领域成熟为<strong>编排 / 上下文 / 安全</strong>三大工程纪律之争——正是 2025–26 面试主考方向。</td></tr>
+<tr><td><strong>2026 H1</strong></td><td><strong>评测退役 + 框架收敛 + 协议成熟</strong>：OpenAI 退役 SWE-bench Verified（2/23）、Microsoft Agent Framework 1.0 GA（4/3，AutoGen+SK 合并）、The 2026 MCP Roadmap（3/9）</td><td>三件事直接进面试，且各自给一组争议补上新判据：①OpenAI 自家退役 SWE-bench Verified（污染 + 约 60% 剩余失败题测试/题面有缺陷）——"刷榜≠能力"的最新官方实锤，强化"eval 即系统设计"（接 §6⑥）；②AutoGen + Semantic Kernel 合并进 Agent Framework 1.0、二者转维护态——"框架 vs 手写"要更新口径（接 §6④）；③MCP 从"接入标准"走向"无状态 Streamable HTTP + Tasks 原语 + 企业就绪"，协议题升级（接 §9.8 / <a class="xref" href="17.html">17</a>）。</td></tr>
+<tr><td><strong>2024–2026</strong></td><td><strong>AI 工程师面试范式迁移</strong></td><td>从"推 BP / 从零训模型"转向 RAG 架构、agentic 系统设计、评估方法、上下文工程、时延/成本。五大核心题簇覆盖约 90% loop（高级岗再加 RL 训练 <a class="xref" href="16.html">16</a> / 协议经济 <a class="xref" href="17.html">17</a> 两簇进阶，合计七大题簇）——<strong>招聘终于追上了生产现实</strong>。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理：一口气讲清的主线 + 两个手写原语 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<p>面试里能让你瞬间显出"懂行"的，是把碎片知识压成<strong>一条可背诵的主线</strong>与<strong>两个能默写的原语</strong>。</p>
+<h3 id="sec-4-1">4.1 主线：从"会想"到"工程化" <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<pre><code>[1] 让模型会想     CoT(2022) → ReAct(2022) → Reflexion/ToT(2023)
+        │  动因：堆参数在多步推理撞墙，把中间计算显式化、可接地、可改进
+[2] 让模型能用工具  function calling(2023) → MCP(2024)
+        │  动因：把"幻觉事实"换成"调真实 API"，并标准化工具接入(解决 M×N)
+[3] 把推理训进权重  o1(2024) → DeepSeek-R1(2025)
+        │  动因：人手搭 ToT/Reflexion 有天花板，用 RL 直接把"思考+搜索"训进权重
+[4] 把上下文工程化  context engineering(2025)：write/select/compress/isolate
+        │  动因：上下文=有限注意力预算(transformer n²)，Lost-in-the-Middle 证明堆长无用
+[5] 把产品/评估/安全工程化  Devin·SWE-bench·多智能体·lethal trifecta(2024-26)
+           动因：demo 到生产的鸿沟靠 harness/eval/guardrail 填，不靠更强模型
+</code></pre>
+<p>会背这五步、且<strong>每步能说出演进动因</strong>，是 <a class="xref" href="00.html">00</a> 导论的核心,也是面试开场最高效的"框架展示"。</p>
+<h3 id="sec-4-2">4.2 元心智模型：model 负责 think，harness 负责 act/loop <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<blockquote>
+<p><strong>推理模型 ≠ agent。</strong> 推理模型（o1/R1 为开路者，到 2026 已是旗舰标配——当代如 GPT-5.5、Claude Opus 4.8、Gemini 3、DeepSeek-V4 默认内置长思考）只是把第 [1] 步的 think 做得更强；它不会替你管工具调用、停止条件、错误恢复、状态持久化、检查点续跑——这些全在 <strong>harness</strong>（<a class="xref" href="02.html">02</a>）。</p>
+</blockquote>
+<p>这条解耦是回答几乎所有"陷阱题"的总钥匙：当面试官说"推理模型（o1 开路、如今已是旗舰默认档）这么强了还要 ReAct 吗？"，正确答案是"ReAct 描述的是 agent 控制流（act/loop），不是 prompt 技巧；推理模型让 think 那一步更强,但 act/observe 循环依旧必需"。</p>
+<h3 id="sec-4-3">4.3 手写原语一：ReAct loop（最高频手写题） <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<pre data-lang="python"><code>def react_agent(task, tools, llm, max_steps=10):
+    scratchpad = []                      # 累积 thought/action/observation
+    for step in range(max_steps):
+        prompt = build_prompt(task, tools, scratchpad)
+        out = llm(prompt, stop=["\nObservation:"])   # 让模型生成 Thought + Action
+        thought, action = parse(out)     # action = {tool, args} 或 {"finish": answer}
+        scratchpad.append(("thought", thought))
+
+        if action.get("finish"):         # 终止条件①：模型主动收尾
+            return action["finish"]
+
+        try:                             # 错误恢复：把异常喂回上下文让模型自纠
+            obs = tools[action["tool"]](**action["args"])
+        except Exception as e:
+            obs = f"Error: {e}. Try a different approach."
+        scratchpad.append(("observation", obs))
+
+    return "Stopped: max steps reached"  # 终止条件②：步数预算兜底，防死循环
+</code></pre>
+<p><strong>答题加分点</strong>：(1) 必须有<strong>两个终止条件</strong>（主动 finish + max_steps 兜底）；(2) 把工具异常<strong>回灌</strong>进上下文是 Reflexion 思想的最小实现（<a class="xref" href="01.html">01</a>）；(3) <code>stop</code> token 防止模型自己幻觉 observation；(4) 失败模式要会讲：错误传播、死循环、对观测质量敏感、长程上下文膨胀。</p>
+<h3 id="sec-4-4">4.4 手写原语二：compaction（上下文压缩重启） <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<pre data-lang="python"><code>def maybe_compact(history, llm, threshold=0.85, window=200_000):
+    if token_count(history) &lt; threshold * window:
+        return history
+    # 留什么 / 丢什么 是关键取舍
+    keep = {
+        "architecture_decisions": extract_decisions(history),  # 架构决策：保
+        "open_bugs": extract_unresolved(history),              # 未解 bug：保
+        "impl_details": extract_recent_code(history, n=5),     # 最近 5 个文件：保
+    }
+    summary = llm(f"Summarize preserving: {keep}. Drop verbose tool outputs.")
+    return [system_prompt, summary] + history[-RECENT_TURNS:]   # 摘要 + 近几轮重启
+</code></pre>
+<p>这是 Claude Code 的真实做法（<a class="xref" href="03.html">03</a>/<a class="xref" href="13.html">13</a>）：接近窗口上限时摘要重启，<strong>保留架构决策 / 未解 bug / 实现细节，丢弃冗余工具输出</strong>。考点：过度压缩会丢隐性信息（openQuestion，无原则性解法），所以"留什么"要显式声明而非交给模型自由发挥。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系：七大题簇 × 答题维度 <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>题簇</th><th>典型问法</th><th>锚点知识 / 节</th><th>高分要点</th><th>高频陷阱</th></tr></thead>
+<tbody>
+<tr><td><strong>LLM 基础</strong></td><td>CoT/Self-Consistency 原理；function calling 机制；采样参数(温度/top-p)</td><td><a class="xref" href="01.html">01</a></td><td>讲清"prompted vs trained reasoning"；Self-Consistency=采样多路+多数投票，不改权重</td><td>把 temperature 当"创造力旋钮"含糊带过</td></tr>
+<tr><td><strong>RAG 架构</strong></td><td>设计接私有知识的问答；Naive/Advanced/Modular 三代；为什么不无脑堆长上下文</td><td><a class="xref" href="07.html">07</a></td><td>chunking/embedding/rerank/引用溯源全链路；用 Lost-in-the-Middle 当反长上下文证据</td><td>"Gemini 1M 了不需要 RAG"——把它当二选一</td></tr>
+<tr><td><strong>agentic 系统设计</strong></td><td>设计 coding / 客服 / deep research agent</td><td><a class="xref" href="02.html">02</a><a class="xref" href="04.html">04</a><a class="xref" href="05.html">05</a><a class="xref" href="08.html">08</a></td><td>编排器+工具接口层+记忆+policy/guardrail+observability 五大件；先 single-agent 加足工具</td><td>一上来堆 supervisor + N 个 subagent 显"高级"</td></tr>
+<tr><td><strong>评测</strong></td><td>如何评一个没标准答案 / 会循环调工具的系统</td><td><a class="xref" href="09.html">09</a></td><td>golden set + 分层(组件/轨迹/端到端) + LLM-judge(校偏) + 在线监控；<code>pass^k</code> 看稳定性</td><td>只报 <code>pass@1</code>；不提 judge 偏置；拿刷榜当能力证明</td></tr>
+<tr><td><strong>LLM 产品系统设计</strong></td><td>延迟-成本-质量三角；KV-cache；高吞吐服务</td><td><a class="xref" href="11.html">11</a></td><td>KV-cache 命中率为头号成本指标；PagedAttention/vLLM；缓存友好的 prompt 前缀</td><td>只谈准确率不谈成本/时延；动态增删工具废掉 KV-cache</td></tr>
+<tr><td><strong>Agent 训练与 RL</strong>（进阶/高级岗）</td><td>RLHF vs RLVR；GRPO 一句话；agentic RL vs 推理 RL；为真实 SWE agent 设计 RL 管线</td><td><a class="xref" href="16.html">16</a></td><td>奖励来源决定一切（RLVR=可验证校验，抗 hacking、只覆盖可验证域）；GRPO=critic-free 组内相对优势；同时报 pass@1/pass@k 区分锐化与扩边界</td><td>只在 Qwen 单族验证 RLVR 增益；把 reward hacking 当能彻底修掉的 bug</td></tr>
+<tr><td><strong>互操作协议与 Agent 经济</strong>（进阶/高级岗）</td><td>画四层协议栈；MCP vs A2A 为何互补；AP2/ACP/x402 三分工；设计可审计的自主购物系统</td><td><a class="xref" href="17.html">17</a></td><td>互操作=四层栈（纵向 MCP / 横向 A2A / 身份发现 / 支付）；MCP 解决不了 agent 协作；支付"同层选一、跨层组合"</td><td>把 MCP 当万能协议；以为 Agent Card 自带身份验证；以为"捐基金会=无锁定=安全"</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p><strong>答题通用骨架</strong>（PromptLayer 面试官视角）：意图 → 上下文组装 → 推理 → 动作校验 → 沙箱执行 → 状态更新 → 循环，<strong>全程可观测</strong>。系统设计题先画这条主回路，再逐件展开五大组件。</p>
+</blockquote>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议：七组"陷阱 vs 正确姿势" <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>争议题不是让你站队，而是看你<strong>有没有反向判据</strong>。每组给出"答题误区"与"正确姿势"。</p>
+</blockquote>
+<p><strong>① multi-agent vs 单线程智能体（最高频陷阱）</strong></p>
+<ul>
+<li>正方 <strong>Anthropic</strong>（《multi-agent 研究系统》, 2025.06）：orchestrator-worker + 上下文隔离，在"宽而浅"可并行的研究任务上比 single-agent <strong>高约 90%</strong>，token 用量单独解释 <strong>80%</strong> 的效果方差。</li>
+<li>反方 <strong>Cognition / Walden Yan</strong>（《Don't Build Multi-Agents》, 2025.06）：动作隐含决策，并行 agent 互不可见 → 冲突决策 → 坏结果；默认<strong>单线程线性 agent</strong>，上下文太长就引专门的压缩模型（single-writer 原则）。</li>
+<li><strong>正确姿势</strong>：先证明 single-agent 不够、且任务<strong>可并行 + 可上下文隔离</strong>再上 multi-agent；multi-agent ~<strong>15x token</strong>，对强共享上下文的 coding 任务明确不划算。区分 wide-shallow（适合 multi-agent）vs deep-sequential（适合 single-agent）。两家共识是"<strong>context engineering 才是关键</strong>"。详见 <a class="xref" href="08.html">08</a>。</li>
+</ul>
+<p><strong>② RAG vs 超长上下文</strong></p>
+<ul>
+<li>"RAG is dead"派（2024.02 Gemini 1M 触发）：直接塞知识库进窗口，免去 chunking/embedding/索引全套麻烦。</li>
+<li>"RAG 没死"派：<strong>Lost-in-the-Middle</strong>（Liu et al., 2023）证明中间信息被忽略（U 形曲线）；长上下文成本约 8–82× 更贵、时延更高、无法增量更新/溯源。</li>
+<li><strong>正确姿势</strong>：不是二选一而是<strong>分层互补</strong>——"naive RAG 死了，agentic/sophisticated RAG 更活"。会讲"何时用哪个"才是真本事。详见 <a class="xref" href="07.html">07</a>。</li>
+</ul>
+<p><strong>③ 推理模型时代还要手写 ReAct/CoT 吗？</strong></p>
+<ul>
+<li>训练派（o1/R1 开路，当代旗舰 GPT-5.5/Opus 4.8/Gemini 3/DeepSeek-V4 已默认内置长思考）：推理已 RL 内化进权重，对推理模型显式追加 CoT 甚至可能降效。</li>
+<li>harness 工程派（ReAct 作者；Anthropic）：act-observe 循环——工具调用、停止条件、错误恢复——仍必需；ReAct 是控制流不是 prompt 技巧。</li>
+<li><strong>正确姿势</strong>：守住"model 负责 think、harness 负责 act/loop"的解耦；<strong>推理模型 ≠ agent</strong>，它只是更强的那一步 think。详见 <a class="xref" href="01.html">01</a>/<a class="xref" href="02.html">02</a>。</li>
+</ul>
+<p><strong>④ 框架（LangChain/LangGraph）vs 自建极简 harness</strong></p>
+<ul>
+<li>反方 <strong>Anthropic</strong>：最成功的实现用简单可组合模式而非复杂框架；先理解底层 primitives 再决定要不要框架。HuggingFace smolagents 约 1000 行就逼近闭源 Deep Research。</li>
+<li>正方 <strong>LangChain/Harrison Chase</strong>：框架给 vendor 无关层、记忆、多工具编排、可观测（LangSmith）；LangGraph 提供图式可控编排。</li>
+<li><strong>正确姿势</strong>：识别产品真正需要的<strong>最小 primitives</strong>，权衡抽象代价；别极端化成"全手写"或"上来就全家桶"。框架战在 2026 收敛——<strong>Microsoft Agent Framework 1.0 GA（2026-04-03）把 AutoGen + Semantic Kernel 合并、二者转维护态</strong>，答题别再拿已停更的旧框架名当主力论据。详见 <a class="xref" href="02.html">02</a>。</li>
+</ul>
+<p><strong>⑤ context engineering 是真范式还是炒概念？</strong></p>
+<ul>
+<li>正名派（<strong>Karpathy</strong> 6/25 + <strong>Tobi Lütke</strong> 6/18, 2025）：prompt 只是工业级上下文的极小部分，prompt engineering 是 context engineering 的子集。</li>
+<li>批评者：不过是 RAG/信息检索/系统设计的重新包装。</li>
+<li><strong>正确姿势</strong>：落到工程纪律——compaction、KV/prefix-cache 友好布局、JIT 加载 vs 预加载、上下文预算与裁剪。<strong>不是"写更长的 prompt"</strong>。详见 <a class="xref" href="03.html">03</a>。</li>
+</ul>
+<p><strong>⑥ 刷榜 vs 评估工程</strong></p>
+<ul>
+<li>刷榜派：跑 SWE-bench/GAIA 拿分即证明能力。</li>
+<li>评估工程派（SWE-bench/τ-bench 作者；Zheng et al. LLM-as-judge）：benchmark 有污染/过拟合；要 golden set + 分层评估 + LLM-judge（校位置/自偏好偏置）+ 在线监控。"<strong>eval 即新的系统设计</strong>"。</li>
+<li><strong>正确姿势</strong>：讲清 agent 评估为何难（轨迹非确定）、防污染、judge 偏差校正、离线回归 + 在线监控双轨。<strong>最新官方实锤</strong>：2026-02-23 OpenAI 自己退役 SWE-bench Verified——前沿模型可逐字复现 patch（污染）+ 约 60% 剩余失败题测试/题面有缺陷——正是"刷榜≠能力"的反向判据。详见 <a class="xref" href="09.html">09</a>。</li>
+</ul>
+<p><strong>⑦ 安全侧（lethal trifecta）</strong></p>
+<ul>
+<li><strong>Simon Willison</strong>（2025.06）：当 agent 同时具备<strong>私有数据 + 不可信内容 + 对外通信通道</strong>三要素，就无条件易受间接 prompt injection（Greshake et al., 2023），与模型对齐/系统提示加固无关。已在 M365 Copilot、ChatGPT 插件、Slack 真实出事。</li>
+<li><strong>防御</strong>：打断三角之一（禁外泄通道 / 隔离不可信内容 / 最小权限沙箱）。详见 <a class="xref" href="12.html">12</a>。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践：拿来当答题弹药的真实案例 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<p><strong>案例 A — Anthropic multi-agent 研究系统（deep research 系统设计范本）</strong> lead agent 拆解查询并并行派发 subagent，每个 subagent 拥有独立上下文窗口（"叠加" token 容量），且须被赋予<strong>明确目标 / 边界 / 输出格式 / 工具指引</strong>。取舍：明知比单聊耗 <strong>~15x token</strong>，但只对<strong>高价值 + 可并行 + 超单窗口</strong>的研究任务启用；coding 这类强共享上下文任务明确不上。生产侧靠有状态执行 + 检查点续跑 + 全链路 tracing + rainbow 部署（避免运行中 agent 被升级打断）。→ 用于 deep research 系统设计题 + "何时上 multi-agent"陷阱题。</p>
+<p><strong>案例 B — Cognition / Devin（"模型 vs harness"活教材）</strong> coding agent 产品化标志，差异化在 plan + sandbox + 工具集构成的 <strong>harness</strong>，而非模型。曾给 Devin MCP 任意 spawn/通信其他 Devin，结果"极度混乱"，遂回退<strong>单线程线性 agent + 专门压缩模型</strong>总结历史。唯一可靠的 multi-agent 形态是 root agent 把<strong>隔离子任务</strong>派到独立沙箱、互不共享机器。→ 用于"模型 vs harness"母题 + multi-agent 反方论据。</p>
+<p><strong>案例 C — τ-bench / Sierra（客服 agent 可靠性的真实数据）</strong> 模拟用户 + 域内 API（航空/零售）+ 政策约束，用 <code>pass^k</code>（连续 k 次都对）衡量一致性，揭示 SOTA <strong>&lt;50%</strong>、零售 <code>pass^8</code> <strong>&lt;25%</strong>（<strong>2024 原论文口径</strong>；继任者 <strong>τ²-bench</strong> 2025 加 dual-control + telecom 域，口径更严）。→ 客服 agent 系统设计题里"可靠性/一致性/回退人工"的硬数据；也是"为什么只报 pass@1 不够"的证据。</p>
+<p><strong>案例 D — Manus（KV-cache 命中率为头号成本指标）</strong> Sonnet 缓存 $0.30 vs 未缓存 $3 / MTok（<strong>10× 价差</strong>，输入输出比约 100:1）。工程纪律：保持 prompt 前缀稳定、用 <strong>logits 掩码屏蔽工具而非动态增删</strong>（增删会作废 KV-cache）、把文件系统当外部记忆、<strong>故意保留错误轨迹</strong>让模型自纠。→ 成本/延迟系统设计题加分弹药（<a class="xref" href="11.html">11</a>）。</p>
+<p><strong>案例 E — Cursor 语义搜索 vs grep（检索取舍 + 评估工程）</strong> 自建 Cursor Context Bench 离线评测 + 线上 A/B：语义检索离线平均 <strong>+12.5%</strong> 准确率（区间 6.5%–23.5%），大仓（1000+ 文件）代码留存 +2.6%。结论不是替代 grep 而是<strong>二者并用</strong>；因非所有请求都需检索，全量上线增益被稀释（成本/延迟取舍），故按需触发。索引侧本地按 AST 切 chunk、文件路径加密、代码不落明文、Merkle 树增量同步。→ "RAG vs grep"争议 + 隐私/检索取舍 + 评估工程三题通吃（<a class="xref" href="07.html">07</a>/<a class="xref" href="09.html">09</a>）。</p>
+<p><strong>案例 F — MCP 生态（工具层标准化）</strong> 2024.11 开源，一年内被 OpenAI/Google/Microsoft/AWS 采纳成事实标准，用统一协议（client/server/transport）解决 M×N 集成爆炸。→ "tool 调度如何标准化"必考点（<a class="xref" href="04.html">04</a>）。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我对面试趋势的研判，仅供决策参考。</strong></p>
+</blockquote>
+<p><strong>趋势研判</strong>：</p>
+<ol>
+<li><strong>面试正从"知识点"漂向"判断力"，且不可逆。</strong> 当基座模型每季度变强，"会不会用某个 API"的区分度趋零，唯一稳定值钱的是<strong>反向判据</strong>——知道何时<strong>不</strong>该上 agent、何时<strong>不</strong>该上 multi-agent、何时<strong>不</strong>该上 RAG。我判断 2026 之后，"给出反向判据"会成为高级岗的硬门槛，初级岗才停留在"会搭"。</li>
+<li><strong>"模型 vs harness"会持续是分水岭，但天平在缓慢右移。</strong> 推理模型变强 → harness 理论上可以变薄。但我的判断是<strong>短期变厚、长期变薄</strong>：当前可靠性缺口（τ-bench 2024 原论文口径 &lt;50%）逼着大家堆 harness（检查点、进度文件、端到端验证）；只有当模型把"长程一致性"也内化了，harness 才会瘦身。面试里能讲清"为什么现在 harness 还在变厚"是加分项。</li>
+<li><strong>评估会吃掉系统设计的半壁江山。</strong> "eval 即新的系统设计"不是口号——当输出非确定，唯一能让你迭代的就是评测飞轮。到 2026 年中，agentic 系统设计题已<strong>默认带一轮 eval 设计</strong>、几乎不再单独成题。不会讲 golden set + judge 偏差校正 + 防污染 + 在线监控的人,会被直接筛掉。</li>
+</ol>
+<p><strong>常见坑（我见过最多的失分点）</strong>：</p>
+<ul>
+<li><strong>把争议题当判断题答</strong>：张口"长上下文取代 RAG / multi-agent 更高级"，没有反向判据 → 直接暴露没踩过生产坑。</li>
+<li><strong>只报 <code>pass@1</code> 不报 <code>pass^k</code></strong>：把"跑通一次"当"可靠"，是稳定性意识缺失的红旗。</li>
+<li><strong>系统设计不画可观测性</strong>：编排器、工具层、记忆、guardrail 都画了，唯独没有 tracing/监控——生产 agent 没有可观测就是黑盒（<a class="xref" href="10.html">10</a>）。</li>
+<li><strong>安全题不提 lethal trifecta</strong>：被问"agent 安全"只会答"加 system prompt 防注入"，而正解是<strong>结构性打断三角</strong>——加固提示对间接注入无效。</li>
+<li><strong>项目深挖只讲做了什么、不讲量化结果</strong>：STAR 的 R（Result）没有数字 = 没说服力。</li>
+</ul>
+<p><strong>最佳实践（我给候选人的可执行建议）</strong>：</p>
+<ul>
+<li><strong>开场先抛主线</strong>：用 §4.1 的五步主线 + "model vs harness"解耦定调,让面试官知道你有全局图。</li>
+<li><strong>每个设计先问三件事</strong>：任务是 wide-shallow 还是 deep-sequential？输出确定还是非确定？数据有没有不可信来源？——这三问直接决定 single-agent / multi-agent、要不要 eval、要不要 guardrail。</li>
+<li><strong>用真实案例当锚</strong>：讲 multi-agent 引 Anthropic +90%/15x token；讲成本引 Manus KV-cache 10× 价差；讲可靠性引 τ-bench <code>pass^8</code>&lt;25%（2024 原论文口径，继任者 τ²-bench）。数字 + 出处 = 可信。</li>
+<li><strong>项目用 STAR + 红线意识</strong>：讲 SearchAgent-Zero 报 0.3991 这个真实核心指标，并主动说明"8B 是框架自报口径、是我守的红线"——<strong>主动暴露口径边界比掩盖更显诚信</strong>（<a class="xref" href="09.html">09</a> 防泄漏）。</li>
+</ul>
+<hr>
+<h2 id="sec-9">9. 面试考点（题库主体） <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<h3 id="sec-9-1">9.1 概念题（带答题要点） <a class="heading-anchor" href="#sec-9-1" aria-label="锚点">#</a></h3>
+<p><strong>C1. CoT 与 Self-Consistency 有什么区别？为什么 Self-Consistency 更可靠？</strong> → CoT 让模型吐中间步骤（单条贪心路径）；Self-Consistency 采样<strong>多条</strong>推理路径再<strong>多数投票</strong>，用集成抵消单条路径的随机错误，<strong>不改权重</strong>就提升可靠性。要点：这是"test-time compute"的雏形；代价是多次采样 = 多倍成本。(<a class="xref" href="01.html">01</a>)</p>
+<p><strong>C2. function calling / tool use 的机制？模型如何决定何时调哪个工具？</strong> → 学术源流是 Toolformer（自监督学会调什么 API/何时调/传什么参）；工程上靠 (1) 工具的结构化 schema（名字/描述/参数）注入上下文，(2) 模型输出结构化 tool call，(3) harness 执行并回灌 observation。要点：<strong>工具描述质量 ≈ prompt 质量</strong>，Anthropic 仅靠精修工具描述就在 SWE-bench Verified 刷到 SOTA。(<a class="xref" href="04.html">04</a>)</p>
+<p><strong>C3. RAG 的三代范式（Naive / Advanced / Modular）？</strong> → Naive：检索→拼接→生成；Advanced：加 pre-retrieval（query 改写/扩展）与 post-retrieval（rerank/压缩）；Modular：检索-生成-增强解耦成可编排模块（含 agentic RAG、按需检索）。三要素=检索、生成、增强。要点：引 Gao et al. RAG Survey 当总纲。(<a class="xref" href="07.html">07</a>)</p>
+<p><strong>C4. Reflexion 如何让 agent 从失败中学习而不更新权重？</strong> → 用<strong>语言化反思</strong> + 情节记忆缓冲：失败后让模型写一段"我错在哪、下次怎么改"的反思，存进记忆，下一试次注入上下文。要点：这是"verbal reinforcement learning"，是 §4.3 错误回灌的完整版；局限——无外部反馈时内在自我校正常常反而掉点。(<a class="xref" href="01.html">01</a>)</p>
+<p><strong>C5. MemGPT 的分层记忆怎么实现"无界上下文"？</strong> → 借 OS 虚拟内存：主上下文（窗口内，类比 RAM）+ 外部上下文（窗口外，类比磁盘），模型通过<strong>函数调用 + 中断调度</strong>在两者间换页。要点：是 compaction / 记忆分层的标准引用（<a class="xref" href="06.html">06</a>）。</p>
+<p><strong>C6. Lost-in-the-Middle 是什么？对系统设计意味着什么？</strong> → 长上下文中<strong>中间位置</strong>的信息被显著忽略，准确率呈 <strong>U 形</strong>（首尾高、中间低）。意味着：不能无脑堆 context；关键信息要放首尾；是"RAG vs 长上下文"陷阱题的关键证据。(<a class="xref" href="03.html">03</a>/<a class="xref" href="07.html">07</a>)</p>
+<p><strong>C7. LLM-as-Judge 有哪些偏置？如何缓解？</strong> → 位置偏置（偏向先出现的）、冗长偏置（偏向长答案）、自我偏好偏置（偏向自己生成的）。缓解：交换位置取平均、控制长度、用不同模型当 judge、关键场景人审兜底。要点：与人类偏好一致 &gt;80%（Zheng et al.），但高风险场景不能完全替代人工。(<a class="xref" href="09.html">09</a>)</p>
+<h3 id="sec-9-2">9.2 系统设计题 <a class="heading-anchor" href="#sec-9-2" aria-label="锚点">#</a></h3>
+<p><strong>S1. 设计一个 coding agent（参照 SWE-bench）。</strong> 主回路：意图理解 → <strong>代码检索</strong>（grep/ripgrep + 语义检索并用，Cursor +12.5%）→ 定位 → <strong>多文件编辑</strong> → 运行测试 → 读测试反馈 → 迭代修复 → <strong>沙箱执行</strong>。关键组件：(1) harness（plan + sandbox + 工具集，差异化在此不在模型，引 Devin）；(2) 上下文工程（compaction + 进度文件 + git 检查点，长任务靠 harness 不靠更强模型）；(3) 每会话只做一个特性防上下文耗尽；(4) 端到端验证（浏览器自动化）而非只跑单测；(5) eval（SWE-bench Verified + golden set + 防污染）。陷阱：别一上来堆 multi-agent（coding 是强共享上下文，单线程更稳）。(<a class="xref" href="02.html">02</a>/<a class="xref" href="13.html">13</a>)</p>
+<p><strong>S2. 设计一个客服 agent（参照 τ-bench）。</strong> 组件五件套：(1) <strong>API 工具层</strong>（订单/退款/航班改签等域内 API）；(2) <strong>policy / guardrails</strong>（分层：相关性/安全/PII/审核 + 人工兜底，引 OpenAI 实践指南）；(3) <strong>用户模拟</strong>用于离线评测；(4) <strong>可靠性</strong>用 <code>pass^k</code> 衡量（零售 <code>pass^8</code>&lt;25% 是现实警钟，<strong>2024 原论文口径</strong>；继任者 τ²-bench 引入 dual-control 更严苛）；(5) <strong>回退与人工接管</strong>（低置信/高风险动作转人工）。陷阱：高风险动作（扣款/改签）必须有确认 + 审计日志；不能只看一次性通过率。(<a class="xref" href="04.html">04</a>/<a class="xref" href="09.html">09</a>)</p>
+<p><strong>S3. 设计一个 deep research agent（参照 GAIA / Anthropic）。</strong> 架构：orchestrator-worker——lead agent 拆解为可并行子问题，派发独立上下文窗口的 subagent 检索，再综合。关键取舍：(1) 只对 wide-shallow 高价值任务上 multi-agent（~15x token）；(2) subagent 须给明确目标/边界/输出格式；(3) <strong>引用溯源</strong>（每条结论挂来源）；(4) token 成本控制（Anthropic 称 token 解释约 80% 效果方差）；(5) 评测用 GAIA（人类 92% vs GPT-4+插件 15%）+ LLM-judge + 人测三管齐下。对标真实系统：OpenAI / Gemini / Perplexity Deep Research（搜索后端各异）。(<a class="xref" href="05.html">05</a>/<a class="xref" href="08.html">08</a>)</p>
+<p><strong>S4.（加分）如何低成本高吞吐地服务这个 agent？</strong> KV-cache 命中率为头号成本指标（Manus 10× 价差）→ 保持 prompt 前缀稳定、用 logits 掩码屏蔽工具而非动态增删；PagedAttention/vLLM 做 KV-cache 分页提 2–4× 吞吐；批处理 + 语义缓存；延迟-成本-质量三角显式取舍。(<a class="xref" href="11.html">11</a>)</p>
+<h3 id="sec-9-3">9.3 手写题 <a class="heading-anchor" href="#sec-9-3" aria-label="锚点">#</a></h3>
+<p><strong>H1. 手写 ReAct loop（thought→action→observation + 终止条件）。</strong> → 见 §4.3。评分点：两个终止条件、错误回灌、stop token、能讲失败模式。</p>
+<p><strong>H2. 手写 tool 调度（并行 / ReWOO 解耦 / 错误重试）。</strong> → 三种形态：(a) ReAct 串行（每步依赖上一步观察）；(b) <strong>并行</strong>（无依赖的工具调用并发 fan-out，再汇聚）；(c) <strong>ReWOO 解耦</strong>——Planner 先一次性生成全部步骤的计划（用 <code>#E1</code>/<code>#E2</code> 占位变量引用未来结果），Worker 批量执行，Solver 汇总，省去穿插推理的重复 prompt（HotpotQA 上 ~5× token 效率）。错误重试：指数退避 + 把错误喂回上下文。要点：能根据"工具贵不贵 / 步骤依赖强不强"选 ReAct vs ReWOO。(<a class="xref" href="05.html">05</a>)</p>
+<p><strong>H3. 手写 compaction（摘要重启 + 保留关键决策）。</strong> → 见 §4.4。评分点：显式声明"留什么丢什么"（架构决策/未解 bug/近 N 文件 vs 冗余工具输出）、阈值触发、摘要 + 近几轮拼接重启。</p>
+<h3 id="sec-9-4">9.4 项目深挖（STAR） <a class="heading-anchor" href="#sec-9-4" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>用 <strong>Situation → Task → Action → Result</strong>，R 必须带<strong>可量化数字</strong>。</p>
+</blockquote>
+<ul>
+<li><strong>maquant（multi-agent 量化交易框架）</strong>：S 量化策略需多源信号融合且评测易泄漏未来信息；T 设计 LLM-as-overlay 混合架构 + <strong>防泄漏评测</strong>；A 严格时序切分、point-in-time 数据、把回测与训练数据隔离；R 给出<strong>无泄漏</strong>的可复现指标（强调"防泄漏"本身是核心贡献，区别于刷分）。(<a class="xref" href="09.html">09</a>)</li>
+<li><strong>gewu（A 股投研 multi-agent）</strong>：S 投研需 multi-agent 分工（数据/基本面/情绪/风控）；T 编排可审计的研究流水线；A orchestrator 分派 + 引用溯源 + 人工兜底；R 用真实研报场景验证，强调可解释与可溯源。</li>
+<li><strong>SearchAgent-Zero（搜索 agent）</strong>：S/T 搜索 agent 的端到端能力评测；A 多步检索 + 综合；R 核心指标 <strong>0.3991</strong>，并<strong>主动声明"8B 是框架自报口径、是我守的红线"</strong>——把口径边界讲清比掩盖更显工程诚信。</li>
+</ul>
+<p><strong>STAR 通用红线</strong>：(1) R 必须有数字；(2) 主动暴露口径/假设/局限；(3) 讲清一个真实取舍（为什么选 A 不选 B）；(4) 一句话失败复盘。</p>
+<h3 id="sec-9-5">9.5 行为题（要点） <a class="heading-anchor" href="#sec-9-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>失败复盘</strong>："讲一次 agent 上线翻车" → 结构：现象（如 token 爆炸/提示注入/评测虚高）→ 根因 → 修复 → <strong>沉淀的机制</strong>（不是"以后更小心"，而是"加了 X 监控/Y guardrail"）。</li>
+<li><strong>技术取舍解释</strong>："为什么选 single-agent 不选 multi-agent" → 用 wide-shallow vs deep-sequential + 15× token 当判据。</li>
+<li><strong>面对不确定性的决策</strong>："需求模糊时怎么定方案" → 先做最小可评测原型 + golden set，用数据而非争论收敛。</li>
+<li><strong>跨团队协作</strong>：强调把"非确定性系统"的预期对齐做在前面（eval 指标 + SLA + 回退策略）。</li>
+</ul>
+<h3 id="sec-9-6">9.6 高频陷阱清单（速记） <a class="heading-anchor" href="#sec-9-6" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>陷阱</th><th>一句话正解</th></tr></thead>
+<tbody>
+<tr><td>无脑堆长上下文</td><td>Lost-in-the-Middle，中间被忽略；上下文=有限注意力预算</td></tr>
+<tr><td>滥用 multi-agent</td><td>~15× token + 协调/上下文同步开销；先证明 single-agent 不够</td></tr>
+<tr><td>忽视提示注入</td><td>lethal trifecta（私有数据+不可信内容+外泄通道），结构性打断三角</td></tr>
+<tr><td>LLM-as-Judge 不提偏置</td><td>位置/冗长/自偏好偏置 + 校正方法（换位/人审兜底）</td></tr>
+<tr><td>RAG 无脑检索</td><td>按需检索（Self-RAG 反思 token）；不是每个 query 都该检索</td></tr>
+<tr><td>只看 <code>pass@1</code></td><td><code>pass^k</code> 看稳定性，τ-bench 零售 <code>pass^8</code>&lt;25%（2024 原论文口径，继任者 τ²-bench）</td></tr>
+<tr><td>把推理模型当 agent</td><td>model 负责 think、harness 负责 act/loop</td></tr>
+<tr><td>动态增删工具</td><td>废掉 KV-cache；用 logits 掩码屏蔽</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-9-7">9.7 Agent 训练与强化学习（对应 <a class="xref" href="16.html">16</a>，进阶/高级岗） <a class="heading-anchor" href="#sec-9-7" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>训练侧考点。母题：<strong>奖励从哪来、护城河是否前移到"可验证环境 + 生产轨迹"</strong>。</p>
+</blockquote>
+<p><strong>RL1. RLHF 与 RLVR 的本质区别？为什么 RLVR 偏爱数学/代码而非开放任务？</strong> → 区别在<strong>奖励来源</strong>：RLHF 用人类偏好训出的<strong>学习型奖励模型</strong>（可被 reward hacking、需持续校准），RLVR（Tülu 3 命名）用规则/答案/单测的<strong>程序化校验</strong>（0/1 结果，信号干净、可规模化、抗钻空）。RLVR 只覆盖可验证域；开放写作/客服/研究缺程序化校验，外推得用 rubric/LLM-judge 当代理奖励，越软越易被 hack——这是 RLVR 走出数学/代码的核心瓶颈。一句话：<strong>RLHF 把 RL 当对齐手段，RLVR 把 RL 当能力引擎</strong>。(<a class="xref" href="16.html">16</a>)</p>
+<p><strong>RL2. 一句话讲清 GRPO，并说它相对 PPO 的优劣。</strong> → 去掉 critic/价值网络，对同一 prompt 采样<strong>一组</strong> G 个回答，advantage =（单条奖励 − 组内均值）/组内标准差，再加 KL 约束防漂移。优：省显存、实现简单（R1 默认）；劣：组基线噪声大、易<strong>熵坍缩</strong>、其 clip 偏置会<strong>放大基座既有行为</strong>——Spurious Rewards 据此证明随机奖励也能在 Qwen 上"涨分"，警示<strong>单模型族验证不可信</strong>。(<a class="xref" href="16.html">16</a>)</p>
+<p><strong>RL3. agentic RL 与推理 RL 差在哪？</strong> → 推理 RL ≈ <strong>退化的单步 MDP</strong>（近似 bandit，一次生成即结束，奖励直接挂最终答案）；agentic RL 是<strong>时序延展、部分可观测的 POMDP</strong>（多轮、需记忆与信念状态），把规划/工具/记忆/推理/自我改进/感知六能力都纳入 RL 训练对象。核心难点从单轮奖励变成稀疏/延迟奖励下的<strong>长程信用分配</strong>。(<a class="xref" href="16.html">16</a>)</p>
+<p><strong>RL4.（系统设计）为真实软件工程 agent 设计 RL 训练管线（参照 SWE-Gym）。</strong> → ①<strong>环境</strong>：批量造"任务 + 可执行沙箱 + 单测/校验器"，防污染与 reward hacking（改测试/空实现钻空）；②<strong>冷启动</strong>：少量蒸馏/SFT 修可读性（或论证可纯 RL from base）；③<strong>算法</strong>：GRPO + KL 约束，监控熵坍缩、跨模型族验证；④<strong>verifier</strong>：在采样轨迹上训 verifier，推理期 best-of-N 把训练投入变现成测试时算力；⑤<strong>评估</strong>：同时报 pass@1 与 pass@k，区分锐化与扩边界；⑥<strong>长程</strong>：多轮用交互课程（ScalingInter）控崩溃；⑦<strong>安全</strong>：把 reward hacking 当一级风险、护 CoT 可监控性（<a class="xref" href="12.html">12</a>）。(<a class="xref" href="16.html">16</a>)</p>
+<p><strong>RL5.（陷阱）"RLVR 后 benchmark pass@1 涨了，是不是推理能力真变强了？"</strong> → 陷阱在评测口径与模型族。Yue et al. 用 pass@k 指出 pass@1 涨可能伴随大 k 的 pass@k <strong>跌</strong>（边界缩窄、RL 只锐化不扩展）；Spurious Rewards 进一步证明随机奖励在 Qwen 上也能"涨分"。正解：<strong>同时看 pass@1 与 pass@k 两条曲线、跨模型族（Llama/OLMo）复现</strong>，区分"采样效率提升"与"能力边界扩展"——这场"扩展 vs 锐化"之争至今未决。(<a class="xref" href="16.html">16</a>/<a class="xref" href="09.html">09</a>)</p>
+<h3 id="sec-9-8">9.8 互操作协议与 Agent 经济（对应 <a class="xref" href="17.html">17</a>，进阶/高级岗） <a class="heading-anchor" href="#sec-9-8" aria-label="锚点">#</a></h3>
+<blockquote>
+<p>系统侧考点。母题：<strong>互操作不是一个协议而是一个四层栈；协议安全可能"治不好"</strong>。</p>
+</blockquote>
+<p><strong>IP1. 画出 agent 互操作的四层协议栈，并说清每层边界。</strong> → 自下而上：<strong>纵向层</strong> MCP（模型↔工具/数据，<a class="xref" href="04.html">04</a>）→ <strong>横向层</strong> A2A / AGNTCY（agent↔agent 发现/委派/长任务）→ <strong>身份与发现</strong> NANDA AgentFacts / A2A Agent Card / OASF（对面是谁、可信吗）→ <strong>支付层</strong> AP2（授权）/ ACP（结账）/ x402（结算）。关键一句：<strong>MCP 不是唯一协议，它解决不了 agent 之间的协作</strong>（Google/Anthropic 官方均称 MCP 与 A2A 互补而非竞争）。(<a class="xref" href="17.html">17</a>)</p>
+<p><strong>IP2. MCP vs A2A 有什么区别？为什么说互补不竞争？</strong> → MCP <strong>纵向、透明</strong>（摊开 tools/resources/prompts、JSON-RPC，client 信任 server）；A2A <strong>横向、不透明</strong>（只暴露 Agent Card、不暴露内部实现/记忆/工具，原语是 Task 生命周期 + Artifacts，原生支持长任务流式，对等互不信任）。本质是<strong>建模选择</strong>：把对端当"一个工具"（MCP 够）还是"一个不透明的对等智能体"（需 A2A）。旁证：AP2 同时把自己定位为 A2A 与 MCP 的扩展。(<a class="xref" href="17.html">17</a>/<a class="xref" href="04.html">04</a>)</p>
+<p><strong>IP3. AP2、ACP、x402 三者怎么分工？</strong> → <strong>AP2=授权层</strong>（Mandates: Intent 预授权 / Cart 锁"所见即所付" / Payment 标示 agent 参与，用可验证凭证做不可抵赖审计链，回答 authorization/authenticity/accountability）；<strong>ACP=结账层</strong>（Shared/delegated Payment Token + OAuth，商家保 merchant-of-record，agent 不接触卡号，已落地 ChatGPT Instant Checkout）；<strong>x402=结算层</strong>（HTTP 402 + 稳定币 USDC 的机器微支付，无账号/无 API key）。口诀：<strong>同层选一、跨层组合</strong>——AP2 经 a2a-x402 把链上结算接进来，卡网与链上不是你死我活。(<a class="xref" href="17.html">17</a>)</p>
+<p><strong>IP4.（系统设计）设计一个让 agent 替用户自主购物并付款的系统（要可审计、防超额、防欺诈）。</strong> → MCP 调商品检索/比价工具（纵向）→ A2A 把"下单"委派给商家 agent、用 Signed Agent Card / AgentFacts 验身份（横向+发现）→ <strong>AP2 Intent Mandate 预授权"买什么+预算上限"、Cart Mandate 锁"所见即所付"</strong>（授权）→ ACP Shared Payment Token（卡网，agent 不接触卡号）或 x402 稳定币（链上）结算。<strong>可审计</strong>：VC 签发的 Mandate 链作不可抵赖证据，token 按"商家+金额"限作用域；<strong>安全</strong>：每个 MCP server 当不可信代码沙箱化、防 tool poisoning（<a class="xref" href="12.html">12</a>），全链路 trace（<a class="xref" href="10.html">10</a>）。说清为何<strong>不</strong>让 agent 直接持有用户原始支付凭证。(<a class="xref" href="17.html">17</a>)</p>
+<p><strong>IP5.（陷阱）"协议都捐给 Linux Foundation 了，所以没有厂商锁定、也安全了"对吗？</strong> → 错两处。①<strong>中立治理 ≠ 去中心化 ≠ 无锁定</strong>——发起大厂仍掌握事实标准与方向话语权，且"MCP 进 AAIF、A2A 另进 LF"的多基金会格局本身又是新分裂；②治理管不了 <strong>tool poisoning</strong>——根因是 <strong>LLM 分不清"数据"与"指令"</strong>（结构性难题，非工程 bug），2025–2026 CVE 浪潮（mcp-remote CVE-2025-6514，CVSS 9.6）为证。正解：协议安全长期停留在"纵深缓解 + 责任划分"，护城河转向可信执行环境 + 审计/责任链（<a class="xref" href="12.html">12</a>/<a class="xref" href="11.html">11</a>）。(<a class="xref" href="17.html">17</a>)</p>
+<h3 id="sec-9-9">9.9 网传面经速览（小红书，⚠️ 未核验，仅作方向参考） <a class="heading-anchor" href="#sec-9-9" aria-label="锚点">#</a></h3>
+<blockquote>
+<p><strong>来源与边界</strong>：以下整理自小红书 2026-06 的公开"面经/八股"笔记（详见根 <a class="xref" href="intel.html">小红书情报快照</a>），<strong>均为社媒自述、未独立核实真伪</strong>，不属于本库已校验的题库主体（§9.1–§9.8 才是）。放这里的价值是<strong>校准方向</strong>——看真实候选人被问到什么，验证上面的题簇没漏；具体答案请回前面各节与对应 [[NN]]。</p>
+</blockquote>
+<p><strong>A. 公司分布（自述）</strong>：腾讯（AI 应用开发一面 / Agent 二面）、字节（大模型算法实习 / AI Agent 开发一面）、百度（后训练算法 / 手撕 tokenizer）、滴滴（Agent 后端两轮）、淘天（Agent 一面）、小红书（AI infra 一面）。</p>
+<p><strong>B. "手撕"高频清单（自述）</strong>：手撕 self-attention / multi-head attention、KL 散度、safe softmax、AUC 与常见损失、RMSNorm / LayerNorm / BatchNorm；算法侧以二分 / DP / 数组 / 字符串为主。<strong>新变种</strong>：百度让"输入 Prompt + 词表、手写 tokenizer 输出子词"——印证手撕正从"背 BP"漂向"实现 LLM 组件"（接 §1 范式迁移）。</p>
+<p><strong>C. Agent 工程真题（自述，括号内为社媒答法，judge 时请对照本库）</strong>：</p>
+<ol>
+<li>你们用 ReAct 还是 Plan-and-Execute？（混用：大计划 + 执行中遇异常切 ReAct 局部纠偏 → 本库判据见 <a class="xref" href="05.html">05</a>/<a class="xref" href="01.html">01</a>）</li>
+<li>怎么让模型不瞎编工具参数？（function calling 结构化输出 + JSON 校验重试 + 后端默认值兜底 → <a class="xref" href="04.html">04</a>）</li>
+<li>Agent 长/短期记忆怎么存？（短期 Redis 存会话与状态、长期摘要/偏好抽取入向量库并控长度 → <a class="xref" href="06.html">06</a>）</li>
+<li>多智能体怎么协作（如写码 + 审查）？（角色锁定 + 顺序链 + 输出格式约束 → <a class="xref" href="08.html">08</a>）</li>
+<li>七大复习方向（与本库 §5 题簇高度重合）：核心概念架构 / 多智能体协同 / 设计模式 / 状态管理 / Evals / Agentic RAG / 多模态。</li>
+</ol>
+<p><strong>D. 2026 新增热词题</strong>：Harness Engineering 与 Loop Engineering（"模型是大脑、harness 是让它进真实世界工作的基础设施"；harness 管"单次跑得稳"、loop 管"自驱动跑多轮"）——展开见 <a class="xref" href="02.html">02</a> §3/§4.7，本库元心智模型可直接复用作答。</p>
+<p><strong>E. 一条面试官视角（自述，但与本库主线吻合）</strong>："有了 AI 以后不能再背八股，要结合场景与实际问题，考察分析问题的思路"——即 §2"题型从算法工程师漂移到 AI 系统工程师"的现场实证。</p>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> · Yao et al. (Princeton/Google) · 2022 · <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> — <code>think→act→observe</code> 定义 agent 主循环最小原语，最高频手写题原型。</li>
+<li><strong>Chain-of-Thought Prompting Elicits Reasoning in LLMs</strong> · Wei et al. (Google) · 2022 · <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2201.11903</a> — 用 prompting 诱发逐步推理，推理范式起点。</li>
+<li><strong>Self-Consistency Improves Chain of Thought Reasoning</strong> · Wang et al. · 2022 · <a href="https://arxiv.org/abs/2203.11171" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2203.11171</a> — 采样多路 + 多数投票，"不改权重提升可靠性"的标准技巧。</li>
+<li><strong>Toolformer: LMs Can Teach Themselves to Use Tools</strong> · Schick et al. (Meta) · 2023 · <a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.04761</a> — 自监督学会何时/调什么 API，function calling 学术源流。</li>
+<li><strong>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</strong> · Lewis et al. (FAIR) · 2020 · <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.11401</a> — RAG 原始论文，所有"外挂知识"系统设计题的源头。</li>
+<li><strong>Retrieval-Augmented Generation for LLMs: A Survey</strong> · Gao et al. · 2023 · <a href="https://arxiv.org/abs/2312.10997" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2312.10997</a> — Naive/Advanced/Modular 三代范式，RAG 系统设计题总纲。</li>
+<li><strong>Self-RAG: Learning to Retrieve, Generate, and Critique through Self-Reflection</strong> · Asai et al. · 2023 · <a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.11511</a> — 反思 token 实现按需检索 + 自我批判。</li>
+<li><strong>Reflexion: Language Agents with Verbal Reinforcement Learning</strong> · Shinn et al. · 2023 · <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> — 语言化反思 + 情节记忆跨试次自改进。</li>
+<li><strong>Tree of Thoughts: Deliberate Problem Solving with LLMs</strong> · Yao et al. · 2023 · <a href="https://arxiv.org/abs/2305.10601" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.10601</a> — CoT 泛化为可 BFS/DFS 搜索的思维树。</li>
+<li><strong>Plan-and-Solve Prompting</strong> · Wang et al. · 2023 · <a href="https://arxiv.org/abs/2305.04091" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.04091</a> — 先规划再执行的零样本提示，planner-executor 提示层代表。</li>
+<li><strong>ReWOO: Decoupling Reasoning from Observations</strong> · Xu et al. · 2023 · <a href="https://arxiv.org/abs/2305.18323" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.18323</a> — Planner/Worker/Solver 解耦，HotpotQA ~5× token 效率，手写 tool 调度弹药。</li>
+<li><strong>Generative Agents: Interactive Simulacra of Human Behavior</strong> · Park et al. · 2023 · <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.03442</a> — 记忆流 + 反思 + 规划，multi-agent 记忆设计标杆。</li>
+<li><strong>Voyager: An Open-Ended Embodied Agent with LLMs</strong> · Wang et al. · 2023 · <a href="https://arxiv.org/abs/2305.16291" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.16291</a> — 自动课程 + 可执行技能库，终身学习/技能复用代表。</li>
+<li><strong>MemGPT: Towards LLMs as Operating Systems</strong> · Packer et al. · 2023 · <a href="https://arxiv.org/abs/2310.08560" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.08560</a> — OS 式分层记忆 + 中断调度，无界上下文标准引用。</li>
+<li><strong>A Survey on LLM based Autonomous Agents</strong> · Wang et al. · 2023 · <a href="https://arxiv.org/abs/2308.11432" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.11432</a> — profile-memory-planning-action 统一框架，架构题总览。</li>
+<li><strong>SWE-bench: Can LMs Resolve Real-World GitHub Issues?</strong> · Jimenez et al. (Princeton) · 2023 · <a href="https://arxiv.org/abs/2310.06770" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.06770</a> — 2294 个真实 issue，coding agent 评测事实标准。</li>
+<li><strong>GAIA: a Benchmark for General AI Assistants</strong> · Mialon et al. · 2023 · <a href="https://arxiv.org/abs/2311.12983" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.12983</a> — 人类 92% vs GPT-4+插件 15%，deep research 标准评测集。</li>
+<li><strong>τ-bench: A Benchmark for Tool-Agent-User Interaction</strong> · Yao et al. (Sierra) · 2024 · <a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2406.12045</a> — 模拟用户 + 域内 API + 政策约束，<code>pass^k</code> 揭示 SOTA&lt;50%、零售 <code>pass^8</code>&lt;25%（<strong>2024 原论文口径</strong>）。继任者 <strong>τ²-bench</strong>（Sierra · 2025 · <a href="https://arxiv.org/abs/2506.07982" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2506.07982</a>）加 dual-control（agent 与用户共改共享状态）+ telecom 域。</li>
+<li><strong>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</strong> · Zheng et al. · 2023 · <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2306.05685</a> — LLM 当评委与人类一致 &gt;80%，并揭示位置/冗长/自偏好偏置。</li>
+<li><strong>Lost in the Middle: How Language Models Use Long Contexts</strong> · Liu et al. (Stanford) · 2023 · <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.03172</a> — 长上下文中部被忽略（U 形），反"无脑堆 context"关键证据。</li>
+<li><strong>Efficient Memory Management for LLM Serving with PagedAttention (vLLM)</strong> · Kwon et al. (SOSP) · 2023 · <a href="https://dl.acm.org/doi/10.1145/3600006.3613165" target="_blank" rel="noopener noreferrer">https://dl.acm.org/doi/10.1145/3600006.3613165</a> — KV-cache 分页，2–4× 吞吐，LLM 服务系统设计基石。</li>
+<li><strong>Compromising Real-World LLM-Integrated Applications with Indirect Prompt Injection</strong> · Greshake et al. · 2023 · <a href="https://arxiv.org/abs/2302.12173" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.12173</a> — 间接提示注入分类法，agent 安全题必备。</li>
+<li><strong>AutoGen: Multi-Agent Conversation Framework</strong> · Wu et al. (Microsoft) · 2023 · <a href="https://arxiv.org/abs/2308.08155" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.08155</a> — multi-agent 对话编排，multi-agent 工程起点之一。</li>
+<li><strong>DeepSeek-R1: Incentivizing Reasoning Capability via RL</strong> · DeepSeek-AI · 2025 · <a href="https://arxiv.org/abs/2501.12948" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2501.12948</a> — 开源 RL 推理模型，把"训练出的推理"与低成本同时落地。</li>
+<li><strong>A Survey on Evaluation of LLM-based Agents</strong> · Yehudai et al. · 2025 · <a href="https://arxiv.org/abs/2503.16416" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.16416</a> — agent 评估能力维度/基准/方法缺口的总纲。</li>
+<li><strong>Deep Research: A Survey of Autonomous Research Agents</strong> · Zhang et al. · 2025 · <a href="https://arxiv.org/abs/2508.12752" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.12752</a> — planning→检索→综合流程与基准，deep research 系统设计最新地图。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文（优先一手） <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Building Effective Agents</strong> · Anthropic (Schluntz &amp; Zhang) · 2024 · <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/research/building-effective-agents</a> — workflow vs agent 权威定义 + 5 种编排模式，系统设计题共同语言。</li>
+<li><strong>How we built our multi-agent research system</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> — orchestrator-worker +90.2%、~15× token，multi-agent 正方一手数据。</li>
+<li><strong>Effective Context Engineering for AI Agents</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> — 上下文=有限注意力预算；JIT 检索 + compaction + subagent。</li>
+<li><strong>Writing Effective Tools for AI Agents</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/writing-tools-for-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/writing-tools-for-agents</a> — 仅靠精修工具描述就在 SWE-bench Verified 刷到 SOTA。</li>
+<li><strong>Effective Harnesses for Long-Running Agents</strong> · Anthropic Engineering · 2025 · <a href="https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-harnesses-for-long-running-agents</a> — 长任务靠 harness：双 agent + 进度文件 + git 检查点 + 端到端验证。</li>
+<li><strong>Introducing the Model Context Protocol</strong> · Anthropic · 2024 · <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/model-context-protocol</a> — MCP 标准化工具接入，解决 M×N（"AI 的 USB-C"）。</li>
+<li><strong>Don't Build Multi-Agents</strong> · Cognition / Walden Yan · 2025 · <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> — 单线程 + single-writer 原则，multi-agent 反方论据。</li>
+<li><strong>Introducing Devin, the first AI software engineer</strong> · Cognition · 2024 · <a href="https://cognition.ai/blog/introducing-devin" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/introducing-devin</a> — coding agent 产品化，差异化在 harness 非模型。</li>
+<li><strong>Context Engineering for AI Agents: Lessons from Building Manus</strong> · Manus / Yichao Ji · 2025 · <a href="https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus" target="_blank" rel="noopener noreferrer">https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus</a> — KV-cache 命中率为头号指标（10× 价差），工具用掩码不增删。</li>
+<li><strong>Context Engineering for Agents (write/select/compress/isolate)</strong> · LangChain · 2025 · <a href="https://www.langchain.com/blog/context-engineering-for-agents" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/context-engineering-for-agents</a> — 上下文工程四策略。</li>
+<li><strong>A Practical Guide to Building Agents</strong> · OpenAI · 2025 · <a href="https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf" target="_blank" rel="noopener noreferrer">https://cdn.openai.com/business-guides-and-resources/a-practical-guide-to-building-agents.pdf</a> — 先 single-agent 加足工具；manager vs decentralized；guardrails 分层。</li>
+<li><strong>Open Deep Research / smolagents</strong> · HuggingFace · 2025 · <a href="https://huggingface.co/blog/open-deep-research" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/open-deep-research</a> — CodeAgent 写 Python 调工具减约 30% 步数，GAIA 55% pass@1。</li>
+<li><strong>The lethal trifecta for AI agents</strong> · Simon Willison · 2025 · <a href="https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/Jun/16/the-lethal-trifecta/</a> — 私有数据+不可信内容+外泄通道并存即可被数据外泄，安全必背框架。</li>
+<li><strong>12-Factor Agents</strong> · HumanLayer / Dex Horthy · 2025 · <a href="https://github.com/humanlayer/12-factor-agents" target="_blank" rel="noopener noreferrer">https://github.com/humanlayer/12-factor-agents</a> — 生产可靠 agent = 工程良好的传统软件 + 关键点点缀 LLM。</li>
+<li><strong>Improving the agent with semantic search</strong> · Cursor · 2025 · <a href="https://cursor.com/blog/semsearch" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/semsearch</a> — 语义检索离线 +12.5%，结论是与 grep 并用而非替代。</li>
+<li><strong>Your AI Product Needs Evals</strong> · Hamel Husain · 2024 · <a href="https://hamel.dev/blog/posts/evals/" target="_blank" rel="noopener noreferrer">https://hamel.dev/blog/posts/evals/</a> — eval-driven dev：错误分析 → 分层评测 → 迭代飞轮。</li>
+<li><strong>Prompt Engineering (Google/Kaggle Whitepaper)</strong> · Lee Boonstra (Google) · 2024 · <a href="https://www.kaggle.com/whitepaper-prompt-engineering" target="_blank" rel="noopener noreferrer">https://www.kaggle.com/whitepaper-prompt-engineering</a> — zero/few-shot、CoT、self-consistency、ReAct 系统化，大厂事实标准参考。</li>
+<li><strong>LLM Powered Autonomous Agents</strong> · Lilian Weng · 2023 · <a href="https://lilianweng.github.io/posts/2023-06-23-agent/" target="_blank" rel="noopener noreferrer">https://lilianweng.github.io/posts/2023-06-23-agent/</a> — 规划+记忆+工具的 agent 心智模型经典综述。</li>
+<li><strong>"+1 for context engineering over prompt engineering"</strong> · Andrej Karpathy (X) · 2025 · <a href="https://x.com/karpathy/status/1937902205765607626" target="_blank" rel="noopener noreferrer">https://x.com/karpathy/status/1937902205765607626</a> — context engineering 正名事件。</li>
+<li><strong>The Agentic System Design Interview: How to evaluate AI Engineers</strong> · PromptLayer · 2025 · <a href="https://blog.promptlayer.com/the-agentic-system-design-interview-how-to-evaluate-ai-engineers/" target="_blank" rel="noopener noreferrer">https://blog.promptlayer.com/the-agentic-system-design-interview-how-to-evaluate-ai-engineers/</a> — 面试官视角五大评分维度：编排器/工具层/记忆/policy/observability。</li>
+<li><strong>10 Essential Agentic AI Interview Questions for AI Engineers</strong> · KDnuggets · 2025 · <a href="https://www.kdnuggets.com/10-essential-agentic-ai-interview-questions-for-ai-engineers" target="_blank" rel="noopener noreferrer">https://www.kdnuggets.com/10-essential-agentic-ai-interview-questions-for-ai-engineers</a> — 高频概念/设计题清单；LLM 只占生产 agent 约 20%。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Model Context Protocol 规范</strong> · Anthropic · 2024– · <a href="https://modelcontextprotocol.io/" target="_blank" rel="noopener noreferrer">https://modelcontextprotocol.io/</a> — client/server/transport 架构与工具接入标准。</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>交叉链接</strong>：本节是 <a class="xref" href="00.html">00</a>–<a class="xref" href="14.html">14</a>（及进阶的 <a class="xref" href="16.html">16</a>/<a class="xref" href="17.html">17</a>）的"出口层"。概念题回 <a class="xref" href="01.html">01</a> / <a class="xref" href="07.html">07</a>；系统设计回 <a class="xref" href="02.html">02</a> / <a class="xref" href="04.html">04</a> / <a class="xref" href="05.html">05</a> / <a class="xref" href="08.html">08</a>；手写题回 <a class="xref" href="01.html">01</a> / <a class="xref" href="03.html">03</a>；评估回 <a class="xref" href="09.html">09</a> / <a class="xref" href="10.html">10</a>；安全回 <a class="xref" href="12.html">12</a>；成本/服务回 <a class="xref" href="11.html">11</a>；大厂案例回 <a class="xref" href="13.html">13</a>；训练侧回 <a class="xref" href="16.html">16</a>；协议/经济回 <a class="xref" href="17.html">17</a>；速查回 <a class="xref" href="14.html">14</a>。</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="14.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">14 · 技术栈速查</span>
+  </a>
+  <a class="pager__link pager__link--next" href="16.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">16 · Agent 训练与强化学习</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（时间线）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理：一口气讲清的主线 + 两个手写原语</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 主线：从"会想"到"工程化"</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 元心智模型：model 负责 think，harness 负责 act/loop</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 手写原语一：ReAct loop（最高频手写题）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 手写原语二：compaction（上下文压缩重启）</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系：七大题簇 × 答题维度</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议：七组"陷阱 vs 正确姿势"</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践：拿来当答题弹药的真实案例</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点（题库主体）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-1">9.1 概念题（带答题要点）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-2">9.2 系统设计题</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-3">9.3 手写题</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-4">9.4 项目深挖（STAR）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-5">9.5 行为题（要点）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-6">9.6 高频陷阱清单（速记）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-7">9.7 Agent 训练与强化学习（对应 <a class="xref" href="16.html">16</a>，进阶/高级岗）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-8">9.8 互操作协议与 Agent 经济（对应 <a class="xref" href="17.html">17</a>，进阶/高级岗）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-9-9">9.9 网传面经速览（小红书，⚠️ 未核验，仅作方向参考）</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文（优先一手）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,422 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>07 · 检索与 RAG — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">07 · 检索与 RAG — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link is-active" href="07.html" aria-current="page"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>07 · 检索与 RAG（Retrieval &amp; RAG）</h1>
+<blockquote>
+<p><strong>定位</strong>：Agent 如何"取知识"——把外部语料/代码库/记忆喂进上下文的召回与增强机制。 上游接 <a class="xref" href="03.html">03</a> 上下文工程（检索结果最终要塞进上下文窗口）、<a class="xref" href="06.html">06</a> 记忆系统（检索是长期记忆的读路径）； 下游接 <a class="xref" href="01.html">01</a> 推理范式（检索可作为推理循环里的一次工具调用）、<a class="xref" href="09.html">09</a> 评估（检索质量是生成质量的天花板）、<a class="xref" href="16.html">16</a> 训练（<strong>记忆/检索策略可被 RL 训练</strong>——把静态 RAG 升级为可训练的记忆/检索策略，见 <a class="xref" href="16.html">16</a> Memory-R1 与本节 SWE-grep）。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：稠密/稀疏/混合检索的底层机制 → 分块与粒度 → 重排与两阶段检索 → 自适应/agentic 检索 → 结构化 RAG（图/树）→ 多模态/视觉文档检索 → 长上下文之争 → 大厂工程取舍 → 评估与面试。</p>
+<p><strong>核心结论（先看这 5 条）</strong>：</p>
+<ol>
+<li><strong>RAG 的本质是"非参数化记忆"</strong>。把知识从模型权重里搬到可热插拔的外部索引，换来三样东西：<strong>时效性</strong>（换索引即更新）、<strong>可归因</strong>（带 citation）、<strong>少幻觉</strong>。这是 2020 年 Lewis 等人定义 RAG 时的第一性动机，至今未变。</li>
+<li><strong>生产默认是 hybrid + rerank，不是纯稠密</strong>。BEIR 证明稠密模型域外泛化弱、BM25 是难打的强基线；稀疏（BM25/SPLADE）+ 稠密 + 交叉编码器重排是经过反复验证的工业默认配方。</li>
+<li><strong>分块（chunking）是隐藏瓶颈</strong>。扁平切块会丢文档级语境与结构，Contextual Retrieval（给每个 chunk 注入上下文）、RAPTOR（层级摘要树）、GraphRAG（实体图）都是在补这个洞。</li>
+<li><strong>检索已从"一次召回"沉淀为"推理循环里的一个工具"——这是 2026 的终态主线</strong>。Self-RAG/FLARE 把"是否检索"变成可学习的决策；Agentic RAG / Deep Research（系统化综述见 arXiv 2501.09136）把检索做成 plan→search→reflect 的多轮循环；编码 agent（Claude Code、SWE-grep）甚至直接用 grep 当检索器。<strong>classic "retrieve-then-generate" 退为单跳/简单场景的历史背景与退化特例</strong>。</li>
+<li><strong>"RAG 已死"是伪命题，真正发生的是分化</strong>：naive RAG 在退场，但<strong>文档/企业知识库</strong>里向量 RAG 依旧最强，<strong>结构化代码世界</strong>更适合 agentic search，<strong>百万 token 上下文</strong>则用来兜小语料——业界共识是<strong>按场景路由（routing），而非二选一</strong>。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机：在 Agent 链路里，检索解决什么 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>LLM 的参数化记忆有三个硬伤：<strong>冻结</strong>（训练截止后的知识不会更新）、<strong>不透明</strong>（说不清答案来自哪）、<strong>会幻觉</strong>（缺知识时编造）。Agent 要在真实业务里可用，必须能引入私有、实时、可追溯的外部知识——这正是检索的位置。</p>
+<p>在 Think–Act–Observe 链路里，检索可以出现在两个层次：</p>
+<ul>
+<li><strong>作为预处理（classic RAG）</strong>：用户问题来 → 检索 top-k 片段 → 拼进 prompt → 生成。这是"retrieve-then-generate"模板。</li>
+<li><strong>作为工具（agentic RAG）</strong>：检索退化成 agent 可在推理循环里随时调用的一个 tool（见 <a class="xref" href="04.html">04</a> 工具与 MCP）。何时检索、检索什么、要不要再检索一轮，都由模型决策。</li>
+</ul>
+<blockquote>
+<p><strong>2026 的终态：agentic RAG 是主线，classic RAG 退为历史背景。</strong> 早年 "retrieve-then-generate"（检索 → 拼接 → 生成）是 RAG 的默认形态；但当模型已普遍具备长上下文、工具调用与多轮规划能力后，<strong>把检索当成推理循环里随时可调的工具</strong>成为生产默认——何时检索、检索几轮、用哪种检索器（向量 / grep / 图 / 视觉）都交给模型决策。classic RAG 不再是"RAG 的全部"，而是 agentic RAG 在"单跳、低不确定性"场景下的一个退化特例。这条主线的系统化梳理见 <strong>Agentic RAG 综述</strong>（Singh 等，2025，arXiv 2501.09136《Agentic Retrieval-Augmented Generation: A Survey on Agentic RAG》），它把反思 / 规划 / 工具调用 / multi-agent 协作归纳为 agentic RAG 的能力骨架。本节后续的"召回底座 / 分块 / 重排 / 结构化 / 多模态"都应读作<strong>这台 agent 可以调用的检索手段菜单</strong>，而非互斥的方案二选一。</p>
+</blockquote>
+<p>为什么不"把所有东西都塞进上下文"？因为成本/延迟随上下文长度线性（甚至超线性）增长，且长上下文有两种各自独立的退化（与 <a class="xref" href="03.html">03</a>/<a class="xref" href="06.html">06</a> 同口径）：<strong>Lost in the Middle</strong>——U 形位置偏置，关键信息放在中段时利用率最低（"放哪里"的问题）；<strong>context rot</strong>——输入越长、性能非均匀地整体退化，即便远未溢出窗口也成立（"放多少"的问题）。检索的价值就是<strong>做相关性筛选</strong>——在喂给模型之前先把噪声砍掉。Anthropic 在《Effective context engineering》里把这一点提炼为 <strong>just-in-time 检索</strong>：上下文里只存轻量标识（文件路径/查询/链接），运行时再按需加载，保持上下文 "informative yet tight"。这条原则与 <a class="xref" href="03.html">03</a> 上下文工程深度耦合。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（2020 → 2026） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>一条主线：<strong>检索从"静态一次召回"演进为"推理驱动的动态过程"</strong>；另一条暗线：<strong>分块/索引的语境丢失问题被反复用更重的预处理来补</strong>。</p>
+</blockquote>
+<ul>
+<li><strong>2020 · 三块基石同年落地</strong>。REALM（Guu 等）首次端到端预训练神经检索器；DPR（Karpukhin 等）用双编码器证明纯稠密向量可超 BM25；ColBERT（Khattab &amp; Zaharia）提出 late interaction（token 级多向量）在精度与效率间取平衡。<em>为什么</em>：稀疏关键词匹配吃不下同义/改写，稠密检索让召回变得可学习、可扩展，成为后续一切 RAG 的底座。</li>
+<li><strong>2020 · "RAG"被正式命名</strong>。Lewis 等（FAIR/UCL/NYU, NeurIPS 2020）把 DPR 检索器与 BART 生成器缝合，统一参数化与非参数化记忆，在开放域 QA 上 SOTA。<em>为什么</em>：确立了"换索引即更新知识"的范式，是所有工程栈的原点。</li>
+<li><strong>2021 · 评测与表示成熟</strong>。BEIR（18 个异质数据集，零样本检索基准）暴露稠密模型域外泛化短板、坐实 BM25 强基线；SPLADE 学习可用倒排索引的稀疏表示；Contriever 用无监督对比学习做稠密检索。<em>为什么</em>：直接催生"稀疏+稠密混合检索"的行业共识。</li>
+<li><strong>2022 · 查询侧改写 + 推理交错的种子</strong>。HyDE 让 LLM 先生成假设文档再检索；Atlas 证明检索增强模型仅用 64 例就能超越 540B 大模型；同时 ReAct / Self-Ask 把思维链与搜索调用交错——agentic RAG 的概念雏形。ColBERTv2 用残差压缩把多向量存储降 6–10 倍，让 late interaction 落地可行。</li>
+<li><strong>2023 · 自适应/迭代检索爆发</strong>。Self-RAG（反思 token 决定何时检索并自评）、FLARE（下一句置信度低才触发检索）、IRCoT（检索与思维链逐句交错）；RankGPT 让 LLM 当零样本重排器。同年 Lost in the Middle（Liu, Liang 等）给出 U 形位置偏置的实证，成为"检索精排 vs 上下文堆砌"之争的关键论据；RAG 评测体系化（RAGAS、ARES、Gao 等综述提出 Naive/Advanced/Modular 三范式）；LangChain/LlamaIndex 与向量数据库（Pinecone 等）把 RAG 从论文变成工程栈。</li>
+<li><strong>2024-02 · Gemini 1.5 Pro 上百万 token 上下文</strong>，&gt;99% 大海捞针召回，点燃"<strong>RAG 已死</strong>"的第一波争论。<em>为什么</em>：既然模型本身就是强检索器，为何还要维护脆弱的切块/嵌入/索引管线？</li>
+<li><strong>2024 · 结构化与稳健化 RAG</strong>。RAPTOR（递归摘要树，ICLR 2024）、GraphRAG（Microsoft, 04 月，实体图+社区摘要做全局 sensemaking）、HippoRAG（知识图+Personalized PageRank 做长期记忆）、CRAG（检索质量评估+纠错兜底）。<em>为什么</em>：突破"只检索短片段"的局限。</li>
+<li><strong>2024-09 · Anthropic 发布 Contextual Retrieval</strong>：嵌入前给每个 chunk 注入文档级上下文，配 contextual BM25 与重排，检索失败率最多降 49%（加 rerank 达 67%）。是"修好 RAG"对"RAG 已死"的务实回击。</li>
+<li><strong>2024-11 · LazyGraphRAG</strong>（Microsoft）把 LLM 用量从索引期推迟到查询期，索引成本降到向量 RAG 水平（GraphRAG 的 ~0.1%），全局查询便宜 700+ 倍——对 GraphRAG 成本批评的官方自答。</li>
+<li><strong>2025-01/02 · Agentic RAG 主流化</strong>。综述（Singh 等）把反思/规划/工具调用/multi-agent 协作系统化；OpenAI Deep Research 把"plan→迭代搜索→反思→带引用综合"做成产品。</li>
+<li><strong>2025-05 · Claude Code 公开"用 agentic search 而非向量 RAG"</strong>（Boris Cherny, Latent Space 播客）。头部编码 agent 放弃预建索引，引爆全行业讨论。</li>
+<li><strong>2025-09 · Anthropic《Effective context engineering》</strong>提出 just-in-time 检索，取代"预处理塞满"。</li>
+<li><strong>2025-10 · Cognition SWE-grep</strong>：用 RL 训练多轮高并行 agentic 检索小模型，Cerebras 部署 2800+ TPS，把"模型即检索器"推到极致；同月 Bustamante《The RAG Obituary》登顶 HN。</li>
+<li><strong>2025-11 → 2026-01 · Cursor 连发两文</strong>：《Improving the agent with semantic search》（自训代码嵌入，A/B 证明语义+grep 混合最优）与《Securely indexing large codebases》（Merkle 增量同步、simhash 跨用户复用、只存 embedding 的安全工程）。<em>为什么</em>：与 Claude Code 形成"代码检索该不该上向量"的正面对撞。</li>
+<li><strong>2026 H1 · 长上下文成旗舰标配、agentic RAG 转向方法工程化</strong>：百万 token 上下文已是主流旗舰（如 Claude Fable 5 与 Opus 4.8、DeepSeek-V4，均 1M ctx）的默认能力，"RAG 已死"之争彻底沉淀为"按场景路由"的工程共识；研究重心也从"是否检索/多轮路由"转向"如何把多轮检索做大做稳"——把检索做成可扩展的分层接口、用 RL 训练多轮检索策略（见 §7 SWE-grep）都是这条线上的代表方向。<em>为什么</em>：当窗口与路由都不再是瓶颈，竞争点回到检索策略本身的可扩展性与成本。</li>
+</ul>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理（讲透机制） <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 召回底座：稀疏 vs 稠密 vs late interaction <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>稀疏（BM25）</strong>：基于词项统计的精确匹配，可用倒排索引、零训练、对罕见词/编号/专名极稳，但吃不下同义改写。</li>
+<li><strong>稠密单向量（DPR/Contriever）</strong>：query 与 passage 各编码成一个向量，靠 ANN（如 FAISS/HNSW）做近邻检索。语义匹配强、工程简单，但单向量 pooling 会丢 token 级信号，域外泛化偏弱（BEIR 实证）。</li>
+<li><strong>late interaction 多向量（ColBERT）</strong>：query/doc 各保留<strong>每个 token 的向量</strong>，检索时做 MaxSim 细粒度比对，效果近交叉编码器、速度近双编码器，代价是存储更大（ColBERTv2 用残差压缩缓解）。</li>
+</ul>
+<pre data-lang="text"><code>相似度度量直觉：
+  BM25     : score = Σ_term  idf(t) · tf 饱和项            # 词项重叠
+  DPR      : score = q_vec · d_vec                          # 单向量点积
+  ColBERT  : score = Σ_{q_i} max_{d_j} (q_i · d_j)          # token 级 MaxSim
+</code></pre>
+<p><strong>嵌入模型怎么选</strong>：稠密召回的天花板高度取决于嵌入模型，业界以 <strong>MTEB</strong>（Massive Text Embedding Benchmark，Muennighoff 等 2022，arXiv 2210.07316；覆盖 8 类任务 / 58 数据集 / 112 语言并附公开排行榜）作为嵌入选型与横评的事实标准。但要警惕榜单过拟合：MTEB 总分高未必等于你的领域 / 语言 / 检索任务上更好，<strong>落地仍须在自己语料上离线复测、再以线上 A/B 定夺</strong>（见 §8 常见坑①）。</p>
+<h3 id="sec-4-2">4.2 两阶段检索：广召回 → 精排（rerank） <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>工业 RAG 的标准骨架是 <strong>two-stage</strong>：</p>
+<pre data-lang="text"><code>stage-1 召回（要"全"）：
+  cands = dedup( dense_topN(query) ∪ bm25_topN(query) )     # hybrid，N≈50~200
+stage-2 精排（要"准"）：
+  scored = cross_encoder(query, cand) for cand in cands     # 联合编码 query+doc
+  context = top_k(scored)                                    # k≈3~10，喂给 LLM
+</code></pre>
+<p>第一阶段双编码器<strong>独立</strong>编码、可预存，所以快但糙；第二阶段交叉编码器（或 ColBERTv2 late-interaction、RankGPT LLM 重排）<strong>联合</strong>编码 query–doc 对，准但贵。把它放在召回之后只对少量候选打分，是"性价比最高的 RAG 增益点之一"（Pinecone / HF Cookbook）。这也呼应 Lost in the Middle：与其把一堆候选全塞上下文让中段被忽略，不如精排出最相关的少数几条放在边缘位置。</p>
+<h3 id="sec-4-3">4.3 分块与检索粒度（隐藏瓶颈） <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p>切块策略直接决定召回质量上限：</p>
+<ul>
+<li><strong>固定大小切块</strong>：实现简单（512 token 是常见起点），但会在句中/语义边界切断。</li>
+<li><strong>命题级（Dense X）</strong>：以"命题"为原子单元，检索与下游 QA 均优于段落级——细粒度更精准。</li>
+<li><strong>小-to-大 / sentence-window 解耦</strong>：用简洁摘要或单句做<strong>召回</strong>，合成时再扩展回<strong>大块</strong>做生成，兼顾召回精度与上下文完整。</li>
+<li><strong>注入文档上下文（Contextual Retrieval）</strong>：嵌入前给每个 chunk 拼一段 LLM 生成的 50–100 token 文档级说明，解决"孤立 chunk 丢语境"。</li>
+<li><strong>层级摘要树（RAPTOR）</strong>：递归聚类+摘要自底向上建多层抽象树，检索时按需取不同抽象层级，适合"答案跨整篇文档"的全局/多跳问题。</li>
+</ul>
+<h3 id="sec-4-4">4.4 自适应 / agentic 检索：从"总是 top-k"到"按需多轮" <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>固定 top-k 既浪费又会注入噪声。进化路径：</p>
+<ol>
+<li><strong>按需检索</strong>：FLARE 用下一句 token 置信度触发检索；Self-RAG 用反思 token 决定是否检索并自评证据相关性/支持度。</li>
+<li><strong>检索-推理交错</strong>：IRCoT 用 CoT 当查询、用检索结果改进 CoT，攻多跳。</li>
+<li><strong>纠错兜底</strong>：CRAG 用轻量评估器判定检索质量，差则触发分解-重组或 Web 搜索兜底。</li>
+<li><strong>agentic 循环</strong>：把检索当 tool，agent 规划→分解 query→迭代搜索→反思证据→综合（Deep Research / Search-o1）。这条线与 <a class="xref" href="01.html">01</a> ReAct、<a class="xref" href="08.html">08</a> 多智能体编排直接相连。</li>
+</ol>
+<h3 id="sec-4-5">4.5 结构化 RAG：图与树 <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<p>向量 RAG 只取局部片段，回答不了"这个语料的主要主题是什么"这类<strong>全局 sensemaking</strong>。GraphRAG 用 LLM 抽实体知识图、预生成社区摘要，把检索从"查找"升级为"结构化综合"；HippoRAG 借海马体索引理论用知识图+PageRank 做单步多跳。代价是索引期重度调用 LLM，成本高、难增量。</p>
+<h3 id="sec-4-6">4.6 多模态 / 视觉文档检索：ColPali 与 ViDoRe <a class="heading-anchor" href="#sec-4-6" aria-label="锚点">#</a></h3>
+<p>真实企业语料大量是 <strong>PDF / 扫描件 / 幻灯片 / 财报 / 产品手册</strong>这类"富视觉文档"。传统文本 RAG 要先走 <strong>OCR → 版面解析 → 切块</strong>的脆弱管线，每一步都在丢信息——表格结构、图表、排版语义、阅读顺序往往在解析阶段就损毁，是富文档检索的隐藏失败源。</p>
+<p><strong>ColPali</strong>（arXiv 2407.01449，2024）换了一条路：<strong>直接用视觉语言模型（VLM）把整页文档图像编码成多向量</strong>，再沿用 4.1 里的 ColBERT 式 <strong>late-interaction（MaxSim）</strong> 做 query 与"页面"之间的细粒度比对——<strong>完全跳过 OCR/版面解析</strong>，把"看懂版面与图表"交给 VLM 本身。它同时提出 <strong>ViDoRe（Visual Document Retrieval）</strong> 基准来评测这类视觉文档检索。</p>
+<p>要点与定位：</p>
+<ul>
+<li><strong>机制是 4.1 late-interaction 的多模态推广</strong>：把"token 级多向量 + MaxSim"从纯文本推广到"页面图像即文档"，因此存储成本同样偏高（多向量），但召回能直接吃下版面与图表语义。</li>
+<li><strong>省掉解析管线</strong>：对图文混排、表格密集的文档，免去 OCR/解析的级联误差，是文本切块策略救不回来的那部分召回。</li>
+<li><strong>可作为 agentic RAG 的一种检索手段</strong>：在 §2 的"检索手段菜单"里，视觉检索与向量 / BM25 / grep / 图检索并列，由 agent 按文档形态择优调用——富视觉语料优先视觉检索，纯文本语料仍走 hybrid。</li>
+</ul>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>下面两张表把 §2 的"检索手段菜单"横向展开；落到具体技术栈的选型对照见 <a class="xref" href="14.html">14</a>。</p>
+</blockquote>
+<h3 id="sec-5-1">5.1 召回/排序方法 × 维度 <a class="heading-anchor" href="#sec-5-1" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方法</th><th>表示/索引</th><th>精确匹配</th><th>语义匹配</th><th>存储成本</th><th>域外泛化</th><th>典型定位</th></tr></thead>
+<tbody>
+<tr><td>BM25（稀疏）</td><td>倒排索引</td><td>强</td><td>弱</td><td>低</td><td>强（强基线）</td><td>hybrid 的稀疏一极、专名/编号</td></tr>
+<tr><td>SPLADE（学习稀疏）</td><td>倒排索引</td><td>强</td><td>中</td><td>中</td><td>较强</td><td>兼词项扩展的稀疏检索</td></tr>
+<tr><td>DPR（稠密单向量）</td><td>ANN 向量库</td><td>弱</td><td>强</td><td>中</td><td>偏弱</td><td>工业默认召回</td></tr>
+<tr><td>ColBERT/v2（多向量）</td><td>token 级向量</td><td>中</td><td>强</td><td>高（v2 压缩）</td><td>强</td><td>高精度召回/重排</td></tr>
+<tr><td>ColPali（视觉多向量）</td><td>页面图像→多向量</td><td>—（视觉 late-interaction）</td><td>强（含版面/图表语义）</td><td>高（多向量）</td><td>—</td><td>富文档/PDF/扫描件，免 OCR</td></tr>
+<tr><td>Cross-encoder rerank</td><td>不预存，在线打分</td><td>—</td><td>最强（联合编码）</td><td>—</td><td>强</td><td>第二阶段精排</td></tr>
+<tr><td>Hybrid（稠密+BM25+rerank）</td><td>混合</td><td>强</td><td>强</td><td>中高</td><td>强</td><td><strong>生产默认</strong></td></tr>
+<tr><td>GraphRAG</td><td>实体图+社区摘要</td><td>—</td><td>全局综合</td><td>索引很贵</td><td>—</td><td>全局/多跳 sensemaking</td></tr>
+<tr><td>Agentic grep</td><td>无预建索引</td><td>强（正则）</td><td>弱（靠 LLM 规划补）</td><td>零索引</td><td>不会过期</td><td>结构化代码库</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-5-2">5.2 RAG 范式演进（Gao 等综述视角） <a class="heading-anchor" href="#sec-5-2" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>范式</th><th>检索时机</th><th>代表技术</th><th>适用</th></tr></thead>
+<tbody>
+<tr><td>Naive RAG</td><td>一次、固定 top-k</td><td>切块+向量召回+拼接</td><td>简单 FAQ/单跳</td></tr>
+<tr><td>Advanced RAG</td><td>一次，但前后处理强化</td><td>查询改写(HyDE)、hybrid、rerank、chunk 优化</td><td>多数生产场景</td></tr>
+<tr><td>Modular / Agentic RAG</td><td>按需、多轮、推理驱动</td><td>Self-RAG、FLARE、CRAG、Deep Research</td><td>多跳/调研/复杂任务</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议（≥2 组对立面） <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<p><strong>争议一：长上下文会取代 RAG 吗？</strong></p>
+<ul>
+<li><em>长上下文派</em>：百万 token 窗口（Google DeepMind 的 Gemini 1.5 Pro 团队，2024-02）+ context caching/CAG，主张直接把整个语料喂进去，免掉切块/嵌入/索引这些脆弱环节；Bustamante《The RAG Obituary》（2025）把向量 RAG 称为"小上下文时代的拐杖"。</li>
+<li><em>RAG 派</em>：LlamaIndex（Jerry Liu）、向量库厂商、Chia Jeng Yang 等指出长上下文被不均匀使用（Lost in the Middle），现实多事实召回会掉到 ~60%，一次百万 token 请求比检索几千 token 慢约 30–60 倍、贵 1000+ 倍；RAG 还在<strong>时效性/超窗语料/可归因/权限控制</strong>上不可替代。</li>
+<li><em>已收敛</em>：Google DeepMind 自己的 Self-Route 研究（Li 等, 2024, arXiv 2407.16833）发现 LC 与 RAG 在多数查询上结论一致——<strong>资源足时长上下文质量略优、但 RAG 成本低得多</strong>，故<strong>把简单查询路由给 RAG、难的给长上下文</strong>，是"都要、按需路由"的实证答案。</li>
+</ul>
+<blockquote>
+<p>📦 <strong>结案框 · 长上下文 vs RAG</strong> ｜ <strong>提出（2024）</strong>：Gemini 1.5 Pro 百万 token + CAG 引爆"RAG 已死"，主张整库直喂、免掉切块/嵌入/索引。 <strong>2026 定论</strong>：不取代、<strong>按需路由</strong>——Self-Route（Google DeepMind, arXiv 2407.16833）证 LC 与 RAG 在多数查询上结论一致，资源足时长上下文质量略优、RAG 成本低得多；按难度路由（简单给 RAG、难的给长上下文）<strong>降本 ~65%（Gemini-1.5-Pro）/ ~39%（GPT-4o）</strong>。 <strong>现状</strong>：百万 token 成旗舰标配（与 <a class="xref" href="03.html">03</a> 同口径），"RAG 已死"之争沉淀为"按场景路由"工程共识——小语料直喂、文档/企业库走向量 RAG、结构化代码走 agentic（见争议四结案框）。</p>
+</blockquote>
+<p><strong>争议二：稠密足够，还是必须 hybrid + rerank？</strong></p>
+<ul>
+<li><em>纯稠密派</em>（DPR/Contriever 路线，FAIR）：统一向量空间、语义强、工程简单。</li>
+<li><em>混合派</em>（BEIR/SPLADE/ColBERT 路线，Khattab/Zaharia 等）：单向量丢 token 级信号，BM25 在精确词/罕见实体/代码上仍胜，late interaction 找回精度——务实赢家是 hybrid。</li>
+<li><em>收敛信号</em>：Anthropic 的 Contextual Retrieval 明确组合 contextual embeddings + contextual BM25 + reranking，等于官方为"hybrid 是生产默认"背书。</li>
+</ul>
+<p><strong>争议三：GraphRAG 值不值得做？</strong></p>
+<ul>
+<li><em>图派</em>（Microsoft Research, Darren Edge/Jonathan Larson）：图+社区摘要对全局/多跳/查询聚焦类问答带来综合性与多样性提升，适合法律/金融/生物医学/企业 wiki 等需要跨文档综合、重溯源的复杂语料。</li>
+<li><em>务实派</em>（实践者 + Microsoft 自己的 LazyGraphRAG）：前期图索引昂贵（有大语料 ~$33k 的报告）、对动态语料难维护，多数 FAQ/单事实查询用向量 RAG+rerank 就够；LazyGraphRAG/LightRAG 用 ~0.1% 索引成本逼近大部分质量。决策规则：<strong>只有高查询量+稳定语料+调研型场景</strong>才值回 GraphRAG 的票。</li>
+</ul>
+<p><strong>争议四：代码检索——向量嵌入 vs agentic grep？</strong></p>
+<ul>
+<li><em>agentic 派</em>（Cognition/Anthropic）：代码高度结构化，grep/glob+读文件更准、免维护、不会过期，没有索引外泄风险；SWE-grep 用 RL+并行把延迟压下来。</li>
+<li><em>混合派</em>（Cursor）：线上 A/B 显示大库里语义检索仍有显著增量（问答准确率 +12.5%、大库代码保留 +2.6%），纯 grep 会漏掉自然语言意图——<strong>语义+grep 混合最优</strong>，而非二选一。</li>
+</ul>
+<blockquote>
+<p>📦 <strong>结案框 · 代码检索：向量嵌入 vs agentic grep</strong> ｜ <strong>提出（2025）</strong>：Claude Code 公开放弃向量 RAG、改用 agentic search（grep/glob+读文件），《The RAG Obituary》同期助推。 <strong>2026 定论</strong>：<strong>代码场景 agentic/grep 检索成默认</strong>——代码高度结构化、grep 不会过期、无索引外泄风险；Cursor 线上 A/B 表明大库语义检索仍有增量，故<strong>向量索引降为"按需回退"</strong>（补大库语义召回与自然语言意图），而非默认主力。 <strong>现状</strong>：头部编码 agent 以 agentic grep 为默认检索路径、向量库按需回退做混合；与 <a class="xref" href="14.html">14</a>「代码助手走 agentic grep + 语义混合、向量库按需」、<a class="xref" href="03.html">03</a> just-in-time 检索同口径。</p>
+</blockquote>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践（≥2 个真实案例 + 取舍拆解） <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<p><strong>案例 A · Anthropic Contextual Retrieval（"修好 RAG"派，2024-09-19）</strong> 做法：对每个 chunk 先用 LLM 生成 50–100 token 的文档级上下文再嵌入，并行维护 contextual embeddings 与 contextual BM25，最后接重排。效果（top-20 检索失败率逐级下降）：基线 <strong>5.7% → 3.7%（仅 contextual embeddings，-35%）→ 2.9%（叠加 contextual BM25，-49%）→ 1.9%（再叠加 reranking，-67%）</strong>。关键工程取舍：逐 chunk 调 LLM 本会很贵，靠 <strong>prompt caching</strong> 把一次性 contextualize 成本压到约 $1.02/百万 doc tokens。经验法则：知识库 &lt;200K tokens 直接长上下文，超过才上 RAG。</p>
+<p><strong>案例 B · Cursor 远程向量索引 + 自训代码嵌入 + Merkle 同步（"自建可控"派）</strong> 做法：服务端 Turbopuffer 向量库 + 自训代码嵌入（训练信号来自 agent 真实会话轨迹，再让 LLM 回溯"每步最该被检索到什么"做排序标签），与 grep 做 hybrid。工程取舍：为隐私<strong>只存 embedding 不存明文、混淆路径</strong>；用 <strong>Merkle 树</strong>做文件/目录级增量同步（只重算改动文件及其父路径）；用 <strong>simhash</strong> 匹配相似代码库、跨团队成员复用索引（同库克隆平均 92% 相似），据 Cursor 博客把首查 P99 从 4.03 小时压到 21 秒；用 content proof 做权限过滤（客户端拿不到自己没有的代码）。它保留向量检索的语义召回，用安全+缓存工程抵消其成本/延迟/隐私劣势。</p>
+<p><strong>案例 C · Cognition SWE-grep：模型即检索器（"放弃向量库"派）</strong> 做法：不建向量库，用 RL 训练专用小模型做多轮高并行 agentic 检索——每轮最多 8 个并行工具调用（grep/glob/读文件）、限定 ≤4 轮，交 Cerebras 以 2800+ TPS（mini，约 20x Haiku 4.5）服务。论点：向量检索快但复杂查询不准且污染上下文，纯 agentic 灵活但 10–20 轮太慢，SWE-grep 用"少轮×高并行×高吞吐硬件"两者兼顾，落地为 Windsurf 的 Fast Context subagent。</p>
+<p><strong>案例 D · GraphRAG → LazyGraphRAG（索引期 vs 查询期的成本再平衡）</strong> 原 GraphRAG 在索引期重度用 LLM 抽实体/写社区摘要，适合全局问答但前期成本高、难增量；LazyGraphRAG 把 LLM 全部推迟到查询期（索引只用轻量 NLP），索引成本 = 向量 RAG、全局查询成本比 GraphRAG Global Search 低 700+ 倍且同等质量。取舍本质是在"索引贵/查询快"与"索引便宜/查询贵"之间，默认偏向延迟决策（lazy）。</p>
+<blockquote>
+<p>托管 vs 自建的分界也很清楚：<strong>OpenAI File Search / Vertex AI RAG Engine</strong> 把 parse/chunk/embed/查询改写/hybrid/rerank 全打包，省运维、上手快，代价是黑盒、底层不可调；而 Cursor/Cognition 选择自建，正是为了拿到自训嵌入、安全索引、缓存这些<strong>关键收益</strong>。详见 <a class="xref" href="13.html">13</a> 大厂案例研究。</p>
+</blockquote>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非事实陈述），是我对证据的独立研判，可能与主流不同。</strong></p>
+</blockquote>
+<p><strong>趋势研判</strong>。第一，"RAG vs 长上下文 vs agentic search"不会有赢家通吃，最终形态是<strong>按语料形态分治的路由器</strong>：结构化、强引用、频繁变更（代码、表格、合规库）→ agentic/grep 或 hybrid；非结构化、需跨文档综合的中型语料 → 向量 RAG + rerank（必要时上图）；小到能整体进窗口的 → 直接长上下文。判定的真正自变量不是"模型多强"，而是<strong>语料的结构度、更新频率、对溯源的要求、查询量</strong>这四维。第二，<strong>检索器本身正在被"模型化"</strong>：从手工 BM25/向量，到 Contextual Retrieval 用 LLM 改写 chunk，再到 SWE-grep 用 RL 把整个检索策略训进一个小模型（<strong>记忆/检索策略可被 RL 训练，把静态 RAG 升级为可训练策略，详见 <a class="xref" href="16.html">16</a> 训练</strong>）——"检索"与"推理"的边界正在消融，未来的检索器更像一个会规划的小 agent，而非一张静态索引表。第三，<strong>索引经济学（index economics）会成为选型的第一性约束</strong>：LazyGraphRAG、prompt caching、simhash 复用都在说同一件事——谁能把"重预处理"推迟、摊薄或复用，谁就能在质量不降的前提下赢成本，这比再刷一个点的 recall@k 更决定能否上生产。</p>
+<p><strong>常见坑</strong>（按踩雷频率排序）。① <strong>只看离线 recall@k 不做线上 A/B</strong>——Cursor 的关键收益恰恰是 A/B 测出来的，离线指标常和真实满意度脱节。② <strong>分块拍脑袋</strong>：默认 512 token 只是起点，丢语境的 chunk 会让再好的嵌入也救不回来。③ <strong>跳过 rerank</strong>：这是投入产出比最高的一步，却最常被省。④ <strong>检索失败无兜底</strong>：检索召回是生成质量的天花板，没有 CRAG 式的质量评估与 fallback，模型会在烂证据上一本正经地幻觉。⑤ <strong>知识冲突无策略</strong>：参数化知识与检索知识打架时该信谁，多数系统没有显式处理。⑥ <strong>agentic 检索不设预算</strong>：多轮搜索容易跑飞，必须设轮数/并发/超时上限（SWE-grep 的 ≤4 轮就是硬约束）。</p>
+<p><strong>最佳实践（我的默认配方）</strong>：(1) 先量语料——&lt;200K tokens 别上 RAG，直接长上下文。(2) 起步就用 <strong>hybrid（BM25+稠密）+ cross-encoder rerank</strong>，别幻想纯稠密。(3) chunk 上做 <strong>Contextual Retrieval</strong> 或小-to-大解耦，这是低成本高回报。(4) 用 <strong>RAGAS/ARES</strong> 沿上下文相关性/忠实度/答案相关性建离线基线，但<strong>上线决策以 A/B 为准</strong>。(5) 多跳/调研任务再上 agentic，且<strong>先把单次检索质量打磨好</strong>——agentic 不能掩盖召回烂。(6) 把"索引成本/新鲜度/权限"当一等公民，而不是事后补丁。</p>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>RAG 为什么能减少幻觉、且比微调更适合更新知识？</strong> 答题要点：非参数化记忆可热插拔（换索引即更新，无需重训）、生成被 grounding 到检索证据、可带 citation 溯源；微调把知识压进权重，更新贵且不透明。</li>
+<li><strong>稠密、稀疏、late interaction 三类检索的本质差异与各自短板？</strong> 要点：BM25 词项精确匹配（弱语义）、DPR 单向量语义（丢 token 级信号、域外弱、BEIR 证据）、ColBERT token 级 MaxSim（精度高但存储大）；所以生产用 hybrid。</li>
+<li><strong>两阶段检索里 reranker 为什么用 cross-encoder 而不是 bi-encoder？</strong> 要点：bi-encoder 独立编码可预存但糙，cross-encoder 联合编码 query–doc 对、能建模细粒度交互、更准，只对少量候选打分所以延迟可控。</li>
+<li><strong>Contextual Retrieval 解决什么问题、为什么便宜？</strong> 要点：补"孤立 chunk 丢文档语境"，嵌入前注入 LLM 生成的 chunk 上下文；靠 prompt caching 把逐 chunk 调用摊薄到约 $1/百万 tokens，失败率最多 -67%（含 rerank）。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ul>
+<li><strong>为一个百万文档的企业知识库设计带引用的问答系统。</strong> 要点：数据摄入（parse→chunk 策略→Contextual/小-to-大）；hybrid 索引（向量库 + 倒排）；查询侧（改写/HyDE、必要时 query 分解）；两阶段召回+rerank；生成时强制 citation；评估（离线 RAGAS + 线上 A/B + 检索失败率监控）；新鲜度（增量索引/Merkle）、权限（content-proof/多租户隔离）、成本（缓存、score_threshold 截断）。给出"何时改用长上下文 / 何时上 GraphRAG"的路由判据。</li>
+</ul>
+<p><strong>手写题</strong></p>
+<ul>
+<li><strong>写出自适应 RAG 的检索循环伪代码（含按需检索 + 兜底 + 终止）。</strong></li>
+</ul>
+<pre data-lang="python"><code>def adaptive_rag(query, max_rounds=4):
+    ctx, answer = [], None
+    for r in range(max_rounds):
+        if r == 0 or low_confidence(answer):           # FLARE/Self-RAG 式触发
+            cands = dedup(dense_topN(query) + bm25_topN(query))   # hybrid 召回
+            docs  = rerank(query, cands)[:k]            # cross-encoder 精排
+            if retrieval_quality(query, docs) &lt; tau:    # CRAG 式评估
+                docs += web_search_fallback(query)      # 兜底
+            ctx += docs
+        answer = generate(query, ctx)                   # 带 citation
+        if is_grounded_and_complete(answer, ctx):       # 终止判定
+            break
+    return answer, citations(ctx)
+</code></pre>
+<p><strong>陷阱题</strong></p>
+<ol>
+<li><strong>"上下文窗口够大就不需要 RAG 了，对吗？"</strong> 反驳点：Lost in the Middle 的位置偏置、成本/延迟随长度暴涨（~1000x）、超窗语料、时效性、可归因、权限——Self-Route 证明最优是路由而非取代。</li>
+<li><strong>"向量检索一定比关键词检索好？"</strong> 反驳点：BEIR 显示 BM25 是难打的强基线，稠密域外泛化弱；精确词/罕见专名/代码符号上 BM25 常胜，所以要 hybrid。</li>
+<li><strong>（加问）"GraphRAG 质量高就该默认用？"</strong> 反驳点：索引期 LLM 成本极高、动态语料难维护，LazyGraphRAG 用 0.1% 成本逼近——只有高查询量+稳定语料+调研型场景才值。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li>Guu et al. — <strong>REALM: Retrieval-Augmented Language Model Pre-Training</strong> (2020) · <a href="https://arxiv.org/abs/2002.08909" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2002.08909</a> · 首个端到端预训练神经知识检索器，为开放域 QA 带来 4–16% 绝对提升。</li>
+<li>Karpukhin et al. — <strong>Dense Passage Retrieval (DPR)</strong> (2020, EMNLP) · <a href="https://arxiv.org/abs/2004.04906" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2004.04906</a> · 双编码器稠密检索 top-20 比 BM25 高 9–19%，奠定向量召回工程基础。</li>
+<li>Lewis et al. — <strong>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</strong> (2020, NeurIPS) · <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.11401</a> · 正式提出 RAG，统一参数化与非参数化记忆，是整个领域原点。</li>
+<li>Khattab &amp; Zaharia — <strong>ColBERT: Late Interaction over BERT</strong> (2020, SIGIR) · <a href="https://arxiv.org/abs/2004.12832" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2004.12832</a> · 提出 token 级多向量 late interaction，精度近交叉编码器而快两个数量级。</li>
+<li>Thakur et al. — <strong>BEIR: Heterogeneous Benchmark for Zero-shot IR</strong> (2021) · <a href="https://arxiv.org/abs/2104.08663" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2104.08663</a> · 18 数据集零样本基准，揭示 BM25 强基线、稠密域外泛化不足。</li>
+<li>Muennighoff et al. — <strong>MTEB: Massive Text Embedding Benchmark</strong> (2022, EACL'23) · <a href="https://arxiv.org/abs/2210.07316" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.07316</a> · 8 类任务/58 数据集/112 语言的嵌入横评基准+公开排行榜，嵌入选型的事实标准。</li>
+<li>Formal et al. — <strong>SPLADE: Sparse Lexical and Expansion Model</strong> (2021) · <a href="https://arxiv.org/abs/2107.05720" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2107.05720</a> · 学习可用倒排索引的稀疏表示，混合检索的稀疏一极。</li>
+<li>Santhanam et al. — <strong>ColBERTv2</strong> (2021/2022, NAACL) · <a href="https://arxiv.org/abs/2112.01488" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2112.01488</a> · 残差压缩+去噪监督把 late interaction 存储降 6–10 倍，落地可行。</li>
+<li>ColPali — <strong>用视觉语言模型直接检索文档页面图像（多向量 late-interaction + ViDoRe 基准）</strong> (2024) · <a href="https://arxiv.org/abs/2407.01449" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2407.01449</a> · 跳过 OCR/版面解析，VLM 把整页编码成多向量做 MaxSim，富视觉文档检索新主力。</li>
+<li>Izacard et al. — <strong>Contriever: Unsupervised Dense IR with Contrastive Learning</strong> (2021) · <a href="https://arxiv.org/abs/2112.09118" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2112.09118</a> · 无监督对比学习稠密检索，BEIR 上多数据集超 BM25。</li>
+<li>Izacard et al. — <strong>Atlas: Few-shot Retrieval-Augmented LM</strong> (2022) · <a href="https://arxiv.org/abs/2208.03299" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2208.03299</a> · 64 例即在 NQ 达 42%+，以 50x 更少参数超 540B 模型。</li>
+<li>Gao et al. — <strong>HyDE: Precise Zero-Shot Dense Retrieval</strong> (2022) · <a href="https://arxiv.org/abs/2212.10496" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2212.10496</a> · LLM 先生成假设文档再检索，无需相关性标注即超 Contriever。</li>
+<li>Trivedi et al. — <strong>IRCoT: Interleaving Retrieval with CoT</strong> (2023) · <a href="https://arxiv.org/abs/2212.10509" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2212.10509</a> · 检索与思维链逐句交错，多跳 QA 检索提升达 21 点。</li>
+<li>Jiang et al. — <strong>FLARE: Active Retrieval Augmented Generation</strong> (2023, EMNLP) · <a href="https://arxiv.org/abs/2305.06983" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2305.06983</a> · 下一句置信度低才触发检索的前瞻式主动检索。</li>
+<li>Asai et al. — <strong>Self-RAG</strong> (2023) · <a href="https://arxiv.org/abs/2310.11511" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.11511</a> · 反思 token 决定何时检索并自评证据，7B/13B 多任务超 ChatGPT。</li>
+<li>Sun et al. — <strong>RankGPT: LLM as Re-Ranking Agents</strong> (2023, EMNLP 杰出论文) · <a href="https://arxiv.org/abs/2304.09542" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.09542</a> · 排列生成提示让 LLM 零样本重排，媲美有监督重排器。</li>
+<li>Liu, Lin, Hewitt, ... Liang — <strong>Lost in the Middle</strong> (2023, TACL) · <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.03172</a> · U 形位置偏置，长上下文中段信息被忽略的关键实证。</li>
+<li>Chen et al. — <strong>Dense X Retrieval: What Granularity?</strong> (2023) · <a href="https://arxiv.org/abs/2312.06648" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2312.06648</a> · 以"命题"为原子检索单元，细粒度优于段落级。</li>
+<li>Gao et al. — <strong>Retrieval-Augmented Generation for LLMs: A Survey</strong> (2023) · <a href="https://arxiv.org/abs/2312.10997" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2312.10997</a> · Naive/Advanced/Modular 三范式，本节核心地图。</li>
+<li>Es et al. — <strong>RAGAS: Automated Evaluation of RAG</strong> (2023) · <a href="https://arxiv.org/abs/2309.15217" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.15217</a> · 无参考评估套件，三维度自动打分。</li>
+<li>Saad-Falcon et al. — <strong>ARES: Automated Evaluation Framework for RAG</strong> (2023) · <a href="https://arxiv.org/abs/2311.09476" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.09476</a> · 合成数据微调轻量评审 + PPI，少量标注即可评估。</li>
+<li>Sarthi et al. — <strong>RAPTOR: Recursive Tree-Organized Retrieval</strong> (2024, ICLR) · <a href="https://arxiv.org/abs/2401.18059" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.18059</a> · 递归聚类摘要建多层抽象树，攻多跳/全局问题。</li>
+<li>Edge et al. — <strong>From Local to Global: A GraphRAG Approach</strong> (2024, MSR) · <a href="https://arxiv.org/abs/2404.16130" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2404.16130</a> · 实体图+社区摘要做全局 sensemaking。</li>
+<li>Gutiérrez et al. — <strong>HippoRAG</strong> (2024) · <a href="https://arxiv.org/abs/2405.14831" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2405.14831</a> · 知识图+Personalized PageRank 做长期记忆与单步多跳。</li>
+<li>Yan et al. — <strong>Corrective RAG (CRAG)</strong> (2024) · <a href="https://arxiv.org/abs/2401.15884" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.15884</a> · 轻量评估器判定检索质量并触发纠错/Web 兜底。</li>
+<li>Barnett et al. — <strong>Seven Failure Points When Engineering a RAG System</strong> (2024) · <a href="https://arxiv.org/abs/2401.05856" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2401.05856</a> · 三案例归纳 7 类 RAG 失败点，工程避坑清单。</li>
+<li>Li et al. — <strong>RAG or Long-Context LLMs? A Comprehensive Study (Self-Route)</strong> (2024, Google DeepMind) · <a href="https://arxiv.org/pdf/2407.16833" target="_blank" rel="noopener noreferrer">https://arxiv.org/pdf/2407.16833</a> · LC 与 RAG 多数查询结论一致，提出按难度路由。</li>
+<li>Singh et al. — <strong>Agentic Retrieval-Augmented Generation: A Survey on Agentic RAG</strong> (2025) · <a href="https://arxiv.org/abs/2501.09136" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2501.09136</a> · 反思/规划/工具调用/multi-agent 的 agentic RAG 分类学；本节"终态主线"的系统化综述。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文（优先一手） <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li>Anthropic — <strong>Introducing Contextual Retrieval</strong> (2024) · <a href="https://www.anthropic.com/news/contextual-retrieval" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/contextual-retrieval</a> · 注入 chunk 上下文+contextual BM25+rerank，失败率最多 -67%。</li>
+<li>Anthropic — <strong>Effective context engineering for AI agents</strong> (2025) · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> · just-in-time 检索：只存轻量标识、运行时按需加载。</li>
+<li>Cursor — <strong>Improving the agent with semantic search</strong> (2025) · <a href="https://cursor.com/blog/semsearch" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/semsearch</a> · 自训代码嵌入，A/B 证明语义+grep 混合最优（问答 +12.5%）。</li>
+<li>Cursor — <strong>Securely indexing large codebases</strong> (2026) · <a href="https://cursor.com/blog/secure-codebase-indexing" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/secure-codebase-indexing</a> · Merkle 增量同步、simhash 复用、只存 embedding，首查 P99 4h→21s。</li>
+<li>Cognition — <strong>Introducing SWE-grep and SWE-grep-mini: RL for Multi-Turn Fast Context Retrieval</strong> (2025) · <a href="https://cognition.ai/blog/swe-grep" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/swe-grep</a> · RL 训练多轮高并行检索小模型，Cerebras 2800+ TPS。</li>
+<li>Microsoft Research — <strong>LazyGraphRAG sets a new standard for quality and cost</strong> (2024) · <a href="https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/" target="_blank" rel="noopener noreferrer">https://www.microsoft.com/en-us/research/blog/lazygraphrag-setting-a-new-standard-for-quality-and-cost/</a> · LLM 推迟到查询期，索引成本=向量 RAG、全局查询便宜 700+ 倍。</li>
+<li>Pinecone — <strong>Rerankers and Two-Stage Retrieval</strong> (2024) · <a href="https://www.pinecone.io/learn/series/rag/rerankers/" target="_blank" rel="noopener noreferrer">https://www.pinecone.io/learn/series/rag/rerankers/</a> · 标准两阶段检索，rerank 是性价比最高的增益点。</li>
+<li>Hugging Face — <strong>Advanced RAG on HF docs using LangChain</strong> (2024) · <a href="https://huggingface.co/learn/cookbook/advanced_rag" target="_blank" rel="noopener noreferrer">https://huggingface.co/learn/cookbook/advanced_rag</a> · 多召回再 cross-encoder(ColBERTv2) rerank 留 top_k 的实战配方。</li>
+<li>LlamaIndex — <strong>A Cheat Sheet and Recipes for Building Advanced RAG</strong> (2024) · <a href="https://www.llamaindex.ai/blog/a-cheat-sheet-and-some-recipes-for-building-advanced-rag-803a9d94c41b" target="_blank" rel="noopener noreferrer">https://www.llamaindex.ai/blog/a-cheat-sheet-and-some-recipes-for-building-advanced-rag-803a9d94c41b</a> · pre/retrieval/post 三层优化、解耦检索块与合成块。</li>
+<li>Nicolas Bustamante — <strong>The RAG Obituary: Killed by Agents, Buried by Context Windows</strong> (2025) · <a href="https://www.nicolasbustamante.com/p/the-rag-obituary-killed-by-agents" target="_blank" rel="noopener noreferrer">https://www.nicolasbustamante.com/p/the-rag-obituary-killed-by-agents</a> · "RAG 已死"论的代表作（争议方）。</li>
+<li>Simon Willison — <strong>Introducing Contextual Retrieval (annotated)</strong> (2024) · <a href="https://simonwillison.net/2024/Sep/20/introducing-contextual-retrieval/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2024/Sep/20/introducing-contextual-retrieval/</a> · 第三方解读：本质是工程务实而非新模型，hybrid 仍赢。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li>OpenAI — <strong>Retrieval / File Search (Vector Stores)</strong> (2025) · <a href="https://platform.openai.com/docs/guides/retrieval" target="_blank" rel="noopener noreferrer">https://platform.openai.com/docs/guides/retrieval</a> · 托管 RAG：自动 chunk/embed、查询改写、并行多检索、hybrid、rerank、可调 score_threshold。</li>
+<li>Google Cloud — <strong>Expanding grounding capabilities (RAG and grounding) on Vertex AI</strong> (2024) · <a href="https://cloud.google.com/blog/products/ai-machine-learning/rag-and-grounding-on-vertex-ai" target="_blank" rel="noopener noreferrer">https://cloud.google.com/blog/products/ai-machine-learning/rag-and-grounding-on-vertex-ai</a> · 托管 Vertex AI Search 与组件级 Embedding/Ranking/Grounding（check-grounding）API 双轨。</li>
+</ul>
+<h3 id="sec-10-4">🎥 Talk / 播客 <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<ul>
+<li>Latent Space — <strong>Claude Code: Anthropic's Agent in Your Terminal</strong>（Boris Cherny &amp; Catherine Wu, 2025-05）· <a href="https://www.latent.space/p/claude-code" target="_blank" rel="noopener noreferrer">https://www.latent.space/p/claude-code</a> · 头部编码 agent 公开放弃向量 RAG、改用 agentic search 的一手陈述。</li>
+</ul>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="06.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">06 · 记忆系统</span>
+  </a>
+  <a class="pager__link pager__link--next" href="08.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">08 · 多智能体编排</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机：在 Agent 链路里，检索解决什么</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（2020 → 2026）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理（讲透机制）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 召回底座：稀疏 vs 稠密 vs late interaction</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 两阶段检索：广召回 → 精排（rerank）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 分块与检索粒度（隐藏瓶颈）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 自适应 / agentic 检索：从"总是 top-k"到"按需多轮"</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 结构化 RAG：图与树</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-6">4.6 多模态 / 视觉文档检索：ColPali 与 ViDoRe</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-1">5.1 召回/排序方法 × 维度</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-2">5.2 RAG 范式演进（Gao 等综述视角）</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议（≥2 组对立面）</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践（≥2 个真实案例 + 取舍拆解）</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文（优先一手）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">🎥 Talk / 播客</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

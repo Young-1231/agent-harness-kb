@@ -1,0 +1,501 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>10 · 可观测性与调试 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">10 · 可观测性与调试 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link is-active" href="10.html" aria-current="page"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>10 · 可观测性与调试（Observability &amp; Debugging）</h1>
+<blockquote>
+<p><strong>定位</strong>：Agent 的"黑匣子记录仪 + 事故调查组"。一个 LLM Agent 在两次完全相同的输入下都可能走出不同轨迹——没有可观测性，你连"它为什么失败"都无从回答。本节讲透 trace/span/轨迹 的概念谱系、该埋什么（埋点设计）、OpenTelemetry GenAI 语义约定如何把埋点标准化、record-and-replay 与时间旅行调试、轨迹级失败归因（为什么这是 2025–2026 的硬骨头），以及生产监控里"监控 vs 评测"的分野。</p>
+<p>上游接 <a class="xref" href="02.html">02</a>（trace 的钩子就埋在 harness 主循环的 emit→parse→execute→feedback 上）、<a class="xref" href="04.html">04</a>（每次工具/MCP 调用是一个 <code>execute_tool</code> span）；与 <a class="xref" href="09.html">09</a> 评估<strong>深度耦合</strong>（可观测性数据正是评测的输入单元，"observability powers evaluation"）；下游连 <a class="xref" href="08.html">08</a>（multi-agent 的失败归因）、<a class="xref" href="11.html">11</a>（生产监控/成本/告警）、<a class="xref" href="12.html">12</a>（内容捕获的 PII/隐私权衡、用 trace 检测 prompt 注入）、<a class="xref" href="13.html">13</a>（Claude Code/Cursor 的 trace 实践）。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p>本节地图：<strong>为什么 Agent 难调（非确定性 + 多步）→ trace/span/轨迹是什么 → 该埋什么（gen_ai.* 埋点）→ 标准化之争（OTel vs OpenInference vs 私有）→ replay 与失败归因 → 监控 vs 评测 → 隐私/成本权衡 → 大厂实践</strong>。</p>
+<p>核心结论（先记住这 5 条）：</p>
+<ol>
+<li><strong>一次 Agent 运行 = 一棵 trace，每次 LLM/工具/检索调用 = 一个 span，完整 trajectory 由父子 span 树构成，靠 trace id 串联因果</strong>——这套心智模型直接继承自 Google <strong>Dapper（2010）</strong>，LLM 时代只是换了 span 的语义。</li>
+<li><strong>纯 print/log 在 LLM 时代失效</strong>：日志只看得到 HTTP 请求，看不到 prompt/completion、多步链路、token/成本，且 LLM 输出<strong>非确定、难复现</strong>。这个痛点直接催生了 2023 年的 "LLM tracing" 品类（LangSmith→Langfuse/Phoenix），脉络从"日志"转向"链路追踪"。</li>
+<li><strong>OTel GenAI 语义约定</strong>正在把埋点标准化为 <code>invoke_agent → chat → execute_tool</code> 的 span 树 + <code>gen_ai.*</code> 属性（model、input/output_tokens、finish_reasons、messages），让 trace 跨厂商可比、可迁移；但<strong>截至 2026（v1.41.x）整套约定仍为 Development/experimental、多数 <code>gen_ai.*</code> 未 stable、无公开稳定化时间表</strong>，需 <code>OTEL_SEMCONV_STABILITY_OPT_IN</code> 双发兼容。</li>
+<li><strong>"捕获 trace"已基本解决，"对 trace 推理"远没解决</strong>：TRAIL（2025）显示当时最强模型做轨迹调试只有 ~11% 准确率，Who&amp;When（2025）的 step 级失败归因只有 14.2%——<strong>让 LLM 读懂自己的 trace，是当前最大的开放问题</strong>。</li>
+<li><strong>监控（monitoring）≠ 评测（evaluation）</strong>：APM 式的时延/成本/错误率告诉你"系统是否在跑、烧多少钱"，但只有 eval（LLM-as-judge + 人工）能告诉你"输出对不对、安不安全"。成熟团队把低分生产 trace 沉淀为<strong>回归数据集</strong>，让 trace→dataset→CI gating 闭环。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p><strong>解决什么问题？</strong> 传统软件是确定性的：同样的输入走同样的代码路径，出 bug 加一行日志、打个断点就能复现。LLM Agent 打破了这两个前提：</p>
+<ul>
+<li><strong>非确定性</strong>：温度采样、模型版本漂移、工具返回变化，使得"同一个 prompt 两次运行走出不同轨迹"成为常态。Anthropic 在 multi-agent 研究系统的工程复盘里明确指出——正因为 agent 在相同输入下的行为都不一致，<strong>全量生产 tracing 是唯一能回答"它为什么失败"的手段</strong>：到底是搜索 query 写得烂、还是选源差、还是工具本身挂了。</li>
+<li><strong>多步 + 不可见的中间态</strong>：一次任务可能是几十步 LLM 推理 + 工具调用 + 检索 + subagent 派生。HuggingFace smolagents 文档直白地说：multi-step runs <strong>会瞬间淹没 console</strong>，靠翻日志根本不可能理解发生了什么。而且关键信息——prompt 全文、模型挑了哪个工具、填了什么参数、token 烧了多少——HTTP 层日志一个都看不到。</li>
+</ul>
+<p><strong>在 Agent 链路中的位置。</strong> 回看根 README 的全景：用户输入 → Harness 组装上下文 → LLM 推理 → tool call → 执行 → 结果回灌 → 循环。可观测性是<strong>横切（cross-cutting）</strong>这整条回路的一层：它在 harness 主循环（<a class="xref" href="02.html">02</a>）的每个关键点埋钩子，把"组装了什么上下文 / 模型决定调什么工具 / 工具返回了什么 / 烧了多少 token / 哪一步抛了异常"全部记录成结构化 trace。</p>
+<p>一句话定位：<strong>如果 <a class="xref" href="01.html">01</a> 是 Agent 的"脑"、<a class="xref" href="02.html">02</a> 是"神经系统"、<a class="xref" href="04.html">04</a> 是"手"，那本节就是 Agent 的"黑匣子飞行记录仪 + 事故调查组"——它本身不参与决策，但没有它，非确定性系统就是个无法调试、无法改进的黑盒。</strong> 而且它与 <a class="xref" href="09.html">09</a> 评估是一体两面：可观测性产出 trace，评测在 trace 上打分——"要评估行为，就得评估记录行为的可观测性数据"（LangChain 语）。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（时间线） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线：<strong>分布式追踪奠基（2010 Dapper / 2019 OTel）→ 纯日志在 LLM 时代失效 → LLM 专用 tracing 品类诞生（2023 LangSmith）→ 开源自托管路线（Langfuse/Phoenix）→ 标准化（2024 OTel GenAI SIG，gen_ai.\*）→ 可观测单元从"一次 LLM 调用"升级为"一条 agent 轨迹"→ 研究重心从"捕获 trace"转向"对 trace 推理"（2025 失败归因）→ 标准化持续推进与赛道整合（2026）</strong>。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2010</strong></td><td><strong>Google Dapper</strong> 论文（Sigelman et al.）</td><td>确立 <strong>trace / span / annotation</strong> 三元语义与低开销采样，奠定分布式追踪范式。现代 LLM/Agent tracing 把"一次 agent 运行映射为 trace、每次调用为 span"全部继承自此。</td></tr>
+<tr><td><strong>2019-05</strong></td><td><strong>OpenTelemetry 成立</strong>（OpenTracing + OpenCensus 合并入 CNCF）</td><td>LLM 出现前"日志/APM 时代"的收口：统一 trace/span 数据模型与 OTLP 协议。后来几乎所有 LLM tracing 都复用这套 span 树心智，也预演了本领域"先碎片化、再向 OTel 收敛"的剧本。</td></tr>
+<tr><td><strong>2022-11 → 2023</strong></td><td>ChatGPT 后 LLM 应用爆发，<strong>调试仍靠 print/log，纯日志开始失效</strong></td><td>日志看不到 prompt/completion、多步链路、token/成本，且输出非确定难复现。痛点直接催生专门的 "LLM tracing" 品类——脉络从"日志"转向"链路追踪"。</td></tr>
+<tr><td><strong>2023 年中</strong></td><td><strong>开源自托管路线起步</strong>：Langfuse（YC W23）公开发布 + Arize 在 Observe 2023 开源 <strong>Phoenix</strong></td><td>把"可自托管的开源可观测性"确立为与 SaaS 并行的第一条路线（Langfuse MIT、Phoenix 本地/Notebook 跑、面向幻觉与 RAG 调试），奠定后来"自建 vs SaaS"之争。</td></tr>
+<tr><td><strong>2023-07/08</strong></td><td><strong>LangChain 推出 LangSmith（闭测）</strong></td><td>首个成规模的托管 LLM 可观测平台，把链路追踪从微服务带进 LLM chain/agent，可视化每一步 prompt/response，定义了"追踪 + 评测 + prompt 优化"一体化的行业预期。标志"日志→LLM tracing"的转折点。</td></tr>
+<tr><td><strong>2023-09/10</strong></td><td><strong>Traceloop 发布 OpenLLMetry</strong></td><td>与各家私有格式相反的思路——不另造协议，而是在 OTel 之上加 LLM 语义，使 trace 能直接送进 Datadog/New Relic/Sentry/Honeycomb。"标准应回归 OTel"主张的最早工程落地，为官方约定铺路。</td></tr>
+<tr><td><strong>2024-02-15</strong></td><td><strong>LangSmith 正式 GA</strong>（$25M A 轮，Sequoia 领投，从 2023-07 闭测毕业）</td><td>确认托管 SaaS 路线的商业可行性；后续累计处理超 10 亿条 trace（Klarna 客服案例：解决时长降约 80%），证明 LLM 可观测性已是生产级刚需而非实验工具。</td></tr>
+<tr><td><strong>2024-04</strong></td><td><strong>OpenTelemetry GenAI SIG 成立</strong>，启动官方 <code>gen_ai.*</code> 语义约定</td><td>针对"各家 token/cost/prompt 字段命名互不兼容、造成厂商锁定"的碎片化问题，官方下场定义 vendor-neutral 属性。脉络由"各自为政的私有 trace"正式转入"标准化"。</td></tr>
+<tr><td><strong>2024-06-27</strong></td><td><strong>Datadog LLM Observability GA</strong></td><td>传统 APM 大厂入场：把 LLM 追踪与既有 APM/日志/安全扫描整合，开启"LLM-native 初创 vs APM 大厂扩展"的竞争格局，也强化了对统一 OTel 语义的需求。</td></tr>
+<tr><td><strong>2024-11</strong></td><td><strong>AgentOps: Enabling Observability of LLM Agents</strong>（Dong et al.）</td><td>首篇学术化界定 agent 全生命周期"该埋什么"的分类法，把工程实践上升为研究问题（模型调用/工具/记忆读写/决策分支）。</td></tr>
+<tr><td><strong>2025-01</strong></td><td><strong>HuggingFace smolagents 采用 OpenTelemetry</strong></td><td>框架方亲口承认：multi-step agent 用 console log 根本调不动；OTel + Phoenix/Langfuse 成默认检查路径。</td></tr>
+<tr><td><strong>2025-03</strong></td><td><strong>OpenAI Agents SDK 内建 tracing（默认开启）+ Traces dashboard</strong></td><td>首个把 tracing 当<strong>原语</strong>而非附加项的一方框架：agent/generation/function/handoff/guardrail 五类 typed span。</td></tr>
+<tr><td><strong>2025</strong></td><td><strong>轨迹调试与失败归因研究爆发</strong>：AgentRR（record&amp;replay）、TRAIL、Who&amp;When、MAST、AgentSight（eBPF）</td><td>研究重心从"捕获 trace"转向"对 trace 推理"：replay 复现、错误分类、step 级失败定位、系统级边界追踪。</td></tr>
+<tr><td><strong>2025-06</strong></td><td><strong>Anthropic《How we built our multi-agent research system》</strong></td><td>标杆性生产复盘：用全量 tracing 诊断非确定性 agent、隐私保护式监控（只看结构不看内容）、~20 query 评测集 + LLM-judge + 人工 eval。</td></tr>
+<tr><td><strong>2026-01</strong></td><td><strong>Langfuse 被 ClickHouse 收购</strong>；<strong>LangChain《Agent observability powers agent evaluation》</strong></td><td>开源自托管赛道走向整合（需数据库/商业后盾）；同时把 runs/traces/threads 定为评测单元，论证"离线评测必要但不充分，需在线 reference-free 评测"。</td></tr>
+<tr><td><strong>2026</strong></td><td><strong>OTel GenAI 约定仍为 Development/experimental</strong>（截至 v1.41.x，多数 <code>gen_ai.*</code> 未 stable、无公开稳定化时间表）；Datadog 原生支持 OTel GenAI semconv；约定外延到 coding agent（Copilot、Claude Code trace beta）；<strong>多层可观测性综述</strong>（Sisodia）出现</td><td>全栈标准化仍未成形、约定持续演进；学术开始系统梳理"从激活值/置信度到 GPU kernel"的多层监控与其断点；内容捕获对敏感 prompt/code 仍默认关闭。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 trace / span / 轨迹：一切的基本盘（源自 Dapper） <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>span</strong>：一个有起止时间的工作单元，带名字、属性（attributes）、事件、状态。一次 LLM 调用、一次工具执行、一次检索，各是一个 span。</li>
+<li><strong>trace</strong>：一棵由父子 span 组成的树，代表<strong>一次完整的端到端请求</strong>——对 Agent 而言就是"一次完整运行"。span 之间靠 <code>trace_id</code>（同属一次 trace）和 <code>parent_span_id</code>（父子关系）串联，因果关系由此重建。</li>
+<li><strong>trajectory（轨迹）</strong>：Agent 语境里 trace 的别名，强调它是 Think→Act→Observe 的<strong>有序步骤序列</strong>。</li>
+</ul>
+<p>LangChain 进一步把粒度分成三层原语，并<strong>一一映射到评测粒度</strong>（这是本节与 <a class="xref" href="09.html">09</a> 的接口）：</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>原语</th><th>含义</th><th>评测什么</th></tr></thead>
+<tbody>
+<tr><td><strong>run</strong>（单 span/单步）</td><td>一次 LLM 调用或一次工具调用</td><td>选对工具了吗？参数对吗？</td></tr>
+<tr><td><strong>trace</strong>（整次运行）</td><td>一整条 trajectory + 最终答案</td><td>轨迹合理吗？最终答案对吗？state 对吗？</td></tr>
+<tr><td><strong>thread</strong>（多轮会话）</td><td>跨多次 trace 的同一会话</td><td>跨轮上下文保持住了吗？</td></tr>
+</tbody>
+</table>
+</div>
+<h3 id="sec-4-2">4.2 该埋什么：埋点的最小充分集 <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>AgentOps（Dong et al., 2024）从 agent 生命周期角度系统回答了"该追踪什么工件"。落到具体字段，OTel GenAI 约定给出了行业通用清单：</p>
+<ul>
+<li><strong>内容</strong>：<code>gen_ai.input.messages</code> / <code>gen_ai.output.messages</code>（prompt/response 全文，默认关闭，见 §4.4 隐私）</li>
+<li><strong>模型与参数</strong>：<code>gen_ai.request.model</code>、temperature、top_p 等</li>
+<li><strong>token 用量</strong>：<code>gen_ai.usage.input_tokens</code> / <code>gen_ai.usage.output_tokens</code>（→ 成本估算的基础）</li>
+<li><strong>时延</strong>：<code>gen_ai.client.operation.duration</code>（核心指标之一）</li>
+<li><strong>结束原因</strong>：<code>gen_ai.response.finish_reasons</code>（stop / length / tool_calls / content_filter——定位截断、死循环的关键）</li>
+<li><strong>工具调用</strong>：<code>execute_tool</code> span + 工具名/参数/返回</li>
+<li><strong>异常 / 重试 / 决策分支 / 记忆读写</strong>：AgentOps 强调须<strong>显式记录每步的内部认知状态</strong>，否则无法真正重放与审计。</li>
+</ul>
+<h3 id="sec-4-3">4.3 OTel GenAI span 树：invoke_agent → chat → execute_tool <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p>OTel GenAI 约定把一次 agent 运行结构化成一棵标准 span 树（OTel 2026 官方博客《Inside the LLM Call》的范式）：</p>
+<pre><code>invoke_agent  (顶层：整次 agent 运行，gen_ai.agent.name)
+├── chat       (一次 LLM 调用：model / input_tokens / output_tokens / finish_reasons)
+│   └── execute_tool  (模型决定调用的工具：tool.name / arguments / result)
+├── chat       (拿到工具结果后的下一次 LLM 调用)
+│   └── execute_tool
+└── chat       (生成最终答案)
+</code></pre>
+<p>两条<strong>核心指标（metrics）</strong>贯穿始终：<code>gen_ai.client.operation.duration</code>（时延）与 <code>token.usage</code>（成本估算）。这两个 + 错误率，构成生产仪表盘（<a class="xref" href="11.html">11</a>）的最小集。</p>
+<p><strong>埋点哲学：baked-in vs external instrumentation（OTel 2025 博客点名的取舍）：</strong></p>
+<ul>
+<li><strong>内建插桩</strong>（框架自带 OTel，如 OpenAI Agents SDK）：零配置、开箱即用，但带来版本锁定与体积膨胀。</li>
+<li><strong>外部插桩库</strong>（解耦的 contrib 包，如 OpenLLMetry、<code>SmolagentsInstrumentor</code>）：精简、可按需，但有碎片化风险。</li>
+</ul>
+<h3 id="sec-4-4">4.4 隐私/成本权衡：内容默认不捕获（off-by-default） <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>这是被写进标准本身的取舍：span 结构与元数据（model、tokens、finish_reason）<strong>总是</strong>捕获，但 <strong>prompt 内容与工具参数默认不记录</strong>，必须显式 opt-in：</p>
+<ul>
+<li>OTel：<code>OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT</code>（Google Vertex/ADK 也用同一开关）</li>
+<li>OpenAI Agents SDK：<code>RunConfig.trace_include_sensitive_data</code></li>
+<li>一致动机：prompt/输出/代码里常含 PII 与密钥；连 GitHub Copilot、Claude Code（trace beta）都遵循"内容默认关闭"。</li>
+</ul>
+<p>代价是：<strong>全量内容是 replay 与失败归因的前提</strong>（TRAIL/Who&amp;When 都依赖完整轨迹），关掉内容 = 牺牲可调试性。这正是 §6 争议二。</p>
+<h3 id="sec-4-5">4.5 record-and-replay 与时间旅行调试 <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<p>非确定性系统最痛的是"复现"。AgentRR（Feng et al., 2025）把经典的 record-and-replay 引入 agent：<strong>记录环境交互轨迹 + 内部决策 → 汇总为结构化"经验" → 以 check function 重放</strong>，从而支持确定性执行、轨迹验证与安全探索。</p>
+<p>工程上更常见的轻量版是"<strong>时间旅行 / 从失败步重放</strong>"（Cresta 实践）：冻结失败 step 之前的所有输入，只换模型/prompt 重跑那一步，"秒级复现确切失败"而非"改完部署再等"。难点在于环境/工具本身也非确定（外部 API 会变），真正可信的确定性回放需要 checkpoint 内部认知状态——这仍是开放问题。</p>
+<h3 id="sec-4-6">4.6 系统级可观测性：eBPF 边界追踪 <a class="heading-anchor" href="#sec-4-6" aria-label="锚点">#</a></h3>
+<p>应用层插桩有个软肋：框架可绕过、被篡改、且看不到真实系统副作用。AgentSight（Zheng et al., 2025）用 <strong>eBPF</strong> 在 <strong>TLS 流量（intent，模型想干什么）与内核事件（effect，系统实际发生了什么）的边界</strong>做关联追踪，跨越二者的"语义鸿沟"，可检测 prompt 注入、推理死循环、multi-agent 协调瓶颈，开销 &lt;3%。它代表可观测性从应用层下沉到 OS/网络层的一条新路线。</p>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<h3 id="sec-5-1">5.1 工具/平台谱系 <a class="heading-anchor" href="#sec-5-1" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方案</th><th>代表</th><th>路线</th><th>部署</th><th>标准</th><th>强项</th><th>取舍</th></tr></thead>
+<tbody>
+<tr><td>托管 SaaS（LLM-native）</td><td><strong>LangSmith</strong> (LangChain)</td><td>商业、闭源</td><td>SaaS（自托管需企业版）</td><td>私有 + 桥接 OTel</td><td>追踪+评测+prompt 一体、零运维</td><td>数据出域、厂商绑定</td></tr>
+<tr><td>开源自托管</td><td><strong>Langfuse</strong></td><td>开源 MIT</td><td>自托管一等公民</td><td>OTel 兼容</td><td>数据主权、合规、框架无关</td><td>需自运维 DB/K8s</td></tr>
+<tr><td>开源 + 评测</td><td><strong>Arize Phoenix</strong></td><td>开源</td><td>本地/Notebook/集群</td><td>OTel / <strong>OpenInference</strong></td><td>内建 LLM-judge eval、面向幻觉/RAG</td><td>语义层与 OTel 并存之争</td></tr>
+<tr><td>开放协议扩展</td><td><strong>OpenLLMetry</strong> (Traceloop)</td><td>开源 Apache-2.0</td><td>任意 OTel 后端</td><td>OTel</td><td>非侵入式、可插任意后端</td><td>语义深度受标准约束</td></tr>
+<tr><td>APM 大厂扩展</td><td><strong>Datadog</strong> LLM Obs</td><td>商业</td><td>SaaS</td><td>原生 OTel GenAI semconv</td><td>与既有 APM/基建告警统一</td><td>偏监控、评测能力弱</td></tr>
+<tr><td>一方框架内建</td><td><strong>OpenAI Agents SDK</strong> Traces</td><td>商业</td><td>默认导出 OpenAI，后端可替换</td><td>typed span</td><td>默认开、agent-aware UX</td><td>默认数据进 OpenAI</td></tr>
+<tr><td>eval-first 平台</td><td><strong>Braintrust</strong></td><td>商业</td><td>SaaS</td><td>—</td><td>evals-in-CI、PR 门禁</td><td>偏评测、非全栈监控</td></tr>
+<tr><td>系统级</td><td><strong>AgentSight</strong> (eBPF)</td><td>研究/开源</td><td>内核探针</td><td>—</td><td>框架无关、防篡改、抓真实 effect</td><td>难还原高层语义</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>三方标准之争（详见 §6 争议三）：<strong>OTel <code>gen_ai.*</code>（中立）vs Arize OpenInference（更深、被 LlamaIndex 采用）vs 各家私有格式</strong>——多数 OTel 约定到 2026 仍是 experimental。</p>
+</blockquote>
+<h3 id="sec-5-2">5.2 失败诊断方法谱系（"对 trace 推理"这条线） <a class="heading-anchor" href="#sec-5-2" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>工作</th><th>机构/年份</th><th>解决什么</th><th>关键数据/结论</th></tr></thead>
+<tbody>
+<tr><td><strong>TRAIL</strong></td><td>Patronus AI, 2025</td><td>trace 级<strong>错误定位</strong>基准（推理/执行/规划错误分类法）</td><td>148 条标注轨迹 / 841 个错误；2025 年最强模型 Gemini-2.5-pro 仅 <strong>~11%</strong>——长上下文 LLM 不会读 trace</td></tr>
+<tr><td><strong>Who&amp;When</strong></td><td>Zhang et al., 2025</td><td><strong>自动失败归因</strong>：哪个 agent、哪一步导致失败</td><td>Who&amp;When 数据集 127 个 MAS 失败日志；最佳方法 agent 级 <strong>53.5%</strong>、step 级仅 <strong>14.2%</strong></td></tr>
+<tr><td><strong>MAST</strong></td><td>UC Berkeley (Cemri et al.), 2025</td><td>multi-agent <strong>失败分类法</strong></td><td>14 种失败模式 / 3 大类（系统设计、智能体间错配、任务验证）；由约 150 条专家标注 trace（κ=0.88）归纳出 14 模式，1600+ 为其后 LLM-judge 扩展的 MAST-Data</td></tr>
+<tr><td><strong>AgentRR</strong></td><td>Feng et al., 2025</td><td>record-and-replay 确定性复现</td><td>结构化"经验" + check function 重放</td></tr>
+<tr><td><strong>AgentOps 综述</strong></td><td>Wang et al., 2025</td><td>运维框架</td><td>监控 → 异常检测 → 根因分析 → 修复 四阶段；强调须显式记录内部认知状态</td></tr>
+<tr><td><strong>多层可观测性综述</strong></td><td>Sisodia, 2026</td><td>五层分类法</td><td>从模型置信度校准 → 基础设施追踪；最大缺口是模型层信号与基建层异常未打通</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议一：in-band（SDK/callback 插桩）还是 out-of-band（系统级 eBPF）？ <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>in-band 派</strong>（LangSmith / Langfuse / OTel SDK）：在应用层插桩能拿到 prompt、token、工具参数等<strong>语义丰富</strong>的信息，与框架天然集成，是绝大多数生产栈的默认。</li>
+<li><strong>out-of-band 派</strong>（AgentSight, Zheng et al. 2025）：应用层可被绕过、篡改，且看不到真实副作用；在内核/TLS 边界做"边界追踪"是<strong>框架无关、防篡改</strong>的，能弥合 intent 与 effect 的语义鸿沟（开销 &lt;3%），代价是难还原高层推理语义。</li>
+<li>实质：两者互补而非互斥——应用层抓"模型想干什么"，系统层抓"系统实际发生了什么"，安全场景（prompt 注入检测，<a class="xref" href="12.html">12</a>）尤其需要后者。</li>
+</ul>
+<h3 id="sec-6-2">争议二：该不该把完整 prompt/completion 写入 trace？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>全量记录派</strong>（调试 / 失败归因需求，TRAIL / Who&amp;When）：不看实际 query、工具参数、输出，就<strong>无法</strong>对非确定性 agent 做轨迹级调试（Anthropic 语："找不到本该找到的信息"这类 bug 没有内容根本定位不了）。</li>
+<li><strong>仅记录元数据派</strong>（OTel / OpenAI / Google 的 off-by-default 设计）：prompt/输出/代码含 PII 与密钥，全量内容带来隐私、存储、成本三重压力。标准把内容捕获设为 opt-in 即是此折中。</li>
+<li><strong>Anthropic 的第三条路</strong>：监控 agent 决策模式与交互<strong>结构</strong>，而<strong>不</strong>记录对话<strong>内容</strong>——用结构换内容，兼顾可观测与隐私。</li>
+</ul>
+<h3 id="sec-6-3">争议三：trace 该统一到哪个标准——OTel <code>gen_ai.*</code>、OpenInference 还是私有格式？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>统一/中立派</strong>（OTel GenAI SIG，含 Microsoft/Google/Datadog；Traceloop OpenLLMetry）：应收敛到 vendor-neutral 的 <code>gen_ai.*</code>，避免锁定、复用成熟 OTel 采集/导出/后端生态，让 token/cost/finish_reason 全行业同名。Datadog 原生支持 OTel GenAI semconv 是这条路线的资本背书。</li>
+<li><strong>深度/先发派</strong>（Arize OpenInference，2025-02 完成 7000 万美元 C 轮，被 LlamaIndex 采用；LangSmith/Langfuse/Helicone）：官方约定<strong>太浅、演进慢、2026 多数仍 experimental 不可靠</strong>；与其等标准，不如自建更深的语义层、用上市速度抢生态。</li>
+<li><strong>中立观察者</strong>多类比十年前 APM：<strong>碎片化先于整合</strong>。OTel 主干生态成熟 + Datadog 原生支持 OTel GenAI semconv，为"最终收敛到 OTel"提供背书（尽管 <code>gen_ai.*</code> 约定本身截至 2026 仍为 experimental、未 stable），Langfuse 被 ClickHouse 收购则印证赛道走向整合。</li>
+</ul>
+<h3 id="sec-6-4">争议四：能用 LLM-as-judge 做生产在线质量监控吗？ <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>可行派</strong>（LLMs-as-Judges 综述，Li et al. 2024）：无需人工 ground truth 即可对 live 流量规模化打分，是<strong>唯一</strong>跟得上生产吞吐的评测方式。</li>
+<li><strong>存疑派</strong>（TRAIL / Who&amp;When 的负面证据）：judge 自身有偏置/可靠性问题；而且 TRAIL（2025）显示 LLM 在 trace 推理上仅 ~11%，直接拿来做失败定位远不可靠。</li>
+<li>折中实践：judge 用于<strong>粗筛 + 趋势监控</strong>，关键 bug 仍需人工 eval 兜底（Anthropic 明确说人工 eval 抓到了自动化漏掉的"SEO 内容农场源"）。</li>
+</ul>
+<h3 id="sec-6-5">争议五：监控（monitoring）够不够，还是必须做评测（evaluation）？ <a class="heading-anchor" href="#sec-6-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>监控优先派</strong>（Datadog，APM 路线）：时延/成本/错误率是必要的基建可见性（<a class="xref" href="11.html">11</a>）——先知道系统在跑、烧多少钱。</li>
+<li><strong>评测优先派</strong>（Braintrust / LangChain / Langfuse）：日志/trace 只说"发生了什么"，只有 eval 说"输出对不对/安不安全"。应把 eval 跑成 GitHub Action 门禁（低于阈值阻断合并），把低分 trace 转成<strong>永久回归数据集</strong>。Braintrust 的口号：APM 无法在 PR 上跑 eval 套件、无法因质量阻断部署。</li>
+<li>共识：二者是<strong>必要但不充分</strong>的关系——监控是地基，评测是验收。</li>
+</ul>
+<h3 id="sec-6-6">争议六：自托管开源 vs 托管 SaaS？ <a class="heading-anchor" href="#sec-6-6" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>自托管派</strong>（Langfuse/Phoenix/Helicone；Cresta、Canva 等有数据合规硬要求的医疗/金融/法律企业）：trace 数据永不出集群，自控留存/备份，满足数据主权（Langfuse 提供 SOC 2 + ISO 27001、可气隙部署）。</li>
+<li><strong>SaaS 派</strong>（LangSmith / OpenAI Traces / Vertex Agent Engine）：零运维、原生集成、time-to-value 最快；自托管要懂 DB 性能、K8s 扩缩容与评测流水线编排，对多数团队是负担。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A：Anthropic——非确定性 multi-agent 的"隐私保护式全量追踪" <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<p>Anthropic 在《How we built our multi-agent research system》（2025）里给出了教科书级复盘：</p>
+<ul>
+<li><strong>为什么必须全量追踪</strong>：agent 在相同输入下行为都不一致，没有 trace 工程师就分不清失败是"搜索 query 烂 / 选源差 / 工具挂了"中的哪一个。</li>
+<li><strong>刻意的隐私取舍</strong>：监控 agent 决策模式与交互<strong>结构</strong>，但<strong>不</strong>记录单次对话<strong>内容</strong>——用结构换隐私。</li>
+<li><strong>评测务实主义</strong>：早期 <strong>~20 条真实使用 query 就够</strong>，因为大改动的效应量（effect size）很大；用 LLM-as-judge 按 rubric 打分（事实/引用准确性、完整性、源质量、工具效率），但<strong>人工 eval 不可替代</strong>——它抓到了自动化漏掉的 SEO 内容农场源。</li>
+</ul>
+<p><strong>工程取舍</strong>：可调试性 vs 隐私——Anthropic 用"只看结构不看内容"绕开了二选一。</p>
+<h3 id="sec-7-2">案例 B：Cresta——自托管 Langfuse + 跨语言 trace 传播 + 失败步重放 <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<p>Cresta（客服 AI）的 Langfuse 自托管复盘（2026）暴露了生产级的硬约束：</p>
+<ul>
+<li><strong>数据主权是硬要求</strong>：trace 携带客户对话内容，即便做了 PII 脱敏，trace 数据也<strong>必须留在基建边界内</strong>——所以每个 K8s 集群自托管一个 Langfuse 实例，4 周自动删除留存。</li>
+<li><strong>跨语言 trace context 传播</strong>：一次交互横跨 Go agent → Python RAG → 工具函数，通过 <strong>gRPC metadata 拦截器</strong>传播 trace context，让一次交互成为<strong>一棵跨语言的 trace 树</strong>。</li>
+<li><strong>多租户隔离</strong>：每个客户一个 Langfuse org。</li>
+<li><strong>调试 = 从失败步重放</strong>：冻结此前输入，在 sandbox 里换模型/prompt 重跑失败那一步，"秒级复现"而非"部署后干等"。</li>
+</ul>
+<p><strong>工程取舍</strong>：数据合规 + 多语言一致性的复杂度，换来零数据出域与快速复现。</p>
+<h3 id="sec-7-3">案例 C：OpenAI Agents SDK——把 tracing 当默认原语 <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>默认开启</strong>：自动捕获 agent/generation/function/handoff/guardrail（+语音转录）五类 typed span，把整个 <code>Runner.run()</code> 包成一条 trace。</li>
+<li><strong>取舍暴露为配置</strong>：<code>trace_include_sensitive_data</code> 控制是否丢弃输入/输出/工具参数；<code>BatchTraceProcessor</code> 异步批量导出（低开销），但在 Celery/FastAPI worker 里必须调 <code>flush_traces()</code> 保证投递；默认导出到 OpenAI 后端，可用 <code>set_trace_processors()</code> 扇出到 W&amp;B/Datadog/Langfuse/Phoenix。</li>
+</ul>
+<p><strong>工程取舍</strong>：开箱即用的 agent-aware UX，与异步导出的"可能丢数据"风险——后者靠 flush 兜底。</p>
+<h3 id="sec-7-4">案例 D：Klarna × LangSmith / Langfuse 被收购——可观测性已是生产刚需 <a class="heading-anchor" href="#sec-7-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Klarna / LangSmith</strong>：LangChain 称 LangSmith 已处理<strong>超 10 亿条 trace</strong>，Klarna 案例中客服解决时长下降约 <strong>80%</strong>——佐证 LLM 可观测性是生产级刚需而非实验玩具。</li>
+<li><strong>Langfuse 被 ClickHouse 收购（2026-01）</strong>：开源自托管赛道走向整合，也说明开源路线需要数据库/商业后盾才能持续（trace 数据本质是海量时序/列存负载，ClickHouse 是天然底座）。</li>
+</ul>
+<h3 id="sec-7-5">案例 E：Google Vertex AI Agent Engine / ADK——标准合规的托管可观测 <a class="heading-anchor" href="#sec-7-5" aria-label="锚点">#</a></h3>
+<p>ADK/Agent Engine 把符合 OTel GenAI semconv 的 trace 直接发到 Cloud Trace/Monitoring/Logging。托管平台范式：用部署期环境变量启用（<code>GOOGLE_CLOUD_AGENT_ENGINE_ENABLE_TELEMETRY</code>），消息内容捕获显式 opt-in（<code>OTEL_INSTRUMENTATION_GENAI_CAPTURE_MESSAGE_CONTENT</code>）——与 OTel/OpenAI 同样的"内容默认关闭"隐私姿态。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我基于上述材料的独立研判，仅供参考。</strong></p>
+</blockquote>
+<p><strong>趋势研判一：可观测性的"难点"已经从"捕获"完全转移到"推理"。</strong> 2023–2025 解决的是"怎么把 trace 抓全、抓标准"——这一仗基本打完了，OTel <code>gen_ai.*</code> + 一堆成熟平台已经够用。真正没解决、且 2026–2028 会持续是热点的，是 <strong>"trace 太多、太长，人读不过来、模型也读不懂"</strong>。TRAIL 的 11% 和 Who&amp;When 的 14.2% 是两个刺眼的数字：我们能记录一切，却<strong>定位不了决定性错误步</strong>。我判断下一代可观测性平台的护城河不在"抓得全"，而在"<strong>自动从海量 trace 里发现行为模式与系统性缺陷</strong>"——即把失败归因（<a class="xref" href="08.html">08</a>）做成产品能力，而非让工程师逐条人肉排查。谁先把"trace 推理"做到可用，谁就吃下这一代红利。</p>
+<p><strong>趋势研判二：标准会收敛到 OTel，但 OpenInference 会作为"深度层"长期共存。</strong> 类比 APM 十年前的"碎片化先于整合"完全成立。OTel 主干生态成熟 + Datadog 原生支持，给了"最终收敛到 <code>gen_ai.*</code>"足够背书（尽管 <code>gen_ai.*</code> 约定截至 2026 仍为 experimental、未 stable）。但官方约定的演进速度跟不上 agent 语义的爆炸（MCP、subagent、记忆、内部认知状态），所以 Arize OpenInference 这类"更深但 OTel 兼容"的语义层短期不会消失——<strong>底座统一到 OTel wire format，语义深度各家加料</strong>，这是最可能的终局。生产团队现在就该埋 <code>gen_ai.*</code>，但用 <code>OTEL_SEMCONV_STABILITY_OPT_IN</code> 双发缓冲 experimental 字段的改名。</p>
+<p><strong>常见坑（我见过/可预见的）：</strong></p>
+<ol>
+<li><strong>只埋监控、不做评测</strong>，仪表盘绿油油、用户却在骂——时延/成本/错误率全正常，但答案是错的/有害的。监控是必要不充分，必须叠 LLM-judge + 人工 eval（<a class="xref" href="09.html">09</a>）。</li>
+<li><strong>内容全量裸记</strong>：把 prompt/completion 全文进 trace 又不脱敏，PII/密钥泄漏 + 存储成本爆炸。默认 off、按需开、记录前脱敏。</li>
+<li><strong>跨语言/跨服务 trace 断链</strong>：Go→Python→工具不传播 trace context，一次交互碎成 N 棵孤儿 trace，根本没法看因果。必须在 RPC 边界传 trace context（Cresta 的 gRPC metadata 拦截器）。</li>
+<li><strong>异步导出丢数据</strong>：用了 BatchProcessor 却不在短生命周期 worker 里 flush，trace 还没发完进程就退了。</li>
+<li><strong>采样策略一刀切</strong>：高吞吐下 100% 采样烧钱、1% 采样又抓不到罕见失败。该对"失败/高时延/高成本"的 trace 做<strong>尾部采样（tail-based sampling）</strong>，正常流量降采样。</li>
+<li><strong>把 LLM-judge 当真理</strong>：judge 自己会漂移、有偏置、也烧 token——judge 本身也要被观测（judge drift/bias/cost）。</li>
+</ol>
+<p><strong>最佳实践（我的清单）：</strong></p>
+<ul>
+<li><strong>三层埋点 + 三层评测对齐</strong>：run/trace/thread 分别对应单步/整轨/多轮评测（LangChain 框架），别只盯最终答案。</li>
+<li><strong>埋点标准化到 OTel <code>gen_ai.*</code></strong>，内容 off-by-default + 脱敏 + 尾部采样保留失败样本。</li>
+<li><strong>trace→dataset→回归测试闭环</strong>：每个生产 bug 都转成永久 eval 用例，进 CI 门禁（Braintrust/LangChain 的 evals-in-CI）。</li>
+<li><strong>失败步重放优先于"改完部署再等"</strong>：冻结前序输入、只换那一步（Cresta），把调试回路从分钟级压到秒级。</li>
+<li><strong>结构监控 + 内容脱敏的双轨</strong>（Anthropic）：默认监控决策结构，敏感场景才在受控环境下捕获内容。</li>
+<li><strong>合规先行选型</strong>：有数据主权硬要求 → 自托管 Langfuse/Phoenix；要 time-to-value → SaaS。别等出了合规事故再迁。</li>
+</ul>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>为什么 LLM Agent 比传统软件更难调试？trace/span/轨迹各是什么？</strong> 要点：非确定性（相同输入走不同轨迹）+ 多步且中间态不可见 + 纯日志看不到 prompt/token/链路。trace = 一次完整运行（一棵 span 树）；span = 一个工作单元（一次 LLM/工具/检索调用）；trajectory = trace 的有序步骤序列。靠 trace_id + parent_span_id 重建因果（源自 Dapper 2010）。</li>
+<li><strong>OTel GenAI 语义约定的核心 span 树和关键属性是什么？为什么"还不能完全信"？</strong> 要点：<code>invoke_agent → chat → execute_tool</code> 三层 span；属性 <code>gen_ai.request.model</code>、<code>gen_ai.usage.input/output_tokens</code>、<code>gen_ai.response.finish_reasons</code>、<code>gen_ai.input/output.messages</code>；指标 <code>operation.duration</code> + <code>token.usage</code>。坑：截至 2026 多数仍 experimental，会改名/重构，需 <code>OTEL_SEMCONV_STABILITY_OPT_IN</code> 双发兼容。</li>
+<li><strong>监控（monitoring）和评测（evaluation）有什么区别？为什么不能只做监控？</strong> 要点：监控答"系统在跑吗、烧多少钱、错误率"（APM/Datadog 强项：时延/成本/错误）；评测答"输出对不对、安不安全"（需 LLM-judge + 人工）。日志说 what happened，eval 说 whether acceptable。最佳实践：低分 trace → dataset → CI 门禁回归测试。监控是必要不充分。</li>
+<li><strong>内容捕获为什么默认关闭？这带来什么矛盾？</strong> 要点：prompt/输出/代码含 PII/密钥，全量内容有隐私/存储/成本压力，故 OTel/OpenAI/Google 都 off-by-default（opt-in 开关）。矛盾：replay 与失败归因（TRAIL/Who&amp;When）依赖完整内容，关掉内容=牺牲可调试性。Anthropic 解法：监控结构不监控内容。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>为一个生产 multi-agent 客服系统设计可观测性方案（要求：可调试非确定性失败、满足数据合规、控成本）。</strong> 要点：(a) 埋点——OTel <code>gen_ai.*</code>，invoke_agent/chat/execute_tool span 树，记 model/token/duration/finish_reason，内容 off-by-default + PII 脱敏；(b) 跨语言传播——RPC 边界传 trace context（gRPC metadata），一次交互一棵 trace；(c) 部署——数据合规则自托管 Langfuse（每集群一实例、多租户每客户一 org、N 周自动删除）；(d) 采样——尾部采样保留失败/高时延/高成本 trace，正常流量降采样控成本；(e) 调试——失败步重放（冻结前序、换模型/prompt 重跑）；(f) 质量——LLM-judge 在线打分 + 人工抽检 + trace→回归数据集进 CI 门禁；(g) 监控面板——时延/token/成本/错误率 + 在线 eval 分数。讲清每层的隐私/成本/可调试性取舍。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>手写一个给 agent 主循环（<a class="xref" href="02.html">02</a>）加 OTel 风格 tracing 的伪代码（含 span 层级、token/finish_reason 记录、内容 opt-in、失败导出保障）。</strong></li>
+</ol>
+<pre data-lang="python"><code>def agent_run(user_msg, tools, capture_content=False):
+    with tracer.start_span("invoke_agent") as root:          # 顶层 trace
+        ctx = [system_prompt(), user_msg]
+        for step in range(MAX_STEPS):
+            with tracer.start_span("chat", parent=root) as s: # 每次 LLM 调用一个 span
+                resp = llm(ctx, tools=tools)
+                s.set("gen_ai.request.model", resp.model)
+                s.set("gen_ai.usage.input_tokens",  resp.in_tok)
+                s.set("gen_ai.usage.output_tokens", resp.out_tok)
+                s.set("gen_ai.response.finish_reasons", resp.finish)
+                if capture_content:                           # 内容默认关闭，opt-in
+                    s.set("gen_ai.input.messages",  redact(ctx))
+                    s.set("gen_ai.output.messages", redact(resp))
+            if not resp.tool_calls:
+                return resp.text                              # 停止条件
+            ctx.append(resp)
+            for call in resp.tool_calls:
+                with tracer.start_span("execute_tool", parent=root) as t:
+                    t.set("gen_ai.tool.name", call.name)
+                    try:
+                        out = execute(call)                   # 真实副作用 = effect
+                        ctx.append(out)
+                    except Exception as e:
+                        t.record_exception(e); t.set_status("ERROR")
+                        ctx.append(tool_error(call, str(e)))  # 可操作错误回灌，让 agent 自纠
+        return ctx
+    # 关键：短生命周期 worker（Celery/FastAPI）退出前必须 flush
+    finally:
+        tracer.flush_traces()                                 # 否则异步批量导出会丢数据
+</code></pre>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>"我们 100% 采样所有 trace、全量记录 prompt 内容，这样最安全可调试"——哪里错了？</strong> 要点：(a) 成本——生产 agent 规模下全量内容 = 存储/带宽爆炸；(b) 隐私合规——prompt/输出含 PII/密钥，全量裸记可能违规；(c) 采样——高吞吐 100% 烧钱，应尾部采样保留失败样本而非一刀切。正解：内容 off-by-default + 脱敏 + 尾部采样。</li>
+<li><strong>"LLM-as-judge 能自动给生产 trace 打分，所以失败归因也交给它自动定位决定性错误步即可"——哪里过于乐观？</strong> 要点：judge 打分（粗筛趋势）和 trace 推理/step 级失败定位是<strong>两码事</strong>。TRAIL（2025）显示当时最强模型轨迹调试仅 ~11%，Who&amp;When step 级归因仅 14.2%——长上下文能力 ≠ trace 推理能力。judge 还有自身偏置/漂移/成本，judge 本身也要被观测。失败定位目前仍需人工兜底。</li>
+<li><strong>（延伸）"接了 LangSmith/Datadog 就等于有可观测性了"——哪里是误区？</strong> 要点：装了平台 ≠ 埋点合理。常见断链：跨语言/跨服务不传 trace context（碎成孤儿 trace）、异步导出不 flush 丢数据、只埋监控不接评测、内容不脱敏。可观测性是<strong>设计</strong>出来的，不是装个 SDK 就有。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Dapper, a Large-Scale Distributed Systems Tracing Infrastructure</strong> — Sigelman, Barroso, Burrows, Stephenson, et al. (Google), 2010. <a href="https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/" target="_blank" rel="noopener noreferrer">https://research.google/pubs/dapper-a-large-scale-distributed-systems-tracing-infrastructure/</a> — 提出 trace/span/annotation 与低开销采样，是 LLM/Agent tracing 概念的直接源头。</li>
+<li><strong>AgentOps: Enabling Observability of LLM Agents</strong> — Liming Dong, Qinghua Lu, Liming Zhu, 2024. <a href="https://arxiv.org/abs/2411.05285" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2411.05285</a> — 首篇系统映射 agent 生命周期"该埋什么"的可观测性分类法。</li>
+<li><strong>A Survey on AgentOps: Categorization, Challenges, and Future Directions</strong> — Zexin Wang, Jingjing Li, …, Dan Pei, Changhua Pei, 2025. <a href="https://arxiv.org/abs/2508.02121" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.02121</a> — 提出监控→异常检测→根因分析→修复四阶段运维框架，强调显式记录内部认知状态。</li>
+<li><strong>Get Experience from Practice: LLM Agents with Record &amp; Replay (AgentRR)</strong> — Erhu Feng, Wenbo Zhou, …, Yubin Xia, Haibo Chen, 2025. <a href="https://arxiv.org/abs/2505.17716" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2505.17716</a> — 把 record-and-replay 引入 agent，用结构化"经验"+check function 实现确定性复现。</li>
+<li><strong>TRAIL: Trace Reasoning and Agentic Issue Localization</strong> — Darshan Deshpande, …, Rebecca Qian (Patronus AI), 2025. <a href="https://arxiv.org/abs/2505.08638" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2505.08638</a> — 148 条标注轨迹/841 错误的 trace 调试基准；最强模型仅 ~11%，揭示 LLM 不会读 trace。</li>
+<li><strong>Which Agent Causes Task Failures and When? (Who&amp;When)</strong> — Shaokun Zhang, Ming Yin, …, Qingyun Wu, 2025. <a href="https://arxiv.org/abs/2505.00212" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2505.00212</a> — 提出自动失败归因问题与数据集；agent 级 53.5%、step 级仅 14.2%。</li>
+<li><strong>Why Do Multi-Agent LLM Systems Fail? (MAST)</strong> — Mert Cemri, Melissa Z. Pan, …, Matei Zaharia, Ion Stoica (UC Berkeley), 2025. <a href="https://arxiv.org/abs/2503.13657" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.13657</a> — 首个 multi-agent 失败分类法（14 模式/3 类）：由约 150 条专家标注 trace（κ=0.88）归纳出 14 模式，1600+ 为其后 LLM-judge 扩展的 MAST-Data。</li>
+<li><strong>AgentSight: System-Level Observability for AI Agents Using eBPF</strong> — Yusheng Zheng, Yanpeng Hu, Tong Yu, Andi Quinn, 2025. <a href="https://arxiv.org/abs/2508.02736" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2508.02736</a> — 用 eBPF 在 TLS（intent）与内核事件（effect）边界做边界追踪，开销 &lt;3%。</li>
+<li><strong>LLMs-as-Judges: A Comprehensive Survey on LLM-based Evaluation Methods</strong> — Haitao Li, Qian Dong, …, Qingyao Ai, Yiqun Liu, 2024. <a href="https://arxiv.org/abs/2412.05579" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2412.05579</a> — 系统综述 LLM-as-judge，是对生产 trace 做规模化语义质量监控的方法学基础。</li>
+<li><strong>AI Observability for Large Language Model Systems: A Multi-Layer Analysis…</strong> — Twinkll Sisodia, 2026. <a href="https://arxiv.org/abs/2604.26152" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2604.26152</a> — 提出五层可观测性分类法（置信度校准→基础设施追踪），指出最大缺口是模型层信号与基建层异常未打通。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文 <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>How we built our multi-agent research system</strong> — Anthropic Engineering, 2025. <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> — 非确定性 agent 需全量追踪；只监控结构不记录内容；~20 query 评测 + LLM-judge + 人工 eval。</li>
+<li><strong>AI Agent Observability — Evolving Standards and Best Practices</strong> — OpenTelemetry Blog, 2025. <a href="https://opentelemetry.io/blog/2025/ai-agent-observability/" target="_blank" rel="noopener noreferrer">https://opentelemetry.io/blog/2025/ai-agent-observability/</a> — 把 semconv 分应用层/框架层，点名 baked-in vs external instrumentation 取舍。</li>
+<li><strong>Inside the LLM Call: GenAI Observability with OpenTelemetry</strong> — OpenTelemetry Blog, 2026. <a href="https://opentelemetry.io/blog/2026/genai-observability/" target="_blank" rel="noopener noreferrer">https://opentelemetry.io/blog/2026/genai-observability/</a> — invoke_agent→chat→execute_tool span 树实操；内容默认不捕获，需显式 opt-in。</li>
+<li><strong>Introducing OpenLLMetry — Extending OpenTelemetry to LLMs</strong> — Nir Gazit (Traceloop), 2023. <a href="https://www.traceloop.com/blog/openllmetry" target="_blank" rel="noopener noreferrer">https://www.traceloop.com/blog/openllmetry</a> — 主张回归 OTel 开放协议而非私有格式，避免厂商锁定（Apache-2.0）。</li>
+<li><strong>AI Agent Observability, Tracing &amp; Evaluation with Langfuse</strong> — Langfuse Blog, 2024. <a href="https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse" target="_blank" rel="noopener noreferrer">https://langfuse.com/blog/2024-07-ai-agent-observability-with-langfuse</a> — agent 为何难调；推荐三阶段成熟度路径，主张结构化 trace 优于无结构日志。</li>
+<li><strong>Observability for AI Agents: Tracing Multi-Service LLM Pipelines with Langfuse</strong> — Cresta Engineering Blog, 2026. <a href="https://cresta.com/blog/observability-for-ai-agents-tracing-multi-service-llm-pipelines-with-langfuse" target="_blank" rel="noopener noreferrer">https://cresta.com/blog/observability-for-ai-agents-tracing-multi-service-llm-pipelines-with-langfuse</a>（另见 Langfuse 案例页 <a href="https://langfuse.com/users/cresta" target="_blank" rel="noopener noreferrer">https://langfuse.com/users/cresta</a>）— 案例 B 一手出处：每 K8s 集群自托管一个 Langfuse、跨语言 trace context 传播、多租户隔离、失败步重放。</li>
+<li><strong>How observability powers agent evaluation</strong> — LangChain Blog, 2026. <a href="https://www.langchain.com/blog/agent-observability-powers-agent-evaluation" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/agent-observability-powers-agent-evaluation</a> — runs/traces/threads 映射单步/整轮/多轮评测；离线评测必要但不充分，需在线 reference-free。</li>
+<li><strong>Braintrust vs. Datadog for LLM observability: Logging vs. evals</strong> — Braintrust, 2026. <a href="https://www.braintrust.dev/articles/braintrust-vs-datadog-llm-observability" target="_blank" rel="noopener noreferrer">https://www.braintrust.dev/articles/braintrust-vs-datadog-llm-observability</a> — 监控 vs 评测两件事；evals-in-CI 门禁、trace→回归数据集闭环。</li>
+<li><strong>Tracing — OpenAI Agents SDK（文档）</strong> — OpenAI, 2025. <a href="https://openai.github.io/openai-agents-python/tracing/" target="_blank" rel="noopener noreferrer">https://openai.github.io/openai-agents-python/tracing/</a> — tracing 默认开启；typed span；<code>trace_include_sensitive_data</code>、<code>flush_traces()</code>、<code>set_trace_processors()</code>。</li>
+<li><strong>Inspecting runs with OpenTelemetry（smolagents 文档）</strong> — HuggingFace, 2025. <a href="https://huggingface.co/docs/smolagents/en/tutorials/inspect_runs" target="_blank" rel="noopener noreferrer">https://huggingface.co/docs/smolagents/en/tutorials/inspect_runs</a> — multi-step 运行淹没 console，故生产必须插桩；经 <code>SmolagentsInstrumentor</code> 发 OTel。</li>
+<li><strong>Datadog LLM Observability natively supports OpenTelemetry GenAI Semantic Conventions</strong> — Datadog Blog, 2026. <a href="https://www.datadoghq.com/blog/llm-otel-semantic-convention/" target="_blank" rel="noopener noreferrer">https://www.datadoghq.com/blog/llm-otel-semantic-convention/</a> — APM 大厂原生对接 OTel GenAI 约定，标志行业向 <code>gen_ai.*</code> 收敛。</li>
+<li><strong>Arize launches Phoenix, an open-source library to monitor LLM hallucinations</strong> — VentureBeat, 2023. <a href="https://venturebeat.com/ai/arize-launches-phoenix-an-open-source-library-to-monitor-llm-hallucinations" target="_blank" rel="noopener noreferrer">https://venturebeat.com/ai/arize-launches-phoenix-an-open-source-library-to-monitor-llm-hallucinations</a> — Phoenix 在 Observe 2023 开源，本地/Notebook 跑、面向幻觉与 RAG。</li>
+<li><strong>Open-source LLM Observability: Langfuse Acquired by ClickHouse</strong> — Orrick News, 2026. <a href="https://www.orrick.com/en/News/2026/01/Open-source-LLM-Observability-Langfuse-Acquired-by-ClickHouse-Inc" target="_blank" rel="noopener noreferrer">https://www.orrick.com/en/News/2026/01/Open-source-LLM-Observability-Langfuse-Acquired-by-ClickHouse-Inc</a> — 2026-01 收购事件，标志开源自托管赛道走向整合。</li>
+<li><strong>ClickHouse welcomes Langfuse: The future of open-source LLM observability</strong> — ClickHouse Blog, 2026-01-16. <a href="https://clickhouse.com/blog/clickhouse-acquires-langfuse-open-source-llm-observability" target="_blank" rel="noopener noreferrer">https://clickhouse.com/blog/clickhouse-acquires-langfuse-open-source-llm-observability</a> — 收购方一手公告：ClickHouse 收购 Langfuse，承诺 Langfuse 继续开源、可自托管、Cloud 照常运行。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档与规范 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>OpenTelemetry GenAI Semantic Conventions</strong> — OpenTelemetry GenAI SIG, 2024–2026. <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/" target="_blank" rel="noopener noreferrer">https://opentelemetry.io/docs/specs/semconv/gen-ai/</a> — vendor-neutral 的 <code>gen_ai.*</code> span/metrics 约定；截至 2026 多数仍 experimental，需 <code>OTEL_SEMCONV_STABILITY_OPT_IN</code>。</li>
+<li><strong>Semantic conventions for generative AI / LLM spans</strong> — OpenTelemetry Docs, 2024–2026. <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/" target="_blank" rel="noopener noreferrer">https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-spans/</a> — <code>gen_ai.*</code> span 属性定义（model、input/output_tokens、finish_reasons 等）。</li>
+<li><strong>Semantic conventions for Model Context Protocol (MCP)</strong> — OpenTelemetry Docs, 2025–2026. <a href="https://opentelemetry.io/docs/specs/semconv/gen-ai/mcp/" target="_blank" rel="noopener noreferrer">https://opentelemetry.io/docs/specs/semconv/gen-ai/mcp/</a> — 约定从单次 LLM 调用扩展到 agent 编排与 MCP 工具调用。</li>
+<li><strong>OpenTelemetry: the merger of OpenCensus and OpenTracing</strong> — Google/Microsoft/CNCF, 2019. <a href="https://opensource.googleblog.com/2019/05/opentelemetry-merger-of-opencensus-and.html" target="_blank" rel="noopener noreferrer">https://opensource.googleblog.com/2019/05/opentelemetry-merger-of-opencensus-and.html</a> — 奠定 LLM tracing 复用的 trace/span 数据模型与 OTLP 协议。</li>
+<li><strong>Announcing the General Availability of LangSmith</strong> — LangChain Blog, 2024. <a href="https://www.langchain.com/blog/langsmith-ga" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/langsmith-ga</a> — LangSmith 从闭测到 GA，对 LLM 链路每一步给出可视化追踪与根因定位。</li>
+<li><strong>LLM Observability &amp; Application Tracing（文档）</strong> — Langfuse Docs, 2024–2026. <a href="https://langfuse.com/docs/observability/overview" target="_blank" rel="noopener noreferrer">https://langfuse.com/docs/observability/overview</a> — 开源代表：trace + prompt 管理 + 评测 + 人工标注一体，tracing 定义为保留因果关系的首要手段。</li>
+<li><strong>Phoenix — open-source AI observability &amp; evaluation（GitHub）</strong> — Arize AI, 2025. <a href="https://github.com/Arize-ai/phoenix" target="_blank" rel="noopener noreferrer">https://github.com/Arize-ai/phoenix</a> — 自托管、OTel/OpenInference、内建 LLM-judge eval，开箱支持 OpenAI/Claude Agent SDK/LangGraph/CrewAI 等。</li>
+<li><strong>Agent observability / Instrument generative AI applications</strong> — Google Cloud Docs, 2026. <a href="https://docs.cloud.google.com/stackdriver/docs/observability/agent-observability" target="_blank" rel="noopener noreferrer">https://docs.cloud.google.com/stackdriver/docs/observability/agent-observability</a> — Vertex AI Agent Engine + ADK 发 OTel GenAI 合规 trace；内容捕获 opt-in。</li>
+<li><strong>RFC: Vendor-neutral gen_ai.* semantic convention — Phoenix/Arize feedback</strong> — GitHub Arize-ai/phoenix Discussion #13041, 2025. <a href="https://github.com/Arize-ai/phoenix/discussions/13041" target="_blank" rel="noopener noreferrer">https://github.com/Arize-ai/phoenix/discussions/13041</a> — OpenInference 与 OTel <code>gen_ai.*</code> 之争的一手讨论（"中立 vs 深度"）。</li>
+<li><strong>LangSmith Alternative? Langfuse vs. LangSmith</strong> — Langfuse Docs/FAQ, 2024–2026. <a href="https://langfuse.com/faq/all/langsmith-alternative" target="_blank" rel="noopener noreferrer">https://langfuse.com/faq/all/langsmith-alternative</a> — 自托管开源（数据主权）vs 托管 SaaS（零运维）之争的代表对比。</li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>交叉链接</strong>：<a class="xref" href="02.html">02</a> Harness 运行时（tracing 钩子埋点位置）· <a class="xref" href="04.html">04</a> 工具与 MCP（execute_tool span / MCP semconv）· <a class="xref" href="08.html">08</a> 多智能体编排（失败归因 Who&amp;When/MAST）· <a class="xref" href="09.html">09</a> 评估（observability powers evaluation，trace→dataset）· <a class="xref" href="11.html">11</a> 生产工程（监控/成本/采样/告警）· <a class="xref" href="12.html">12</a> 安全与对抗（内容捕获 PII、用 trace 检测 prompt 注入）· <a class="xref" href="13.html">13</a> 大厂案例（Claude Code/Cursor 的 trace 实践）。</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="09.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">09 · 评估</span>
+  </a>
+  <a class="pager__link pager__link--next" href="11.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">11 · 生产工程</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（时间线）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 trace / span / 轨迹：一切的基本盘（源自 Dapper）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 该埋什么：埋点的最小充分集</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 OTel GenAI span 树：invoke_agent → chat → execute_tool</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 隐私/成本权衡：内容默认不捕获（off-by-default）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 record-and-replay 与时间旅行调试</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-6">4.6 系统级可观测性：eBPF 边界追踪</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-1">5.1 工具/平台谱系</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-2">5.2 失败诊断方法谱系（"对 trace 推理"这条线）</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议一：in-band（SDK/callback 插桩）还是 out-of-band（系统级 eBPF）？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议二：该不该把完整 prompt/completion 写入 trace？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议三：trace 该统一到哪个标准——OTel <code>gen_ai.*</code>、OpenInference 还是私有格式？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议四：能用 LLM-as-judge 做生产在线质量监控吗？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-5">争议五：监控（monitoring）够不够，还是必须做评测（evaluation）？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-6">争议六：自托管开源 vs 托管 SaaS？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A：Anthropic——非确定性 multi-agent 的"隐私保护式全量追踪"</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B：Cresta——自托管 Langfuse + 跨语言 trace 传播 + 失败步重放</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C：OpenAI Agents SDK——把 tracing 当默认原语</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-4">案例 D：Klarna × LangSmith / Langfuse 被收购——可观测性已是生产刚需</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-5">案例 E：Google Vertex AI Agent Engine / ADK——标准合规的托管可观测</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档与规范</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

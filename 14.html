@@ -1,0 +1,528 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>14 · 技术栈速查 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">14 · 技术栈速查 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link" href="03.html"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link is-active" href="14.html" aria-current="page"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>14 · 技术栈速查（Agent Tech Stack Cheat Sheet）</h1>
+<blockquote>
+<p><strong>定位</strong>：把 Agent 工程的"零件箱"一次性铺开——编排框架、向量库、MCP/互操作协议、评估与可观测工具——并给出<strong>场景 → 选型</strong>的可查表。 这是一节<strong>横向汇总节</strong>：纵向的机制讲解在各专题里，本节负责把它们装进同一张选型坐标系。 上承 <a class="xref" href="02.html">02</a> Harness 运行时（框架=harness 的不同实现）、<a class="xref" href="04.html">04</a> 工具与 MCP、<a class="xref" href="07.html">07</a> 检索与 RAG、<a class="xref" href="08.html">08</a> 多智能体编排、<a class="xref" href="09.html">09</a> 评估、<a class="xref" href="10.html">10</a> 可观测性；旁参 <a class="xref" href="16.html">16</a> 训练/Agentic RL（基准即奖励信号）、<a class="xref" href="17.html">17</a> 身份与发现（去中心化协议）；下接 <a class="xref" href="13.html">13</a> 大厂案例与 <a class="xref" href="15.html">15</a> 面试题库。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：编排框架谱系（链式→图式→官方 SDK→轻量/编译式）→ 三个概念辨析（framework / runtime / harness）→ 历史脉络 → 向量库选型 → eval/obs 工具 → MCP 与互操作协议 → 主流争议 → 大厂实践 → 我的研判 → 选型矩阵 → 面试。</p>
+<p><strong>核心结论（先看这 5 条）</strong>：</p>
+<ol>
+<li><strong>一句话主线</strong>：LangChain 链式起步（2022）→ 按场景专用化（LlamaIndex 做检索 / AutoGen·CrewAI 做 multi-agent）→ LangGraph 用图式补上状态/循环/分支（2024）→ 模型厂商官方 SDK（OpenAI Agents / Claude Agent）收编中间层（2025）→ smolagents / Pydantic AI / Mastra 走极简与类型安全；<strong>DSPy 是一条平行的"编译式"独立支线</strong>。</li>
+<li><strong>驱动演进的只有三股力</strong>：表达力不足（链 → 图）、场景分化（通用 → 专用）、抽象之痛（重型 → 极简 / 官方 SDK）。看懂这三股力，任何新框架都能在坐标里定位。</li>
+<li><strong>没有"最好的框架"，只有"匹配复杂度的框架"</strong>。Anthropic、OpenAI 的一手指南都主张<strong>先最简、必要时才加复杂度</strong>；框架的价值随任务复杂度上升而显现，简单任务直连 API 往往更好调试。</li>
+<li><strong>选型的真正自变量是五维</strong>：控制力/抽象层级、状态与持久化（checkpointing）、可观测性（tracing）、token 成本、生态与 model-agnostic。把候选放进这五维打分，比看 GitHub star 有用得多。</li>
+<li><strong>注意时态</strong>（速查表最易过期的地方）：<strong>AutoGen 已进入维护模式</strong>，企业级继任者为 Microsoft Agent Framework（MAF）；<strong>OpenAI Swarm 是实验项目，已被 Agents SDK 取代</strong>；<strong>Claude Code SDK 已于 2025-09 更名 Claude Agent SDK</strong>。别把退役项当现役。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机：技术栈在 Agent 链路中的位置 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p>一个生产级 Agent，本质是"<strong>模型 + harness + 工具 + 知识 + 评估/可观测</strong>"五层的拼装。本节要回答的不是"某层怎么实现"（那是 <a class="xref" href="02.html">02</a>/<a class="xref" href="04.html">04</a>/<a class="xref" href="07.html">07</a> 的事），而是"<strong>每一层市面上有哪些现成件、各自适配什么场景</strong>"。</p>
+<p>先把三个最容易混淆的概念钉死（这是面试高频辨析）：</p>
+<ul>
+<li><strong>编排框架（framework）</strong>：提供 chains / agents / tools / memory 这类<strong>高层抽象</strong>，帮你少写胶水代码。代表：LangChain、LlamaIndex、CrewAI、AutoGen。</li>
+<li><strong>运行时（runtime）</strong>：更低层、更贴近"像写代码"的执行底座，内建 durable execution、checkpointing、人类介入（HITL）、streaming、tracing，<strong>对未来少做假设</strong>。代表：LangGraph、Claude Agent SDK。Harrison Chase 在《Building LangGraph》里明说，runtime 的"最大对手是 no framework"。</li>
+<li><strong>Harness</strong>：驱动一次 Agent 任务的<strong>循环本体</strong>——收集上下文 → 行动 → 验证（见 <a class="xref" href="02.html">02</a>）。framework/runtime 是 harness 的不同封装程度；最薄的 harness 可以就是一段手写 while 循环。</li>
+</ul>
+<p>再叠加一组贯穿全节的辨析：<strong>workflow（预定义代码路径编排 LLM）vs agent（LLM 自主决定流程与工具）</strong>。Anthropic《Building Effective Agents》正是用这条线把"该不该上复杂框架"的争论拉到台前——它发现最成功的实现往往是<strong>简单可组合的模式</strong>（Prompt Chaining / Routing / Parallelization / Orchestrator-Workers / Evaluator-Optimizer），而非重型 agent 框架。</p>
+<p>为什么要专门有"速查"这一节？因为 2024–2026 是框架的<strong>寒武纪大爆发</strong>，选型信息高度碎片化且<strong>充满厂商利益视角</strong>——LangChain 说该用 LangGraph、Pinecone 说别用 pgvector、Cognition 说别建 multi-agent。本节的任务就是把这些立场连同<strong>各自的证据与适用边界</strong>摆在一张表上，让你按场景而非按声量决策。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络（2020 → 2026） <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>两条暗线：①<strong>抽象层级在"加厚→减薄"间反复横跳</strong>（链式重型 → 图式低层 → 官方极简 SDK）；②<strong>工具/知识层在走向标准化</strong>（碎片化集成 → MCP → 互操作协议族）。</p>
+</blockquote>
+<ul>
+<li><strong>2020 · RAG 命名</strong>（Lewis et al., NeurIPS）。把"参数化记忆 + 非参数化向量索引"统一，奠定后续所有"向量库 + 检索 + LLM"技术栈的学术原点。<em>为什么</em>：知识层从此可热插拔。</li>
+<li><strong>2022-10 · ReAct 论文</strong>（Yao et al.）。推理与行动交错，确立工具调用型 Agent 的概念骨架，是 LangChain Agent 等编排循环的理论母体。</li>
+<li><strong>2022-10 · LangChain 开源</strong>（Harrison Chase，约 9 天写出首版）。GPT-3/ChatGPT 前夜，LLM 应用工具碎片化、缺统一抽象；LangChain 用 Chains 把 prompt+LLM+tool+memory 串成可组合管线，成为<strong>第一个大规模采用的 LLM 应用框架</strong>，奠定话语基线。</li>
+<li><strong>2022-11 · LlamaIndex</strong>（原 GPT Index，Jerry Liu）。通用 Chain 不擅长把 LLM 接到私有/海量数据，LlamaIndex 专注索引+检索这一垂直问题——框架生态从"大一统"走向"专用化"。</li>
+<li><strong>2022-12 · DSP 论文</strong>（Khattab et al., 2212.14024）。用程序化管线在 LM 与检索器间传递自然语言，而非手搓 prompt——"编译式 / programming-not-prompting"路线的种子。</li>
+<li><strong>2023-02 · Toolformer</strong>（Schick et al.）。自监督学会调用 API，论证工具使用可被模型内化，深化"Agent 用工具"的学术基础。</li>
+<li><strong>2023-03 · Reflexion</strong>（Shinn et al., NeurIPS 2023）。语言化自我反思 + 情景记忆做"口头强化学习"，为 Agent 长程记忆与自我纠错提供范式（详见 <a class="xref" href="01.html">01</a>/<a class="xref" href="06.html">06</a>）。</li>
+<li><strong>2023-08 · AutoGen 开源</strong>（Wu et al., Microsoft）。把 multi-agent 对话作为一等抽象（GroupChat、嵌套对话），开启编排范式分叉，催生 CrewAI 等同类。</li>
+<li><strong>2023-09 · CoALA 认知架构</strong>（Sumers &amp; Yao et al., TMLR）。用工作/情景/语义/程序记忆 + 决策循环统一"语言智能体"，给框架对比提供学术分类坐标。</li>
+<li><strong>2023-10 · DSPy 论文</strong>（Stanford NLP, 2310.03714）。承接 DSP，把 LM 调用抽象成 Signatures / Modules / Optimizers，用"编译器"按指标自动优化 prompt 甚至权重。</li>
+<li><strong>2023-12 · CrewAI 开源</strong>（João Moura）。AutoGen 偏研究，CrewAI 用"角色扮演的 crew"把 multi-agent 协作做得更易上手，推动 multi-agent 在应用层普及。</li>
+<li><strong>2024-01 · LangGraph 发布</strong>。生产级 agent 需要状态/循环/条件分支/HITL/断点续跑，线性 Chain 表达不了。LangGraph 用有状态图（StateGraph + checkpointer）把 agent 建成状态机——从"链式"到"图式"的关键跃迁，也是 LangChain 对"抽象过重"批评的低层化回应。</li>
+<li><strong>2024-02 · CodeAct</strong>（Wang et al., ICML 2024）。用可执行代码作为统一动作空间，胜过 JSON/文本调用，成为 smolagents"代码即行动"的学术依据。</li>
+<li><strong>2024-10 · OpenAI Swarm（实验）面世；Mastra（TS 框架）作为内部实验启动</strong>（2025 初开源、2026-01 发 v1.0）。轻量化与 TypeScript 生态信号：编排从重型 Python 向轻量 SDK / 前端栈扩散。</li>
+<li><strong>2024-11 · Anthropic 发布 MCP</strong>。把"模型 ↔ 工具/数据"连接标准化，取代碎片化定制集成，成为 Agent 工具层事实标准（详见 <a class="xref" href="04.html">04</a>）。</li>
+<li><strong>2024-12 · Anthropic《Building Effective Agents》</strong>。在框架军备竞赛中泼冷水：最成功的实现往往不用复杂框架，而用简单可组合模式。把"框架 vs 手写"之争推到台前。</li>
+<li><strong>2024-12 / 2025-01 · Hugging Face 开源 smolagents</strong>（约 1000 行，CodeAgent 用代码表达动作）。对"抽象过重"的极简反弹，可沙箱执行。</li>
+<li><strong>2025-03-11 · OpenAI Agents SDK</strong>（Swarm 的生产化继任）+《A practical guide to building agents》。模型厂商亲自下场，刻意最小抽象（Agents / Handoffs / Guardrails / Sessions / Tracing），与 Responses API 绑定，开启"官方 SDK 时代"。</li>
+<li><strong>2025-04 · LangChain《How to think about agent frameworks》</strong>（Harrison Chase）。直接回应 OpenAI 指南，把"上下文工程"而非 agent 抽象放在核心。</li>
+<li><strong>2025-04 · Google ADK 开源</strong>（Cloud Next）。云厂商下场：code-first multi-agent 框架，针对 Gemini 优化、经 LiteLLM model-agnostic，Python v1.0 生产可用。</li>
+<li><strong>2025-05 · AWS Strands Agents 开源</strong>。model-driven SDK（声明 model+tools+prompt，框架托管 agentic loop）；1.0 于 2026 落地（TS/Py）。</li>
+<li><strong>2025-06 · Anthropic multi-agent 研究系统 与 Cognition《Don't Build Multi-Agents》同月发布</strong>。两大厂在 multi-agent 上公开分歧，成为选型讨论的核心锚点（见 §6 争议四、<a class="xref" href="08.html">08</a>）。</li>
+<li><strong>2025-09 · Anthropic《Effective context engineering》+ Claude Code SDK 更名 Claude Agent SDK + Pydantic AI v1 + LangChain Agent Middleware（1.0，09-08）</strong>。上下文工程与"低层 runtime/harness"成为主流叙事；类型安全/可观测优先的轻量框架定版；LangChain 把 <code>before_model</code>/<code>after_model</code> 钩子做成可组合中间件。</li>
+<li><strong>2025-10 · OpenAI AgentKit（DevDay 2025-10-06）</strong>。在 Agents SDK 之上叠"可视化搭建套件"——Agent Builder 画布（beta）+ ChatKit（GA）+ Evals（GA）+ Guardrails + Connector Registry，官方栈从 SDK 向低代码/嵌入式 UI 扩张。</li>
+<li><strong>2025-11 · Anthropic《Code execution with MCP》</strong>。把工具目录从上下文搬进代码、按需加载，某工作流 token 从 ~150k 降到 ~2k（-98.7%），挑战标准 tool-calling。</li>
+<li><strong>2026-01 · Mastra v1.0</strong>。JS/TS 全栈开发者也有了一线 Agent 框架，编排生态跨越语言边界。</li>
+<li><strong>2026-04 · Microsoft Agent Framework 1.0 GA</strong>。AutoGen 与 Semantic Kernel 统一为 MAF，二者转维护态——早期 multi-agent/编排框架正向官方整合栈收敛（见 §5 框架表与 §7 时态注脚）。</li>
+</ul>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 智能体范式脉络（框架的"内核"） <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<p>任何编排框架的主循环都建立在四块学术基石上，先把它们串起来（深入见 <a class="xref" href="01.html">01</a>）：</p>
+<pre data-lang="text"><code>ReAct (2022)        : Thought → Action → Observation 交错循环（tool-use 主循环的原型）
+   └─ Toolformer (2023) : 工具使用可被模型内化（API 调用是可学习行为）
+   └─ Reflexion (2023)  : 语言化反思 + 情景记忆 → 不更新权重的"口头 RL"
+   └─ CodeAct (2024)    : 把"动作"从 JSON 升级为可执行代码（更可组合）
+CoALA (2023)        : 用 工作/情景/语义/程序 记忆 + 决策循环 统一语言智能体（分类坐标）
+</code></pre>
+<p>CoALA 的价值在于给"框架对比"提供了<strong>分类轴</strong>：一个框架在工作记忆（上下文窗口）、情景记忆（历史/会话）、语义记忆（向量库/KB）、程序记忆（工具/技能）上分别提供了什么——这正是 <a class="xref" href="06.html">06</a> 记忆系统的坐标。</p>
+<blockquote>
+<p>Toolformer 这条"<strong>工具使用可被模型内化（API 调用是可学习行为）</strong>"的线，是框架之外的另一条路径：与其在编排层接线工具，不如把工具调用作为<strong>训练目标</strong>直接训进模型——这条"工具训练范式"（含 Agentic RL 把工具调用纳入奖励信号）展开见 <a class="xref" href="16.html">16</a>。</p>
+</blockquote>
+<h3 id="sec-4-2">4.2 编排范式的四种形态 <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<pre data-lang="text"><code>① 链式 (Chain)    : 线性管线 step1 → step2 → step3，表达力强但跑不了循环/分支
+② 图式 (Graph)    : StateGraph，节点=步骤，边=条件转移；支持循环/分支/checkpointing/HITL
+③ 对话式 (Conversation): 多个 agent 互发消息（GroupChat / handoff），靠"谁说话"驱动
+④ 代码行动式 (Code-as-action): agent 直接输出可执行代码当动作（smolagents）
+</code></pre>
+<p>四种形态没有绝对优劣，对应不同任务类别（这正是 §6 争议之一：缺乏原则性判据）。粗略经验：<strong>线性 RAG → 链式；有状态长流程 → 图式；松耦合分工 → 对话式；强组合/嵌套调用 → 代码行动式</strong>。</p>
+<h3 id="sec-4-3">4.3 选型五维（把任何框架打分的坐标系） <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<pre data-lang="text"><code>维度1 控制力/抽象层级 : 高层抽象上手快(CrewAI/OpenAI handoffs) ←→ 低层可控(LangGraph/手写)
+维度2 状态与持久化   : 是否内建 checkpointer / durable execution / 断点续跑
+维度3 可观测性       : 原生 tracing(LangSmith/OTel) 还是要自己埋点
+维度4 token 成本     : 多 agent ~15x / code-execution -98.7% / 全量工具 schema 的开销
+维度5 生态/model-agnostic : 锁定单一模型厂商，还是跨模型可移植 + MCP 工具解耦
+</code></pre>
+<h3 id="sec-4-4">4.4 工具上下文效率：全量 schema vs 按需加载 <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<p>经典 tool-calling 在启动时把<strong>所有工具的 JSON schema</strong> 声明进上下文，工具一多就吃光预算。Anthropic《Code execution with MCP》给出反范式：把 MCP server 暴露成文件系统上的代码 API，让 agent <strong>写代码按需 import 工具定义</strong>——一个原本 ~150k token 的工作流降到 ~2k（-98.7%）。这把"工具层"与"上下文层"解耦，是 <a class="xref" href="03.html">03</a>/<a class="xref" href="04.html">04</a> 的交叉点。</p>
+<pre data-lang="text"><code>经典 tool-calling           code-execution-with-MCP
+启动即注入全部 tool schema    工具=文件系统上的代码 API
+  → 上下文随工具数膨胀          agent 写代码 import 按需读取
+  → 易校验、易审计、主流默认     → token 大降、可组合，但需沙箱与安全治理
+</code></pre>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系（横向对比表） <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<h3 id="sec-5-1">5.1 编排框架 × 维度 <a class="heading-anchor" href="#sec-5-1" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>框架</th><th>形态/层级</th><th>状态/持久化</th><th>原生可观测</th><th>multi-agent</th><th>语言</th><th>最佳场景</th><th>维护状态·继任者</th></tr></thead>
+<tbody>
+<tr><td><strong>LangChain</strong></td><td>链式·高层</td><td>弱（链本身无状态）</td><td>LangSmith</td><td>借 LangGraph</td><td>Py/JS</td><td>线性 RAG、文档 QA、快速原型</td><td>现役（1.0）</td></tr>
+<tr><td><strong>LangGraph</strong></td><td>图式·低层 runtime</td><td>强（checkpointer/durable）</td><td>LangSmith/OTel</td><td>内建（supervisor 等）</td><td>Py/JS</td><td>复杂有状态工作流、HITL、长流程</td><td>现役·官方主推</td></tr>
+<tr><td><strong>LlamaIndex</strong></td><td>检索专用</td><td>中</td><td>自带</td><td>Workflows</td><td>Py/TS</td><td>RAG / 数据 QA / agentic retrieval</td><td>现役</td></tr>
+<tr><td><strong>AutoGen</strong></td><td>对话式·multi-agent</td><td>中</td><td>自带</td><td>一等抽象（GroupChat）</td><td>Py</td><td>multi-agent 研究/原型</td><td><strong>已并入 MAF（1.0 GA 2026-04）转维护</strong></td></tr>
+<tr><td><strong>CrewAI</strong></td><td>角色·multi-agent</td><td>中</td><td>自带</td><td>crew/role</td><td>Py</td><td>易上手的角色分工协作</td><td>现役</td></tr>
+<tr><td><strong>OpenAI Agents SDK</strong></td><td>官方·极简</td><td>Sessions</td><td>内建 tracing</td><td>handoffs</td><td>Py/JS</td><td>OpenAI 生态、最小抽象</td><td>现役（Swarm 继任）</td></tr>
+<tr><td><strong>Claude Agent SDK</strong></td><td>官方·harness</td><td>上下文管理/hooks</td><td>复用 Claude Code</td><td>subagents</td><td>Py/TS</td><td>通用 agent runtime、编码+非编码</td><td>现役（原 Claude Code SDK）</td></tr>
+<tr><td><strong>smolagents</strong></td><td>代码行动·极简</td><td>弱</td><td>自带</td><td>有限</td><td>Py</td><td>代码 Agent、千行可读、教学</td><td>现役</td></tr>
+<tr><td><strong>Pydantic AI</strong></td><td>轻量·类型安全</td><td>中</td><td>OpenTelemetry</td><td>有限</td><td>Py</td><td>结构化输出、生产可靠、可观测</td><td>现役（v1）</td></tr>
+<tr><td><strong>Mastra</strong></td><td>TS 全栈</td><td>内建</td><td>内建</td><td>有</td><td>TS</td><td>JS/TS 全栈 agent + workflow + RAG</td><td>现役（v1.0）</td></tr>
+<tr><td><strong>DSPy</strong></td><td>编译式·正交</td><td>—</td><td>—</td><td>—</td><td>Py</td><td>自动 prompt/权重优化、跨任务移植</td><td>现役（独立支线）</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>速查口径：<strong>线性 RAG/文档 QA → LangChain/LlamaIndex；复杂有状态工作流 → LangGraph；multi-agent 协作 → CrewAI（AutoGen 已转 MAF）；官方生态/可观测 → OpenAI/Claude Agent SDK；轻量/代码 Agent → smolagents/Pydantic AI；TS 全栈 → Mastra；需自动优化 → DSPy。</strong></p>
+</blockquote>
+<h4>5.1.1 2025–2026 新成员速记（官方栈扩张 + LangChain 扩展层）</h4>
+<blockquote>
+<p>上表是"稳定主力"；下表收口最近一年涌入的官方栈与扩展层——印证 §8 的"中间层被两头挤压"：上方云厂商/模型厂官方框架（ADK / Strands / AgentKit）下场，旁侧 LangChain 用 Deep Agents / Middleware 把"规划+subagent+可插拔钩子"沉到 LangGraph 之上。</p>
+</blockquote>
+<div class="table-wrap">
+<table>
+<thead><tr><th>新成员</th><th>出处 · 时间</th><th>定位 / 是什么</th><th>维护状态·继任者</th></tr></thead>
+<tbody>
+<tr><td><strong>Google ADK</strong>（Agent Development Kit）</td><td>Google · 2025-04-09（Cloud Next 开源）</td><td>code-first multi-agent 框架，针对 Gemini 优化、经 LiteLLM model-agnostic</td><td>现役（Python v1.0 生产可用）</td></tr>
+<tr><td><strong>AWS Strands Agents</strong></td><td>AWS · 2025-05-16 开源</td><td>model-driven SDK：声明 model+tools+prompt，框架托管 agentic loop</td><td>现役（1.0 于 2026：TS 04-30 / Py 05-21）</td></tr>
+<tr><td><strong>OpenAI AgentKit</strong></td><td>OpenAI · DevDay 2025-10-06</td><td>可视化搭建套件：Agent Builder 画布 + ChatKit + Evals + Guardrails + Connector Registry</td><td>现役（Agent Builder beta；ChatKit/Evals GA）</td></tr>
+<tr><td><strong>LangChain Deep Agents</strong></td><td>LangChain · 开源</td><td>规划（<code>write_todos</code>）+ subagent（<code>task</code>，隔离上下文）+ 虚拟文件系统，model-neutral</td><td>现役（开源）</td></tr>
+<tr><td><strong>LangChain Agent Middleware</strong></td><td>LangChain · 2025-09-08（1.0）</td><td>围绕 agent loop 的可插拔/可组合中间件，钩子 <code>before_model</code> / <code>after_model</code> / <code>modify_model_request</code></td><td>现役（随 LangChain 1.0）</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>📦 结案框：<strong>提出（2023）</strong> AutoGen 把 multi-agent 对话立为一等抽象、开启编排范式分叉 → <strong>2026 定论</strong> AutoGen + Semantic Kernel 统一为 Microsoft Agent Framework（1.0 GA，2026-04）、二者转维护态，OpenAI Swarm 亦早被 Agents SDK 取代 → <strong>现状</strong> 选型默认收敛到官方/整合栈（MAF、OpenAI Agents SDK、Claude Agent SDK，外加 Google ADK / AWS Strands 等云厂官方框架），第三方重型框架退守"集成层 + 可观测层"。</p>
+</blockquote>
+<h3 id="sec-5-2">5.2 向量库 × 维度（知识层） <a class="heading-anchor" href="#sec-5-2" aria-label="锚点">#</a></h3>
+<p>底层算法两条主线：<strong>HNSW</strong>（图索引，对数级搜索 + 高召回，几乎所有现代库默认）与 <strong>IVF + 量化</strong>（倒排 + PQ/二值量化，省内存、规模友好，FAISS 奠基）。选型权衡见下表（深入见 <a class="xref" href="07.html">07</a>）。</p>
+<div class="table-wrap">
+<table>
+<thead><tr><th>向量库</th><th>默认索引</th><th>部署形态</th><th>过滤/混合检索</th><th>量化</th><th>最佳规模/场景</th></tr></thead>
+<tbody>
+<tr><td><strong>pgvector</strong></td><td>HNSW/IVFFlat</td><td>Postgres 扩展</td><td>复用 SQL where</td><td>有限</td><td>~5–50M 以下，复用既有 PG，省一套基建</td></tr>
+<tr><td><strong>Pinecone</strong></td><td>专有(HNSW 系)</td><td>serverless 托管</td><td>强、低调参</td><td>有</td><td>水平扩展、零运维、目标延迟开箱即得</td></tr>
+<tr><td><strong>Qdrant</strong></td><td>HNSW</td><td>自托管/云</td><td>filter-first</td><td>二值/标量/PQ</td><td>高性能过滤检索、二值量化省内存 ~32x</td></tr>
+<tr><td><strong>Weaviate</strong></td><td>HNSW</td><td>自托管/云</td><td>filter-first allow-list</td><td>有</td><td>开箱 hybrid + rerank + filter</td></tr>
+<tr><td><strong>Milvus</strong></td><td>HNSW/IVF/DiskANN</td><td>分布式</td><td>强</td><td>丰富</td><td>十亿级、多索引、重型分布式</td></tr>
+<tr><td><strong>Chroma</strong></td><td>HNSW</td><td>嵌入式/轻量</td><td>基础</td><td>有限</td><td>本地原型、小规模、快速起步</td></tr>
+<tr><td><strong>FAISS</strong></td><td>IVF/HNSW/PQ</td><td>库（非服务）</td><td>需自建</td><td>丰富（GPU/PQ）</td><td>自建检索、研究、十亿级 GPU 搜索</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>量化是规模的杠杆：Qdrant 的二值量化约 32x 内存缩减、最高 40x 提速，生产模式 = 量化向量 + HNSW 常驻 RAM、原始向量落盘，检索时量化召回候选再用原始向量 <strong>rescoring</strong> 恢复 recall——速度/召回在查询时可调。</p>
+</blockquote>
+<blockquote>
+<p>📦 结案框（RAG vs 长上下文，"还需不需要向量库？"）：该悬案已由 <strong>Self-Route</strong>（Google，<strong>arXiv:2407.16833</strong>）收敛——<strong>资源充足时长上下文的质量略优，但 RAG 成本低得多</strong>；Self-Route 按需在二者间路由，降本 <strong>~65%（Gemini-1.5-Pro）/ ~39%（GPT-4o）</strong> 且质量基本持平。结论：知识层不是"长上下文取代向量库"，而是按查询路由，向量库仍是成本下限。（机制展开见 <a class="xref" href="07.html">07</a>）</p>
+</blockquote>
+<h3 id="sec-5-3">5.3 eval / obs 工具（评估与可观测层） <a class="heading-anchor" href="#sec-5-3" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>类别</th><th>代表</th><th>作用</th><th>关联</th></tr></thead>
+<tbody>
+<tr><td>通用 agent 基准（经典）</td><td>AgentBench</td><td>8 个真实环境评 LLM-as-Agent 推理/决策</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>通用助手 / 深研 agent</td><td>GAIA</td><td>466 题、人易（92%）模型难（GPT-4+插件 15%）、答案唯一好评分；反向出题抗饱和，综合推理+多模态+浏览+工具</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>编码 agent（<strong>已退役</strong>）</td><td>SWE-bench Verified</td><td>500 题真实 GitHub 修复；OpenAI 2026-02-23 退役——前沿模型可逐字复现 patch（污染）+ 约 60% 剩余失败题测试有缺陷</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>编码 agent（继任）</td><td>SWE-bench Pro</td><td>1865 长程任务 / 41 仓库；抗污染三段式（公开 copyleft + held-out + 商业私有仅发结果）</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>终端 / CLI agent</td><td>Terminal-Bench</td><td>NL 指令 + Docker + 测试 + oracle；v2.0 共 89 难任务，前沿 &lt;65%</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>工具 / 客服对话 agent</td><td>τ²-bench (tau2)</td><td>dual-control（agent 与 user 共改共享状态）+ telecom 域；τ-bench 继任</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>编码（时间窗口抗污染）</td><td>LiveCodeBench</td><td>按竞赛平台发布日取题，规避训练污染</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>评判方法</td><td>MT-Bench / LLM-as-a-judge</td><td>强 LLM 当裁判，与人类偏好 &gt;80% 一致</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>评测综述</td><td>LLM-Agent Eval Survey(2025)</td><td>能力/应用基准/成本-可靠性/可观测维度</td><td><a class="xref" href="09.html">09</a></td></tr>
+<tr><td>可观测 SaaS</td><td>LangSmith / Braintrust</td><td>trace/span、回放调试、评测集</td><td><a class="xref" href="10.html">10</a></td></tr>
+<tr><td>可观测开源</td><td>Langfuse / Phoenix</td><td>自托管 tracing + 评测</td><td><a class="xref" href="10.html">10</a></td></tr>
+<tr><td>标准</td><td>OpenTelemetry GenAI 语义约定</td><td>跨厂商 trace 标准化</td><td><a class="xref" href="10.html">10</a></td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>基准更替趋势：饱和 + 污染的旧码基准（<strong>SWE-bench Verified 已于 2026-02 退役</strong>）正让位于<strong>长程、抗污染、真实环境</strong>的新一代（SWE-bench Pro / Terminal-Bench / τ²-bench / LiveCodeBench）；这些基准既是评估口径，也是 agentic RL 的训练 / 奖励信号来源（训练侧见 <a class="xref" href="16.html">16</a>，评估方法学见 <a class="xref" href="09.html">09</a>）。</p>
+</blockquote>
+<h3 id="sec-5-4">5.4 MCP 与 Agent 互操作协议（连接层） <a class="heading-anchor" href="#sec-5-4" aria-label="锚点">#</a></h3>
+<div class="table-wrap">
+<table>
+<thead><tr><th>协议</th><th>解决什么</th><th>通信形态</th><th>阶段定位</th></tr></thead>
+<tbody>
+<tr><td><strong>MCP</strong> (Anthropic, 2024-11)</td><td>模型 ↔ 工具/数据 连接标准化</td><td>JSON-RPC client-server</td><td>工具访问层（事实标准）</td></tr>
+<tr><td><strong>ACP</strong></td><td>通用 agent 消息（多模态/会话）</td><td>RESTful HTTP + MIME 多部分</td><td>结构化多模态消息</td></tr>
+<tr><td><strong>A2A</strong></td><td>agent ↔ agent 协作任务</td><td>Agent Card 发现 + HTTP（v1.0，2026）</td><td>协作执行</td></tr>
+<tr><td><strong>ANP</strong></td><td>去中心化 agent 发现/市场</td><td>W3C DID + JSON-LD</td><td>开放网络/市场</td></tr>
+<tr><td><strong>身份 / 支付层</strong></td><td>agent 身份验证、能力发现与机器对机器结账</td><td>DID / Agent Card / 支付协议族</td><td>连接层之上的信任与交易（详见 <a class="xref" href="17.html">17</a>）</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>注：此 <strong>ACP</strong> 指 IBM/BeeAI 的 Agent Communication Protocol（通用多模态消息），与 <a class="xref" href="17.html">17</a> 的 <strong>Agentic Commerce Protocol</strong>（OpenAI + Stripe 的结账协议）同名不同物。</p>
+<p>互操作 survey（Ehtesham et al., <strong>arXiv:2505.02279</strong>, 2025）给的采用路线：<strong>MCP 工具 → ACP 多模态消息 → A2A 协作 → ANP 去中心市场</strong>；此路线出自该综述，<strong>2026 已演进</strong>（A2A 已发布 v1.0 稳定规范、走 Agent Card 发现）。其中 ANP 一档的去中心化<strong>发现 / 身份 / 信任</strong>专门机制（NANDA Index、Verified AgentFacts 等）详见 <a class="xref" href="17.html">17</a>。连接层完整四层栈（纵向 MCP / 横向 A2A / 身份 / 支付）与 2026 进展见 <a class="xref" href="17.html">17</a>。但治理仍开放：工具描述/第三方 server 可引发间接 prompt 注入，信任与权限模型尚无成熟方案（见 <a class="xref" href="12.html">12</a> 与 §8）。</p>
+</blockquote>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议（各方代表 + 论据） <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<p><strong>争议一 · LangChain 抽象是否过重？</strong></p>
+<ul>
+<li><em>过重/漏抽象派</em>：Octomind（Fabian Both 等）在生产用 LangChain 12+ 个月后弃用，理由是"抽象叠抽象、被迫调试自己没写的框架代码、读巨大 stack trace、对'agent 派生 subagent'太僵硬"——结论是"只增加复杂度，看不到收益"。Hacker News 大量开发者附议。</li>
+<li><em>辩护派</em>：Harrison Chase / LangChain 主张好抽象是降低上手门槛的心智模型；LangGraph 本就是兼具声明式 + 命令式的<strong>低层</strong>编排，需要细粒度控制时可下沉；1.0 用结构化 content blocks、agent loop、middleware 提升灵活性。</li>
+</ul>
+<p><strong>争议二 · 该用框架还是直接手写（roll-your-own）？</strong></p>
+<ul>
+<li><em>少用框架派</em>：Anthropic（Erik Schluntz、Barry Zhang《Building Effective Agents》）+ OpenAI 极简 SDK + 众多直连 API 实践者。论据：多数最成功实现用简单可组合模式，框架的层层抽象遮蔽底层 prompt/响应、增加调试难度；原则是"先最简，必要时才加复杂度"。</li>
+<li><em>用框架派</em>：LangChain / CrewAI / LlamaIndex 等厂商。论据：框架自带集成、记忆、工具接线、可观测（LangSmith）与多模型标准化，避免重复造轮子，随复杂度上升收益更明显。</li>
+</ul>
+<p><strong>争议三 · Prompt 手工工程 vs 编译式/声明式程序（DSPy）？</strong></p>
+<ul>
+<li><em>编译式派</em>：Omar Khattab / Stanford NLP。手搓 prompt 脆弱难维护，应写"程序"并用优化器（MIPRO）按指标自动编译出最优 prompt/权重，"programming, not prompting"；据社区/文档报道有团队在生产中采用为佐证。</li>
+<li><em>务实/怀疑派</em>：DSPy 自身又引入一层抽象与学习成本，优化过程不透明、可能费 token；新模型/分布外能否稳定泛化存疑，手工 prompt 在实践中仍占主流。</li>
+</ul>
+<p><strong>争议四 · multi-agent vs 单线程智能体，谁更可靠？</strong>（选型核心锚点）</p>
+<ul>
+<li><em>multi-agent 派</em>：Anthropic《How we built our multi-agent research system》。lead(Opus 4) + subagent(Sonnet 4) 的 orchestrator-worker 在内部研究评测上比 single-agent 高 <strong>90.2%</strong>；但约耗 <strong>15x token</strong>（single-agent ~4x），据该文 token 用量单独即解释约 80% 性能方差——只适合高价值、可并行、超单上下文窗口的广度任务。</li>
+<li><em>单线程派</em>：Cognition《Don't Build Multi-Agents》。两条原则：①共享完整上下文 ②每个 action 都隐含决策，不能让 subagent 各自冲突决策。曾给 Devin 接 MCP 去 spawn 子 Devin，结果"混乱"；主张单线程线性 agent，必要时用专门模型压缩历史。两文同在 2025-06 公开对立（详见 <a class="xref" href="08.html">08</a>）。</li>
+</ul>
+<p><strong>争议五 · 代码即行动 vs JSON 工具调用？</strong></p>
+<ul>
+<li><em>代码派</em>：CodeAct（Xingyao Wang et al., ICML 2024）/ smolagents / Anthropic code-execution-with-MCP。可执行代码表达力更强、可嵌套/可组合、步骤更少、对象传递更自然。</li>
+<li><em>JSON 派</em>：主流 OpenAI / Pydantic AI 风格。结构化 function-calling 更易校验、更安全、易审计，官方 SDK 默认采用。</li>
+</ul>
+<p><strong>争议六 · 重型一体化框架 vs 轻量 SDK + MCP 标准化？</strong></p>
+<ul>
+<li><em>一体化派</em>：LangChain/LlamaIndex 开箱即用、生态全。</li>
+<li><em>解耦派</em>：轻量 SDK + MCP 解耦工具层，避免锁定、可移植（Anthropic、互操作 survey 作者）。</li>
+</ul>
+<p><strong>争议七 · 高层 agent 抽象 vs 低层可控 runtime？</strong></p>
+<ul>
+<li><em>高层派</em>：OpenAI Agents SDK / CrewAI / AutoGen 的 handoffs/roles/crews 上手快。</li>
+<li><em>低层派</em>：LangGraph / Claude Agent SDK（Harrison Chase）。抽象会掩盖上下文控制，应用低层 runtime + 显式上下文工程。</li>
+</ul>
+<p><strong>争议八 · 向量检索用专用向量库还是 pgvector？（以及"长上下文是否取代向量库"）</strong></p>
+<ul>
+<li><em>专用引擎派</em>：Pinecone/Qdrant/Weaviate/Milvus 在过滤延迟、量化、规模上更优。</li>
+<li><em>pgvector 派</em>：复用既有 Postgres，~5–50M 向量以下最省钱最简单，避免多一套基建。Pinecone 自家博客反驳称 pgvector 大规模需大量应用层工程（分片/调参）——注意这是厂商视角，应与第三方基准对照看。</li>
+<li><em>"长上下文取代检索"的更上位争论</em>已收敛：<strong>Self-Route</strong>（Google，arXiv:2407.16833）显示资源足时长上下文质量略优、RAG 成本低得多，按需路由降本 ~65%(Gemini-1.5-Pro)/~39%(GPT-4o)——向量库仍是成本下限，不被取代（详见 §5.2 结案框）。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践（≥2 案例 + 取舍拆解） <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<p><strong>案例 A · LinkedIn agent 平台（框架 + 自研外壳的折中）</strong> LinkedIn 用 <strong>LangGraph 定义控制流</strong>，但外面包一层<strong>无状态 agent-lifecycle service</strong>，把会话记忆与经验记忆<strong>外置</strong>以水平扩展；用 gRPC 定义 agent、消息系统做 multi-agent 协同、OpenTelemetry/LangSmith 做可观测。取舍本质：<strong>借框架的编排表达力，但不让框架托管状态</strong>——状态外置才能在生产横向扩容。这是"框架 vs 手写"之争的现实第三条路（来源：LinkedIn Engineering《The LinkedIn Generative AI Application Tech Stack》，2025，见 §10 参考）。</p>
+<p><strong>案例 B · Uber QueryGPT（从 naive RAG 迭代到 multi-agent 流水线）</strong> 内部 NL2SQL：从简单 RAG 起步，经 <strong>20+ 次迭代</strong>演进成 multi-agent 流水线（意图 agent / 领域 agent / 表 agent / 列 agent 等），建表查询时间从 ~10min 降到 ~3min（约 -70%）。取舍：单轮 RAG 在真实业务的歧义/多业务域上不够，<strong>把检索拆成职责单一的 agent 链</strong>才稳——印证 agentic retrieval 取代 naive RAG 的趋势（来源：Uber Engineering《QueryGPT》，2024，见 §10 参考；该趋势的机制展开见 <a class="xref" href="07.html">07</a>）。</p>
+<p><strong>案例 C · Anthropic multi-agent 研究系统（接受 15x token 换 90.2% 质量）</strong> 选 lead + subagent 的 orchestrator-worker 做广度优先研究；明确把适用域<strong>限定</strong>在高价值、可并行、超单上下文窗口的任务，<strong>不用于编码等强耦合场景</strong>。工程取舍：用 token 成本换并行广度，且把"何时不该用 multi-agent"写进设计文档——是"multi-agent 有用，但有严格边界"的一手背书。</p>
+<p><strong>案例 D · Cursor 代码库索引（自建可控 + 安全工程）</strong> 服务端生成 embedding、用 <strong>Merkle 树</strong>只上传变更文件做增量同步（约每 5 分钟），按 chunk 哈希缓存（团队复用秒级）；为隐私<strong>只存 embedding 不存明文、混淆路径</strong>。取舍：保留向量检索的语义召回，用安全 + 缓存工程抵消其成本/延迟/隐私劣势——与"放弃向量库走 agentic grep"的 Claude Code 形成对照（见 <a class="xref" href="13.html">13</a>）。</p>
+<blockquote>
+<p>时态注脚（速查表必须标）：<strong>OpenAI 从 Swarm（2024-10 实验）→ Agents SDK（2025-03 生产）</strong>，刻意最小抽象，挤压第三方框架中间层；<strong>AutoGen 转社区维护，企业继任者为 Microsoft Agent Framework</strong>——早期 multi-agent 框架正向官方/整合栈收敛。</p>
+</blockquote>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非事实陈述），是我对证据的独立研判，可能与主流不同。</strong></p>
+</blockquote>
+<p><strong>趋势研判</strong>。第一，<strong>中间层正在被两头挤压</strong>。上方是模型厂商的官方 SDK（OpenAI Agents / Claude Agent），下方是 MCP + 轻量 runtime（LangGraph / 手写）。夹在中间"既不够薄又不够全"的重型一体化框架（典型是早期 LangChain Agent、AutoGen）会被迫<strong>退守为"集成层 + 可观测层"</strong>——它们的护城河不再是 agent 抽象，而是 LangSmith 这样的 tracing/eval 生意。AutoGen 并入 MAF、Swarm 被官方 SDK 取代，都是同一条收敛曲线上的点。第二，<strong>框架与手写之争会随复杂度"钟摆回摆"，但回摆点在上移</strong>：模型越强、工具越标准化（MCP），同等复杂度下手写的可行区间越大，所以"先最简"会越来越对——框架真正不可替代的是<strong>状态持久化、HITL、断点续跑、跨团队可观测</strong>这些"生产基建"，而非 prompt 拼接。第三，<strong>编译式（DSPy）短期仍是利基而非主流</strong>：它在"有明确指标 + 多阶段管线 + 愿意花 token 优化"的团队里赢，但对多数"prompt 改两行就上线"的场景属于过度工程；它的真正归宿可能是被<strong>吸收进框架的一个可选优化器</strong>，而非独立框架。</p>
+<p><strong>常见坑</strong>（按踩雷频率排序）：① <strong>照搬厂商博客选型</strong>——Pinecone 说别用 pgvector、LangChain 说该用 LangGraph，都带利益视角，必须与第三方基准/自身 A/B 对照。② <strong>速查表用了过期项</strong>——把 Swarm/旧 AutoGen 当现役写进架构文档。③ <strong>过早上 multi-agent</strong>——没量过"是否可并行、是否超单窗口、是否高价值"就拆，结果吃 15x token 还更不稳。④ <strong>全量工具 schema 撑爆上下文</strong>——工具一多不做按需加载/code-execution，token 预算被 schema 吃光。⑤ <strong>向量库选型只看 recall 不看过滤延迟/量化/新鲜度</strong>——生产瓶颈常在带过滤的 ANN 和增量更新，而非裸召回。⑥ <strong>框架托管了状态却要横向扩展</strong>——LinkedIn 的教训是状态必须外置。⑦ <strong>没有可观测就上生产</strong>——agent 高延迟、非确定、不可靠，没有 trace 等于盲飞（见 <a class="xref" href="10.html">10</a>）。</p>
+<p><strong>最佳实践（我的默认配方）</strong>：(1) <strong>从最薄开始</strong>——single-agent + 手写循环或官方 SDK，量到瓶颈再加层。(2) 选型走<strong>五维打分</strong>（控制/状态/可观测/成本/生态），不看 star。(3) <strong>工具层用 MCP 解耦</strong>，避免被单一框架锁定；工具多时上 code-execution。(4) 向量库<strong>默认 pgvector 起步</strong>，过 ~50M / 需重过滤 + 量化时再迁专用库。(5) <strong>可观测第一天就接</strong>（OTel/LangSmith/Langfuse），把成本/延迟/工具失败率埋进 trace。(6) multi-agent 只在"可并行 × 超窗 × 高价值"三条同时满足时上，且明确写下不适用边界。(7) 选型文档<strong>标时态与厂商立场</strong>，每季度复核——这一行业的"速查"半衰期以月计。</p>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>本节按概念/系统设计/手写/陷阱四类给本章高频考点；更系统的题库与答法见 <a class="xref" href="15.html">15</a>。</p>
+</blockquote>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>framework / runtime / harness 三者怎么区分？</strong> 要点：harness = 驱动一次任务的循环本体（收集上下文→行动→验证）；framework = 高层抽象（chains/agents/memory）；runtime = 低层执行底座（checkpointing/durable/HITL/streaming），"最大对手是 no framework"。LangChain 偏 framework、LangGraph/Claude Agent SDK 偏 runtime。</li>
+<li><strong>workflow 与 agent 的边界？</strong> 要点：workflow = 预定义代码路径编排 LLM；agent = LLM 自主决定流程与工具。Anthropic 主张能用 workflow 就别上 agent，五种可组合模式（chaining/routing/parallelization/orchestrator-workers/evaluator-optimizer）覆盖大量场景。</li>
+<li><strong>HNSW 与 IVF+量化的取舍？</strong> 要点：HNSW 图索引对数级搜索、高召回、内存占用大，几乎所有库默认；IVF+PQ/二值量化省内存、规模友好（FAISS 系），生产常用量化召回 + 原始向量 rescoring 找回 recall。</li>
+<li><strong>MCP 解决什么？与纯 function calling 的关系？</strong> 要点：MCP 把"模型↔工具/数据"连接标准化（JSON-RPC client-server），取代碎片化定制集成，是工具层事实标准；function calling 是模型侧能力，MCP 是连接/分发标准，二者互补。code-execution-with-MCP 进一步把工具按需加载（-98.7% token）。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ul>
+<li><strong>为一家公司选型 Agent 技术栈（客服 + 内部知识问答 + 代码助手三条线）。</strong> 要点：先按场景分治——客服走官方 SDK + guardrails + HITL；知识问答走 LlamaIndex/LangGraph + 向量库（pgvector 起步）+ hybrid/rerank；代码助手走 agentic grep + 语义混合。横向统一：MCP 解耦工具层、OTel/LangSmith 统一可观测、状态外置以横向扩展。给出"何时上 multi-agent / 何时上专用向量库 / 何时上 DSPy"的判据，并标注 AutoGen→MAF、Swarm→Agents SDK 的时态。</li>
+</ul>
+<p><strong>手写题</strong></p>
+<ul>
+<li><strong>写出"按五维给框架打分 + 路由到推荐栈"的伪代码。</strong></li>
+</ul>
+<pre data-lang="python"><code>def pick_stack(task):
+    score = {
+        "control":   needs_loops_branches_HITL(task),   # 维度1
+        "state":     needs_durable_checkpoint(task),     # 维度2
+        "obs":       needs_native_tracing(task),         # 维度3
+        "cost":      token_budget(task),                 # 维度4
+        "ecosystem": model_lock_in_tolerance(task),      # 维度5
+    }
+    if task.kind == "linear_rag":      return "LangChain / LlamaIndex"
+    if score["control"] and score["state"]: return "LangGraph"   # 有状态复杂流
+    if task.multi_agent and parallelizable(task) and beyond_one_window(task):
+        return "CrewAI / multi-agent (注意 ~15x token)"
+    if task.ecosystem == "openai":     return "OpenAI Agents SDK"
+    if task.ecosystem == "anthropic":  return "Claude Agent SDK"
+    if task.lang == "ts":              return "Mastra"
+    if task.needs_auto_opt:            return "DSPy (编译式)"
+    return "手写循环 + 官方 SDK"   # 默认最薄
+</code></pre>
+<p><strong>陷阱题</strong></p>
+<ol>
+<li><strong>"用 AutoGen 做 multi-agent 是当前最佳选择，对吗？"</strong> 反驳点：AutoGen 已转<strong>维护模式</strong>，企业继任者是 Microsoft Agent Framework（MAF）；且 multi-agent 有严格适用边界（可并行 × 超窗 × 高价值），否则 15x token 不值。速查表勿把退役项当现役。</li>
+<li><strong>"向量检索一定要上专用向量库（Pinecone/Milvus）？"</strong> 反驳点：~5–50M 向量以下 pgvector 复用 Postgres 最省，专用库的过滤/量化/serverless 优势要到规模/重过滤场景才兑现；Pinecone 贬低 pgvector 的博客是厂商视角。</li>
+<li><strong>（加问）"DSPy 能取代 prompt engineering 成为主流吗？"</strong> 反驳点：编译式引入额外抽象/学习成本、优化不透明、跨模型泛化存疑，目前仍是研究/高级团队利基，可能被吸收为框架的可选优化器而非独立主流。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li>Lewis et al. — <strong>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</strong> (2020, NeurIPS) · <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.11401</a> · RAG 命名之作，统一参数化+非参数化记忆，向量库技术栈的学术原点。</li>
+<li>Yao et al. — <strong>ReAct: Synergizing Reasoning and Acting in Language Models</strong> (2022) · <a href="https://arxiv.org/abs/2210.03629" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2210.03629</a> · 推理-行动交错，工具调用型 Agent 主循环的理论母体。</li>
+<li>Schick et al. — <strong>Toolformer: LMs Can Teach Themselves to Use Tools</strong> (2023) · <a href="https://arxiv.org/abs/2302.04761" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2302.04761</a> · 自监督学会调用 API，论证工具使用可被模型内化。</li>
+<li>Shinn et al. — <strong>Reflexion: Language Agents with Verbal Reinforcement Learning</strong> (2023, NeurIPS) · <a href="https://arxiv.org/abs/2303.11366" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2303.11366</a> · 语言化反思+情景记忆的"口头 RL"，奠定自我纠错/记忆。</li>
+<li>Wang et al. — <strong>AutoGen: Multi-Agent Conversation Framework</strong> (2023, Microsoft) · <a href="https://arxiv.org/abs/2308.08155" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.08155</a> · 把 multi-agent 对话作为一等抽象，multi-agent 编排范式来源。</li>
+<li>Khattab et al. — <strong>DSPy: Compiling Declarative LM Calls into Self-Improving Pipelines</strong> (2023, Stanford) · <a href="https://arxiv.org/abs/2310.03714" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.03714</a> · Signatures/Modules/Optimizers + 编译器，"programming, not prompting"。</li>
+<li>Khattab et al. — <strong>Demonstrate-Search-Predict (DSP)</strong> (2022) · <a href="https://arxiv.org/abs/2212.14024" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2212.14024</a> · 程序化管线组合检索与 LM，DSPy 的直接前身。</li>
+<li>Opsahl-Ong et al. — <strong>Optimizing Instructions and Demonstrations (MIPRO)</strong> (2024) · <a href="https://arxiv.org/abs/2406.11695" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2406.11695</a> · DSPy 核心优化器，联合优化多模块指令与少样本示例。</li>
+<li>Wang et al. — <strong>Executable Code Actions Elicit Better LLM Agents (CodeAct)</strong> (2024, ICML) · <a href="https://arxiv.org/abs/2402.01030" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2402.01030</a> · 可执行代码统一动作空间，优于 JSON/文本调用，smolagents 学术依据。</li>
+<li>Sumers &amp; Yao et al. — <strong>Cognitive Architectures for Language Agents (CoALA)</strong> (2023, TMLR) · <a href="https://arxiv.org/abs/2309.02427" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.02427</a> · 工作/情景/语义/程序记忆+决策循环，框架对比的分类坐标。</li>
+<li>Wang et al. — <strong>A Survey on LLM-based Autonomous Agents</strong> (2023, RUC) · <a href="https://arxiv.org/abs/2308.11432" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.11432</a> · profile/memory/planning/action 三维综述，技术栈统一框架。</li>
+<li>Xi et al. — <strong>The Rise and Potential of LLM Based Agents: A Survey</strong> (2023, Fudan) · <a href="https://arxiv.org/abs/2309.07864" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.07864</a> · 86 页脑-感知-行动框架综述，被广泛引用的脉络图。</li>
+<li>Liu et al. — <strong>AgentBench: Evaluating LLMs as Agents</strong> (2023, Tsinghua) · <a href="https://arxiv.org/abs/2308.03688" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2308.03688</a> · 首个系统化 Agent 基准，8 个真实环境评推理/决策。</li>
+<li>Mialon et al. — <strong>GAIA: a benchmark for General AI Assistants</strong> (2023, Meta/HF) · <a href="https://arxiv.org/abs/2311.12983" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.12983</a> · 466 道"人易 92% / 模型难（GPT-4+插件 15%）、答案唯一好评分"的通用助手题，反向出题抗饱和。</li>
+<li>Zheng et al. — <strong>Judging LLM-as-a-Judge with MT-Bench and Chatbot Arena</strong> (2023) · <a href="https://arxiv.org/abs/2306.05685" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2306.05685</a> · 强 LLM 当裁判与人类偏好 &gt;80% 一致，LLM-as-judge 奠基。</li>
+<li>Yehudai et al. — <strong>A Survey on Evaluation of LLM-based Agents</strong> (2025) · <a href="https://arxiv.org/abs/2503.16416" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.16416</a> · 能力/应用基准/框架/成本-可靠性五视角，eval/obs 选型参照。</li>
+<li>Mohammadi et al. — <strong>Evaluation and Benchmarking of LLM Agents: A Survey</strong> (2025, KDD) · <a href="https://arxiv.org/abs/2507.21504" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2507.21504</a> · 按交互/目标/方法学梳理 Agent 评测与基准。</li>
+<li>Scale AI — <strong>SWE-bench Pro</strong> (2025) · <a href="https://arxiv.org/abs/2509.16941" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2509.16941</a> · 1865 长程任务/41 仓库，抗污染三段式（公开 copyleft + held-out + 商业私有仅发结果），SWE-bench Verified 退役后的编码继任基准。</li>
+<li>Stanford &amp; Laude Institute — <strong>Terminal-Bench</strong> (2026) · <a href="https://arxiv.org/abs/2601.11868" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2601.11868</a> · 终端/CLI agent 基准（NL 指令+Docker+测试+oracle）；v2.0 共 89 难任务、前沿 &lt;65%（tbench.ai）。</li>
+<li>Sierra — <strong>τ²-bench (tau2-bench)</strong> (2025) · <a href="https://arxiv.org/abs/2506.07982" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2506.07982</a> · dual-control 共享状态 + telecom 域，τ-bench(<a href="https://arxiv.org/abs/2406.12045" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2406.12045</a>) 继任。</li>
+<li>LiveCodeBench team — <strong>LiveCodeBench</strong> (2024) · <a href="https://arxiv.org/abs/2403.07974" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2403.07974</a> · 按竞赛平台发布日取题的时间窗口抗污染编码基准。</li>
+<li>Malkov &amp; Yashunin — <strong>HNSW: Hierarchical Navigable Small World Graphs</strong> (2016/2018, IEEE TPAMI) · <a href="https://arxiv.org/abs/1603.09320" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1603.09320</a> · 对数级 ANN 搜索，几乎所有现代向量库默认索引。</li>
+<li>Johnson et al. — <strong>Billion-scale Similarity Search with GPUs (FAISS)</strong> (2017, Meta) · <a href="https://arxiv.org/abs/1702.08734" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/1702.08734</a> · GPU 十亿级相似度搜索 + 乘积量化，向量检索工程基石。</li>
+<li>Han et al. — <strong>A Comprehensive Survey on Vector Database</strong> (2023) · <a href="https://arxiv.org/abs/2310.11703" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.11703</a> · 按 hash/tree/graph/quantization 分类 ANNS，向量库学术总览。</li>
+<li>Hou et al. — <strong>Model Context Protocol (MCP): Landscape, Security Threats, and Future Research Directions</strong> (2025) · <a href="https://arxiv.org/abs/2503.23278" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2503.23278</a> · 首篇 MCP 生态学术分析：server 生命周期与各阶段安全风险。</li>
+<li>Ehtesham et al. — <strong>A Survey of Agent Interoperability Protocols: MCP, ACP, A2A, ANP</strong> (2025) · <a href="https://arxiv.org/abs/2505.02279" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2505.02279</a> · 四协议对比 + 分阶段采用路线（MCP→ACP→A2A→ANP）。</li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文（优先一手） <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li>Anthropic — <strong>Building Effective Agents</strong> (2024) · <a href="https://www.anthropic.com/research/building-effective-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/research/building-effective-agents</a> · workflow vs agent + 五种可组合模式，"最简优先"纲领文。</li>
+<li>Anthropic — <strong>How we built our multi-agent research system</strong> (2025) · <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a> · orchestrator-worker +90.2% 但 ~15x token，multi-agent 适用边界。</li>
+<li>Cognition — <strong>Don't Build Multi-Agents</strong> (2025) · <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a> · 共享上下文 + 单线程线性 agent，multi-agent 反方代表。</li>
+<li>Anthropic — <strong>Effective context engineering for AI agents</strong> (2025) · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a> · just-in-time 检索/compaction/subagent 隔离上下文。</li>
+<li>Anthropic — <strong>Code execution with MCP</strong> (2025) · <a href="https://www.anthropic.com/engineering/code-execution-with-mcp" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/code-execution-with-mcp</a> · 工具暴露为代码 API 按需加载，token -98.7%。</li>
+<li>Anthropic — <strong>Building agents with the Claude Agent SDK</strong> (2025) · <a href="https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/building-agents-with-the-claude-agent-sdk</a> · Claude Code harness 通用化，循环=收集上下文→行动→验证。</li>
+<li>Anthropic — <strong>Introducing the Model Context Protocol</strong> (2024) · <a href="https://www.anthropic.com/news/model-context-protocol" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/news/model-context-protocol</a> · MCP 官方发布，工具层开放标准。</li>
+<li>OpenAI — <strong>A practical guide to building agents</strong> (2025) · <a href="https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/" target="_blank" rel="noopener noreferrer">https://openai.com/business/guides-and-resources/a-practical-guide-to-building-ai-agents/</a> · agent=model+tools+instructions，handoffs/guardrails 一手原语。</li>
+<li>LangChain (Harrison Chase) — <strong>How to think about agent frameworks</strong> (2025) · <a href="https://blog.langchain.com/how-to-think-about-agent-frameworks/" target="_blank" rel="noopener noreferrer">https://blog.langchain.com/how-to-think-about-agent-frameworks/</a> · 反驳 OpenAI 极简主义，上下文工程才是核心难点。</li>
+<li>LangChain — <strong>Building LangGraph: Designing an Agent Runtime from first principles</strong> (2025) · <a href="https://blog.langchain.com/building-langgraph/" target="_blank" rel="noopener noreferrer">https://blog.langchain.com/building-langgraph/</a> · 低层 runtime 设计哲学，"最大对手是 no framework"。</li>
+<li>LangChain — <strong>The best AI agent frameworks</strong> (2025) · <a href="https://www.langchain.com/resources/ai-agent-frameworks" target="_blank" rel="noopener noreferrer">https://www.langchain.com/resources/ai-agent-frameworks</a> · 官方横评与"做 Agent 用 LangGraph"选型口径。</li>
+<li>Octomind (Fabian Both) — <strong>Why we no longer use LangChain</strong> (2024) · <a href="https://www.octomind.dev/blog/why-we-no-longer-use-langchain-for-building-our-ai-agents" target="_blank" rel="noopener noreferrer">https://www.octomind.dev/blog/why-we-no-longer-use-langchain-for-building-our-ai-agents</a> · "抽象过重"阵营最常被引用的实战檄文。</li>
+<li>Hugging Face — <strong>Introducing smolagents</strong> (2024) · <a href="https://huggingface.co/blog/smolagents" target="_blank" rel="noopener noreferrer">https://huggingface.co/blog/smolagents</a> · 约千行核心、默认代码 Agent，极简编排路线。</li>
+<li>Hugging Face — <strong>smolagents: agents that think in code</strong> (docs, 2025) · <a href="https://huggingface.co/docs/smolagents/en/index" target="_blank" rel="noopener noreferrer">https://huggingface.co/docs/smolagents/en/index</a> · CodeAgent 输出可执行 Python，安全靠受限 import + 沙箱。</li>
+<li>Pydantic — <strong>Pydantic AI v1: A Predictable &amp; Robust GenAI Framework</strong> (2025) · <a href="https://pydantic.dev/articles/pydantic-ai-v1" target="_blank" rel="noopener noreferrer">https://pydantic.dev/articles/pydantic-ai-v1</a> · 类型安全 + OpenTelemetry + 内建评测的轻量框架。</li>
+<li>LlamaIndex — <strong>RAG is Dead, Long Live Agentic Retrieval</strong> (2025) · <a href="https://www.llamaindex.ai/blog/rag-is-dead-long-live-agentic-retrieval" target="_blank" rel="noopener noreferrer">https://www.llamaindex.ai/blog/rag-is-dead-long-live-agentic-retrieval</a> · naive 单轮 RAG 不足，agentic 多轮迭代检索。</li>
+<li>Qdrant — <strong>Binary Quantization: Vector Search, 40x Faster</strong> (2024) · <a href="https://qdrant.tech/articles/binary-quantization/" target="_blank" rel="noopener noreferrer">https://qdrant.tech/articles/binary-quantization/</a> · 二值量化 ~32x 内存缩减、最高 40x 提速 + rescoring 恢复 recall。</li>
+<li>Pinecone — <strong>Pinecone vs. Postgres pgvector</strong> (2024) · <a href="https://www.pinecone.io/blog/pinecone-vs-pgvector/" target="_blank" rel="noopener noreferrer">https://www.pinecone.io/blog/pinecone-vs-pgvector/</a> · 厂商视角选型对比（应与第三方基准对照看）。</li>
+<li>Uber Engineering — <strong>QueryGPT: NL to SQL using Generative AI</strong> (2024) · <a href="https://www.uber.com/us/en/blog/query-gpt/" target="_blank" rel="noopener noreferrer">https://www.uber.com/us/en/blog/query-gpt/</a> · 从简单 RAG 迭代 20+ 版到 multi-agent 流水线，建查询时间 -70%。</li>
+<li>LinkedIn Engineering — <strong>The LinkedIn Generative AI Application Tech Stack</strong> (2025) · <a href="https://www.linkedin.com/blog/engineering/generative-ai/the-linkedin-generative-ai-application-tech-stack-extending-to-build-ai-agents" target="_blank" rel="noopener noreferrer">https://www.linkedin.com/blog/engineering/generative-ai/the-linkedin-generative-ai-application-tech-stack-extending-to-build-ai-agents</a> · LangGraph + 无状态 lifecycle service + 记忆外置。</li>
+<li>Cursor — <strong>Securely indexing large codebases</strong> (2026) · <a href="https://cursor.com/blog/secure-codebase-indexing" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/secure-codebase-indexing</a> · Merkle 增量同步、chunk 哈希缓存、只存 embedding 的安全工程。</li>
+<li>OpenAI — <strong>Why we no longer evaluate SWE-bench Verified</strong> (2026) · <a href="https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/" target="_blank" rel="noopener noreferrer">https://openai.com/index/why-we-no-longer-evaluate-swe-bench-verified/</a> · 退役理由：可逐字复现 patch 的污染 + 约 60% 剩余失败题测试有缺陷。</li>
+<li>Google — <strong>Agent Development Kit: easy to build multi-agent applications</strong> (2025) · <a href="https://developers.googleblog.com/en/agent-development-kit-easy-to-build-multi-agent-applications/" target="_blank" rel="noopener noreferrer">https://developers.googleblog.com/en/agent-development-kit-easy-to-build-multi-agent-applications/</a> · code-first multi-agent 框架，针对 Gemini 优化、经 LiteLLM model-agnostic。</li>
+<li>AWS — <strong>Introducing Strands Agents, an Open Source AI Agents SDK</strong> (2025) · <a href="https://aws.amazon.com/blogs/opensource/introducing-strands-agents-an-open-source-ai-agents-sdk/" target="_blank" rel="noopener noreferrer">https://aws.amazon.com/blogs/opensource/introducing-strands-agents-an-open-source-ai-agents-sdk/</a> · model-driven SDK，框架托管 agentic loop。</li>
+<li>OpenAI — <strong>Introducing AgentKit</strong> (2025) · <a href="https://openai.com/index/introducing-agentkit/" target="_blank" rel="noopener noreferrer">https://openai.com/index/introducing-agentkit/</a> · Agent Builder + ChatKit + Evals + Guardrails + Connector Registry。</li>
+<li>LangChain — <strong>Deep Agents</strong> · <a href="https://langchain.com/deep-agents" target="_blank" rel="noopener noreferrer">https://langchain.com/deep-agents</a> · 规划 + subagent（隔离上下文）+ 虚拟文件系统，建于 LangGraph 之上。</li>
+<li>LangChain — <strong>Agent Middleware</strong> (1.0, 2025) · <a href="https://langchain.com/blog/agent-middleware" target="_blank" rel="noopener noreferrer">https://langchain.com/blog/agent-middleware</a> · agent loop 可插拔中间件，before/after_model 钩子。</li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li>OpenAI — <strong>OpenAI Agents SDK (Python)</strong> · <a href="https://openai.github.io/openai-agents-python/" target="_blank" rel="noopener noreferrer">https://openai.github.io/openai-agents-python/</a> · 官方轻量编排 SDK，内建 handoffs/guardrails/tracing。</li>
+<li>Mastra — <strong>TypeScript AI Agent Framework &amp; Platform</strong> (v1.0, 2026) · <a href="https://mastra.ai/" target="_blank" rel="noopener noreferrer">https://mastra.ai/</a> · JS/TS 全栈 agent + workflows + RAG + 可观测。</li>
+</ul>
+<h3 id="sec-10-4">🗂️ 精选开源仓库（持续跟踪，半衰期以月计） <a class="heading-anchor" href="#sec-10-4" aria-label="锚点">#</a></h3>
+<ul>
+<li>Gloriaameng — <strong>Awesome-Agent-Harness</strong> (GitHub, 持续更新) · <a href="https://github.com/Gloriaameng/Awesome-Agent-Harness" target="_blank" rel="noopener noreferrer">https://github.com/Gloriaameng/Awesome-Agent-Harness</a> · 把 harness 形式化为 H=(E,T,C,S,L,V) 六元组，汇集 110+ 论文 / 23 系统 / 9 挑战的社区索引。</li>
+<li>NirDiamant — <strong>agents-towards-production</strong> (GitHub) · <a href="https://github.com/NirDiamant/agents-towards-production" target="_blank" rel="noopener noreferrer">https://github.com/NirDiamant/agents-towards-production</a> · 端到端生产级 agent 教程，28 个 tutorial（部署/记忆/安全/GPU/multi-agent）。</li>
+<li>VoltAgent — <strong>awesome-ai-agent-papers</strong> (GitHub, 周更) · <a href="https://github.com/VoltAgent/awesome-ai-agent-papers" target="_blank" rel="noopener noreferrer">https://github.com/VoltAgent/awesome-ai-agent-papers</a> · 2026 论文集，五分类（Multi-Agent / Memory &amp; RAG / Eval &amp; Obs / Tooling / Security）周更跟踪。</li>
+</ul>
+<blockquote>
+<p>（smolagents 仓库见 §5 框架表与上文博客，不再重列。） 本节为速查/工具节，未单列 🎥 talk；相关产品工程 talk 见 <a class="xref" href="13.html">13</a> 大厂案例研究。</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="13.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">13 · 大厂案例研究</span>
+  </a>
+  <a class="pager__link pager__link--next" href="15.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">15 · 面试题库</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机：技术栈在 Agent 链路中的位置</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络（2020 → 2026）</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 智能体范式脉络（框架的"内核"）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 编排范式的四种形态</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 选型五维（把任何框架打分的坐标系）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 工具上下文效率：全量 schema vs 按需加载</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系（横向对比表）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-1">5.1 编排框架 × 维度</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-2">5.2 向量库 × 维度（知识层）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-3">5.3 eval / obs 工具（评估与可观测层）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-5-4">5.4 MCP 与 Agent 互操作协议（连接层）</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议（各方代表 + 论据）</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践（≥2 案例 + 取舍拆解）</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文（优先一手）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-4">🗂️ 精选开源仓库（持续跟踪，半衰期以月计）</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>

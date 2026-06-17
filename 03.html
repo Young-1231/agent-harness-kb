@@ -1,0 +1,488 @@
+<!doctype html>
+
+<html lang="zh-CN" data-theme="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark light">
+  <title>03 · 上下文工程 — Agent/Harness 知识库</title>
+  <link rel="stylesheet" href="assets/style.css">
+  <!-- inline guard against theme flash before app.js loads -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem("ahkb-theme") || "dark";
+        if (t === "light") document.documentElement.setAttribute("data-theme", "light");
+        else document.documentElement.removeAttribute("data-theme");
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <a class="skip-link" href="#main">跳到正文</a>
+
+  <!-- reading progress (content pages) -->
+  <div class="progress" data-progress aria-hidden="true"></div>
+
+  <!-- mobile top bar (hidden on desktop via CSS) -->
+  <header class="topbar">
+    <button class="hamburger" type="button" data-drawer-toggle
+            aria-label="打开导航" aria-expanded="false" aria-controls="sidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+           stroke-linecap="round" aria-hidden="true">
+        <path d="M3 6h18M3 12h18M3 18h18"/>
+      </svg>
+    </button>
+    <span class="topbar__title">03 · 上下文工程 — Agent/Harness 知识库</span>
+  </header>
+
+  <!-- drawer scrim (mobile) -->
+  <div class="scrim" data-scrim aria-hidden="true"></div>
+
+  <div class="layout">
+
+    <!-- ================= LEFT SIDEBAR ================= -->
+    <aside class="sidebar" id="sidebar" data-sidebar aria-label="站点导航">
+      <div class="brand">
+  <p class="brand__title">Agent / Harness 工程知识库</p>
+  <span class="brand__subtitle">18 节 · 面试向 · Rosé Pine Moon</span>
+</div>
+<nav class="nav" aria-label="章节导航">
+  <a class="nav__link" href="index.html"><span class="nav__idx">🏠</span> 首页</a>
+  <a class="nav__link" href="overview.html"><span class="nav__idx">🧭</span> 发展总脉络</a>
+  <span class="nav__group-label">章节</span>
+  <a class="nav__link" href="00.html"><span class="nav__idx">00</span> 导论与心智模型</a>
+  <a class="nav__link" href="01.html"><span class="nav__idx">01</span> Agent 核心与推理范式</a>
+  <a class="nav__link" href="02.html"><span class="nav__idx">02</span> Harness 运行时</a>
+  <a class="nav__link is-active" href="03.html" aria-current="page"><span class="nav__idx">03</span> 上下文工程</a>
+  <a class="nav__link" href="04.html"><span class="nav__idx">04</span> 工具与 MCP</a>
+  <a class="nav__link" href="05.html"><span class="nav__idx">05</span> 规划与任务分解</a>
+  <a class="nav__link" href="06.html"><span class="nav__idx">06</span> 记忆系统</a>
+  <a class="nav__link" href="07.html"><span class="nav__idx">07</span> 检索与 RAG</a>
+  <a class="nav__link" href="08.html"><span class="nav__idx">08</span> 多智能体编排</a>
+  <a class="nav__link" href="09.html"><span class="nav__idx">09</span> 评估</a>
+  <a class="nav__link" href="10.html"><span class="nav__idx">10</span> 可观测性与调试</a>
+  <a class="nav__link" href="11.html"><span class="nav__idx">11</span> 生产工程</a>
+  <a class="nav__link" href="12.html"><span class="nav__idx">12</span> 安全与对抗</a>
+  <a class="nav__link" href="13.html"><span class="nav__idx">13</span> 大厂案例研究</a>
+  <a class="nav__link" href="14.html"><span class="nav__idx">14</span> 技术栈速查</a>
+  <a class="nav__link" href="15.html"><span class="nav__idx">15</span> 面试题库</a>
+  <a class="nav__link" href="16.html"><span class="nav__idx">16</span> Agent 训练与强化学习</a>
+  <a class="nav__link" href="17.html"><span class="nav__idx">17</span> 互操作协议与 Agent 经济</a>
+  <span class="nav__group-label">附录</span>
+  <a class="nav__link" href="intel.html"><span class="nav__idx">📕</span> 小红书情报快照</a>
+  <span class="nav__group-label">外观</span>
+  <button class="theme-toggle" type="button" data-theme-toggle
+          aria-label="切换深浅色" aria-pressed="false" style="margin:6px 12px;">
+    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+         stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+  </button>
+</nav>
+    </aside>
+
+    <!-- ===================  MAIN  ===================== -->
+    <main class="main" id="main">
+      <article class="content">
+        <p class="status-badge status-badge--ok">已校验</p>
+<h1>03 · 上下文工程（Context Engineering）</h1>
+<blockquote>
+<p><strong>定位</strong>：决定"在每一步推理时，往上下文窗口里放哪些 token、怎么放、何时清"的系统性工程。它是 Agent 可靠性、成本与延迟的总开关。 <strong>在链路中的位置</strong>：上承 <a class="xref" href="01.html">01</a> 的推理范式、<a class="xref" href="02.html">02</a> 的 Harness 运行时，下接 <a class="xref" href="04.html">04</a> 工具/MCP、<a class="xref" href="06.html">06</a> 记忆、<a class="xref" href="07.html">07</a> 检索、<a class="xref" href="08.html">08</a> multi-agent——这些都是"上下文里放什么"的具体来源。</p>
+</blockquote>
+<hr>
+<h2 id="sec-1">1. TL;DR / 速览 <a class="heading-anchor" href="#sec-1" aria-label="锚点">#</a></h2>
+<p><strong>本节地图</strong>：动机（§2）→ 历史脉络（§3）→ 核心原理（§4）→ 方法谱系（§5）→ 争议（§6）→ 大厂实践（§7）→ 我的判断（§8）→ 面试（§9）→ 文献（§10）。</p>
+<p><strong>核心结论（先看这 5 条）</strong>：</p>
+<ol>
+<li><strong>瓶颈已从“措辞”转移到“整窗口的内容治理”</strong>。在生产级 Agent 里，决定成败的不再是那段 prompt，而是历史、工具输出、记忆、检索结果如何被组装与维护进窗口——<em>context engineering</em> 这个名字由 Tobi Lütke 推文（2025-06）带火、Karpathy（2025-06）放大（二人均非最早发明者），后者并类比“LLM = CPU、上下文窗口 = RAM”。</li>
+<li><strong>长窗口 ≠ 会用长窗口</strong>。<em>Lost in the Middle</em>（2023）实证 U 形注意力曲线，Chroma <em>Context Rot</em>（2025）在 18 个前沿模型上证明"输入越长、质量非均匀地下降"——注意力是<strong>有限预算</strong>，"能塞就塞"不可靠。</li>
+<li><strong>缓存友好布局是硬指标，不是玄学</strong>。Manus 把 <strong>KV-cache 命中率</strong>列为 Agent 头号生产指标（缓存读 vs 未缓存约 <strong>10x 价差</strong>）；2026 年《Don't Break the Cache》进一步实证："动态内容置末、排除动态工具结果"优于朴素全量缓存，后者反而可能<strong>增加延迟</strong>。</li>
+<li><strong>长任务三件套</strong>：compaction（接近上限时高保真摘要重启）、structured note-taking（todo.md / NOTES.md / recitation）、subagent（独立窗口探索、只回传蒸馏摘要）——配合 <strong>just-in-time</strong> 按需检索而非一次性预加载。</li>
+<li><strong>没有银弹，全是权衡</strong>。长上下文 vs RAG、compaction vs 外置文件、multi-agent vs 单线程、mask 工具 vs 动态加载——每一组都是真实的工程对立面（§6），边界取决于知识规模、时效、窗口/缓存预算与任务耦合度。</li>
+</ol>
+<hr>
+<h2 id="sec-2">2. 定位与动机 <a class="heading-anchor" href="#sec-2" aria-label="锚点">#</a></h2>
+<p><strong>它解决什么问题？</strong> LLM 是无状态的纯函数：<code>output = f(context)</code>。模型权重在推理期固定，唯一可被你控制的输入就是那段 token 序列。于是"往窗口里写什么"成为指挥模型的<strong>唯一控制面</strong>。早期我们叫它 <em>prompt engineering</em>——但当应用从"一问一答"演进到"几十步工具调用的长程 Agent"时，prompt 只占总上下文的一小部分：system 指令、工具定义、检索结果、历史对话、工具返回、记忆、子任务摘要……全都在抢占同一块有限的注意力预算。Anthropic 的官方定义因此是：<strong>在推理时持续策展与维护一组"最优 token 集合"的策略集合</strong>（curate &amp; maintain the optimal set of tokens during inference），prompt engineering 只是它的子集。</p>
+<p><strong>为什么"治理"比"措辞"更重要？</strong> 三个结构性约束：</p>
+<ul>
+<li><strong>注意力是有限预算</strong>。Transformer 的注意力是 O(n²) 的两两关系，100K token 即意味着上百亿对关系被稀释。token 越多，每个 token 分到的"注意力份额"越少。</li>
+<li><strong>context rot（上下文腐烂）</strong>。输入变长时，模型性能并非到窗口上限才崩，而是<strong>一路非均匀地退化</strong>（Chroma 2025）。无关信息、干扰项、冗长历史都会主动<strong>拉低</strong>质量。</li>
+<li><strong>成本与延迟线性甚至超线性增长</strong>。Manus 观测到生产 Agent 的输入:输出 token 比约 <strong>100:1</strong>——绝大部分算力花在反复 prefill 上下文上。不治理上下文，成本和 TTFT 都会失控。</li>
+</ul>
+<p><strong>在 Agent 链路中的位置</strong>：上下文工程是 Harness（<a class="xref" href="02.html">02</a>）每一轮循环的核心动作——<code>Think → Act → Observe</code> 之后，Harness 必须决定"把这一轮的 observation 怎么并入下一轮的 context"。它横跨 <a class="xref" href="04.html">04</a> 工具（工具定义/结果如何编排）、<a class="xref" href="06.html">06</a> 记忆（窗口外存什么、怎么召回）、<a class="xref" href="07.html">07</a> 检索（JIT 还是预载）、<a class="xref" href="08.html">08</a> multi-agent（上下文如何隔离/共享）。可以说，上面这些章节都是"上下文里放什么"的<strong>供给侧</strong>，而本节是<strong>需求侧的总调度</strong>。</p>
+<hr>
+<h2 id="sec-3">3. 历史发展脉络 <a class="heading-anchor" href="#sec-3" aria-label="锚点">#</a></h2>
+<blockquote>
+<p>主线逻辑：<strong>prompt engineering → 长上下文 → RAG → context engineering 术语确立（2025）→ context rot 实证</strong>。核心是"瓶颈从措辞转移到整窗口内容治理"。</p>
+</blockquote>
+<div class="table-wrap">
+<table class="timeline-table">
+<thead><tr><th>年份</th><th>里程碑</th><th>为什么这样演进</th></tr></thead>
+<tbody>
+<tr><td><strong>2020</strong></td><td><strong>GPT-3 与 in-context learning</strong>（Brown et al.）</td><td>模型不再为每个任务微调，仅靠上下文里的指令+少量示例就能被指挥。"往窗口里写什么示例"第一次成为可工程化的杠杆——这是整条主线的起点。</td></tr>
+<tr><td><strong>2020</strong></td><td><strong>RAG</strong>（Lewis et al., Meta/FAIR）</td><td>参数化记忆覆盖不了时效/私有知识，于是引入非参数化检索，把检索结果拼进上下文。这是"往上下文放什么"的第一条工程化路径，也埋下日后<strong>长上下文 vs RAG</strong> 之争的伏笔。</td></tr>
+<tr><td><strong>2022</strong></td><td><strong>Chain-of-Thought</strong>（Wei et al., Google）</td><td>仅改写提示（"一步步想"）就能在大模型上涌现推理，提示工程从"写好指令"进化到"设计模型的思考轨迹"——提示从此被巩固为主控手段，其局限也随之更显眼。</td></tr>
+<tr><td><strong>2023.05</strong></td><td><strong>Claude 100K 窗口</strong>（Anthropic）</td><td>窗口从约 9K 跳到 100K，"直接把整本书塞进去"第一次可行，引出一条与 RAG 对立的路线：与其检索拼接，不如一次性全放进窗口。</td></tr>
+<tr><td><strong>2023.07</strong></td><td><strong>Lost in the Middle</strong>（Liu et al., Stanford）</td><td>实证发现关键信息放在上下文<strong>中间</strong>时模型几乎"看不见"（U 形曲线），首次戳破"窗口越大越好"，证明上下文必须被<strong>有意编排</strong>（位置/相关性）——工程化的第一份硬证据。</td></tr>
+<tr><td><strong>2023</strong></td><td><strong>长上下文扩展方法群</strong>：Position Interpolation、YaRN；同期 <strong>StreamingLLM</strong>（attention sink）、<strong>H2O</strong>（KV 逐出）、<strong>Prompt Cache</strong>、<strong>LLMLingua</strong>（prompt 压缩）、<strong>MemGPT</strong></td><td>窗口可被廉价外推的同时，KV-cache 压缩、前缀缓存复用、prompt 压缩、分层记忆等<strong>核心子问题集体成型</strong>。MemGPT 提出"LLM 即操作系统"的分层记忆观，把上下文从静态文本变成需调度的资源。</td></tr>
+<tr><td><strong>2024.02</strong></td><td><strong>Gemini 1.5 百万 token 窗口</strong>（Google，后扩至 2M）</td><td>"几乎所有知识都能塞进窗口"看似成真，把长上下文 vs RAG 推上风口顶点；同时把成本、延迟、context rot 等代价集中暴露。</td></tr>
+<tr><td><strong>2024.05–10</strong></td><td><strong>三大厂缓存产品化</strong>：Google context caching（5 月，省约 75%）、Anthropic prompt caching（8 月，缓存读约 0.1x、最高省 90%）、OpenAI 自动 prefix caching（10 月，≥1024 token 自动命中、最高降 80% 延迟）</td><td>把"前缀缓存"从学术方案变成大厂产品能力，奠定 <strong>append-only + 稳定前缀</strong>这类设计的经济模型——"静态在前、变量在后"成为跨厂商通用规范。</td></tr>
+<tr><td><strong>2024</strong></td><td><strong>严肃评测 + KV 治理</strong>：RULER、SnapKV、Found in the Middle；年末 <strong>CAG《Don't Do RAG》</strong></td><td>RULER 用合成多针/多跳任务戳破"宣称的上下文长度"；SnapKV/Found in the Middle 推进 KV 选择压缩与位置偏置校准；CAG 主张长窗口预载 KV 可替代实时检索，正式开启 <strong>RAG vs 长上下文（CAG）</strong> 路线之争。</td></tr>
+<tr><td><strong>2025.06</strong></td><td><strong>术语确立</strong>：Tobi Lütke（6/18）、Andrej Karpathy（6/25）；Drew Breunig 失效四象限（6/22）</td><td>Agent 应用里决定效果的不再只是提示，瓶颈正式从"措辞"挪到"整窗口治理"，于是需要一个新名字。Breunig 把失效系统化为 <strong>poisoning / distraction / confusion / clash</strong> 四类，给"为什么要工程化"画出故障地图。</td></tr>
+<tr><td><strong>2025.07</strong></td><td><strong>Chroma《Context Rot》</strong>（18 模型）+ <strong>Manus 生产实践</strong></td><td>Chroma 把"输入越长越不可靠"从经验升级为 18 模型的实证；Manus 把 KV-cache 命中率、文件系统即上下文、mask 而非删工具、recitation 落到<strong>生产指标</strong>——证明这是硬工程而非概念包装。</td></tr>
+<tr><td><strong>2025.09</strong></td><td><strong>Anthropic《Effective context engineering for AI agents》</strong>（随 Sonnet 4.5）</td><td>大厂机构化定型：定义其为"策展最优 token 集合"，系统化 compaction / structured note-taking / subagent / just-in-time，并定调它是 prompt engineering 的<strong>自然演进</strong>而非取代——脉络收束。</td></tr>
+<tr><td><strong>2025.07 / 2025.10</strong></td><td><strong>学科化综述</strong>：Mei 等《A Survey of Context Engineering》（1400+ 篇）、GAIR《Context Engineering 2.0》</td><td>把它正式定义为"对信息载荷的系统优化"，拆为检索生成/处理/管理三层；2.0 给出形式化定义与 1.0→2.0 历史分期，论证其可追溯至 1990s 人机交互。</td></tr>
+<tr><td><strong>2026.01</strong></td><td><strong>Cursor《Dynamic context discovery》</strong></td><td>编码 Agent 最新取舍：模型变强后"少给前置上下文、让 Agent 自取"更省更准；选择性加载 MCP 工具 A/B 实测降 <strong>46.9% token</strong>。</td></tr>
+<tr><td><strong>2026</strong></td><td><strong>《Don't Break the Cache》</strong>（DeepResearchBench）</td><td>在 500+ 会话上比较三家厂商三种缓存策略，把“缓存友好布局”从经验上升为可测结论：动态内容置末、排除动态工具结果，省成本 41–80%、TTFT 提升 13–31%；朴素全量缓存反而可能增加延迟。</td></tr>
+<tr><td><strong>2026.03</strong></td><td><strong>《Context Engineering: From Prompts to Corporate Multi-Agent Architecture》</strong>（arXiv 2603.09619）</td><td>提出五条评判准则（relevance / sufficiency / isolation / economy / provenance）与累进成熟度金字塔 <strong>Prompt → Context → Intent → Spec</strong>，把上下文工程从零散技巧上升为企业级 multi-agent 架构的分层方法论——脉络从“术语确立 / 实证”进一步走向“工程成熟度模型”。</td></tr>
+</tbody>
+</table>
+</div>
+<hr>
+<h2 id="sec-4">4. 核心概念与原理 <a class="heading-anchor" href="#sec-4" aria-label="锚点">#</a></h2>
+<h3 id="sec-4-1">4.1 心智模型：LLM = CPU，上下文窗口 = RAM <a class="heading-anchor" href="#sec-4-1" aria-label="锚点">#</a></h3>
+<p>LangChain 与 Karpathy 共享的心智模型：上下文窗口就是工作内存（RAM），容量有限且昂贵；Agent 框架/Harness 像操作系统，负责往这块 RAM 里调度"恰好正确"的 token。由此 LangChain 把上下文工程归纳为四类基本操作：</p>
+<ul>
+<li><strong>Write</strong>（写到窗口外）：scratchpad、记忆、文件——把暂时不用的信息移出窗口。</li>
+<li><strong>Select</strong>（按需拉回）：RAG、向量检索、语义选工具——把需要的信息召回窗口。</li>
+<li><strong>Compress</strong>（压缩）：对话摘要、工具输出压缩、只留必要 token。</li>
+<li><strong>Isolate</strong>（隔离）：multi-agent、沙箱——把不同上下文拆开互不污染。</li>
+</ul>
+<blockquote>
+<p><strong>这四个动词是贯穿本节的主脊</strong>（Lance Martin《Context Engineering for Agents》, LangChain, 2025-06-23）。本节讲到的每一种技术，本质上都落在其中一个动词上——下表把"动词"与"本节已展开的技术"一一对应，便于把零散方法挂回同一根骨架：</p>
+</blockquote>
+<div class="table-wrap">
+<table>
+<thead><tr><th>动词</th><th>一句话</th><th>本节对应技术</th><th>详见</th></tr></thead>
+<tbody>
+<tr><td><strong>Write</strong>（写到窗外）</td><td>把暂时不用的信息移出窗口、按需再读回</td><td>structured note-taking（todo.md / NOTES.md / recitation）、外置记忆（MemGPT / A-MEM / Generative Agents）、microcompaction 把大工具输出写磁盘只留指针</td><td>§4.4 · §4.6 · §7 案例 B</td></tr>
+<tr><td><strong>Select</strong>（按需拉回）</td><td>需要时才把信息召回窗口</td><td>RAG / 向量检索、just-in-time 动态发现（文件路径 / 符号 / URL 标识符自取）、语义选工具、工具/技能 JIT 加载（Skills / Tool Search / code-exec MCP，详见 <a class="xref" href="04.html">04</a>）</td><td>§4.6 · §5 · §6 争议 1/5</td></tr>
+<tr><td><strong>Compress</strong>（压到够用）</td><td>不丢关键信息前提下削减 token</td><td>compaction 高保真摘要重启、prompt 压缩（LLMLingua）、工具输出压缩、KV 选择 / 逐出</td><td>§4.4 · §5</td></tr>
+<tr><td><strong>Isolate</strong>（拆分隔离）</td><td>把不同上下文拆开、互不污染</td><td>subagent 独立窗口 + 蒸馏回传、沙箱、多智能体编排</td><td>§5 · §6 争议 4 · §7</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>生产系统几乎总是四动词并用：稳定前缀 + prefix caching 打底，Select（JIT 检索）负责供给、Write（写文件 / 笔记）负责扩容、Compress（接近上限 compaction）负责保窗、Isolate（subagent）负责扛重活。§5 的方法谱系即可视为这四个动词的展开。</p>
+</blockquote>
+<h3 id="sec-4-2">4.2 上下文里到底放什么 <a class="heading-anchor" href="#sec-4-2" aria-label="锚点">#</a></h3>
+<p>一段生产 Agent 的上下文，按"海拔"从稳定到易变，大致是：</p>
+<pre><code>[system prompt / 角色与策略]      &lt;- 最稳定，放最前（缓存友好）
+[工具定义 / tool schemas]         &lt;- 稳定
+[few-shot 示例 / 领域知识]        &lt;- 较稳定
+[长期记忆 / 检索召回结果]         &lt;- 半动态
+[历史对话 turn 1..n]             &lt;- append-only 增长
+[本轮工具调用 &amp; 返回结果]         &lt;- 最动态，放最后
+</code></pre>
+<p><strong>关键原则</strong>：system prompt 要写在"正确的海拔"——既不要硬编码一堆 if-else 脆规则，也不要假设模型无所不知，而是给出清晰的启发式与边界（Anthropic）。<strong>信息要按相关性精选</strong>，无关信息不是中性的，它会主动触发 context rot。</p>
+<h3 id="sec-4-3">4.3 context rot 与位置偏置（为什么"少即是多"） <a class="heading-anchor" href="#sec-4-3" aria-label="锚点">#</a></h3>
+<p><em>Lost in the Middle</em>：把答案放在长上下文不同位置，准确率呈 <strong>U 形</strong>——开头/结尾最高，中间最低。<em>Found in the Middle</em>（2024）把成因归于模型固有的 U 形注意力偏置，并提出校准机制按相关性而非位置分配注意力，RAG 任务最高 +10 个百分点。</p>
+<p>Chroma <em>Context Rot</em> 的反直觉发现更狠：</p>
+<ul>
+<li>即使是<strong>简单复制/检索</strong>任务，输入越长性能也单调下降；</li>
+<li><strong>单个干扰项</strong>即降准确率，长上下文<strong>放大</strong>其害；</li>
+<li>反直觉：<strong>打乱无结构的 haystack 反而比逻辑连贯的文档表现更好</strong>；</li>
+<li>LongMemEval 上，~300 token 的<strong>聚焦输入</strong>显著优于 ~113k token 的全量输入。</li>
+</ul>
+<p>工程含义：<strong>策展（curate）而非堆量（accumulate）</strong>。</p>
+<h3 id="sec-4-4">4.4 compaction：接近上限时怎么办 <a class="heading-anchor" href="#sec-4-4" aria-label="锚点">#</a></h3>
+<pre data-lang="python"><code>def maybe_compact(ctx, model, threshold=0.85):
+    if ctx.token_count() &lt; model.window * threshold:
+        return ctx                       # 还有余量，不动
+    # 1) 先最大化 recall：摘要要保住"架构决策/未解 bug/实现细节/未完成 todo"
+    summary = model.summarize(
+        ctx.history,
+        keep=["decisions", "open_bugs", "file_paths", "todos"]
+    )
+    # 2) 重启上下文：稳定前缀 + 摘要 + 最近 K 条原文（rehydration）
+    new_ctx = ctx.system + ctx.tools + summary + ctx.last_k_messages(k=5)
+    # 3) Claude Code 还会重读最近约 5 个文件、恢复 todo/plan
+    return new_ctx
+</code></pre>
+<p>Anthropic 的次序是"<strong>先保 recall、再提 precision</strong>"——宁可摘要长一点也别丢关键决策。Claude Code 把它做成<strong>三层</strong>：microcompaction（大工具输出写磁盘，窗口里只留引用指针）、auto（留足"输出缓冲 + 压缩流程完成"的余量时自动触发）、manual（<code>/compact</code> 带 focus 让用户决定保留什么）。</p>
+<blockquote>
+<p><strong>"怎么压"本身也是权衡</strong>：除了"何时压、压多狠"，压缩流程的调度方式同样影响吞吐——arXiv 2605.23296 从 serving 角度比较了<strong>并行压缩 vs 顺序摘要</strong>两条基线（HotpotQA / LoCoMo，跨 8B–120B 模型规模），提示在长程 agent 服务里压缩调度本身就是质量 / 延迟的权衡点（注：它是两路对比，而非一套四路策略）。</p>
+</blockquote>
+<h3 id="sec-4-5">4.5 KV-cache / prefix caching：为什么布局决定成本 <a class="heading-anchor" href="#sec-4-5" aria-label="锚点">#</a></h3>
+<p>Transformer 推理分 prefill（处理输入）和 decode（逐 token 生成）。prefill 会为每个输入 token 算出 Key/Value 张量缓存（KV-cache）。<strong>前缀缓存</strong>：若两次请求共享相同前缀，第二次可直接复用第一次的 KV，跳过重复 prefill——这就是缓存读比未缓存便宜约 10x、延迟降 80% 的来源。</p>
+<p>致命点：<strong>缓存按最长公共前缀匹配，前缀一旦有一个 token 变了，后面全部失效</strong>。所以：</p>
+<pre><code>✅ 缓存友好：  [稳定 system][稳定 tools][...历史 append-only...][本轮动态]
+❌ 击穿缓存：  system 里塞了秒级时间戳 / 工具被动态增删 / JSON key 无序序列化
+</code></pre>
+<p>Manus 的硬约束由此而来：system prompt 不放秒级时间戳、上下文严格 <strong>append-only</strong>、JSON 序列化 key 稳定确定。《Don't Break the Cache》进一步实测："<strong>把动态工具结果排除出缓存、动态内容置末</strong>"优于朴素全量缓存——因为动态内容混进缓存会反复失效，朴素缓存反而徒增 TTFT。</p>
+<h3 id="sec-4-6">4.6 just-in-time vs 预加载 <a class="heading-anchor" href="#sec-4-6" aria-label="锚点">#</a></h3>
+<p>两条路线对应"何时把信息放进窗口"：</p>
+<ul>
+<li><strong>预加载（CAG / Sleep-time）</strong>：查询前就把全部相关知识塞进窗口并预计算 KV（CAG），或在查询到来前<strong>离线</strong>预处理上下文、预更新长期记忆（Sleep-time Compute：测试期算力降约 5x、准确率最高 +18%）。适合知识库<strong>小而稳定</strong>。</li>
+<li><strong>just-in-time（Anthropic / Cursor）</strong>：上下文里只放轻量<strong>标识符</strong>（文件路径、URL、工具名），让 Agent 在需要时自取。Cursor 把"文件"作为统一原语：长输出写文件用 <code>tail/grep</code> 选读、MCP 工具按 server 分文件夹按需加载。适合知识库<strong>大、时效强</strong>。</li>
+</ul>
+<p>这套 JIT 思路在 2025-H2 已从"知识检索"延伸到<strong>工具与技能定义本身</strong>——把一次性全量预载的 tool schema 改为用到才拉进窗口，是 Select 动词在工具侧的产品化（机制细节属 <a class="xref" href="04.html">04</a> 工具/MCP，由 Harness 运行时 <a class="xref" href="02.html">02</a> 在每轮循环里调度）。三个一手机制：</p>
+<ul>
+<li><strong>Agent Skills</strong>（Anthropic，2025-10-16）：技能 = 含 <code>SKILL.md</code> 的文件夹，按<strong>渐进披露（progressive disclosure）三级</strong>加载——先只读 metadata、命中才载入完整指令、再按需拉取支撑文件，避免把所有技能说明常驻窗口。</li>
+<li><strong>Tool Search Tool</strong>（Anthropic，2025-11-24）：给工具打 <strong><code>defer_loading</code></strong> 标记，用检索每次只展开 3–5 个工具引用，把工具定义占用从约 <strong>77K 压到 8.7K token（~85%）</strong>，最多可挂 1 万工具。</li>
+<li><strong>Code execution with MCP</strong>（Anthropic，2025-11-04）：把 MCP server 当作代码 API、用到才 <code>import</code>，上下文从 <strong>150K 降到 2K token（-98.7%）</strong>。</li>
+</ul>
+<hr>
+<h2 id="sec-5">5. 主流方法谱系 <a class="heading-anchor" href="#sec-5" aria-label="锚点">#</a></h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>方案</th><th>核心机制</th><th>解决的子问题</th><th>代表工作</th><th>代价 / 边界</th></tr></thead>
+<tbody>
+<tr><td><strong>长上下文扩展</strong></td><td>RoPE 内插/外推扩窗</td><td>让窗口能放下更多</td><td>Position Interpolation、YaRN</td><td>窗口大 ≠ 会用；context rot；成本 O(n²)</td></tr>
+<tr><td><strong>RAG（Select）</strong></td><td>向量检索召回外部知识</td><td>时效/私有知识、控窗口</td><td>Lewis RAG（2020）</td><td>检索质量上限；切块/rerank 工程</td></tr>
+<tr><td><strong>CAG 预载</strong></td><td>全知识预载 + 预计算 KV</td><td>免检索延迟与召回误差</td><td>Chan《Don't Do RAG》</td><td>受窗口限制；知识库须小而稳</td></tr>
+<tr><td><strong>prompt 压缩（Compress）</strong></td><td>token 级迭代压缩</td><td>降 token 成本</td><td>LLMLingua（20x）、LongLLMLingua</td><td>有损；问题感知压缩需额外模型</td></tr>
+<tr><td><strong>KV 选择/逐出</strong></td><td>按注意力重要性留 KV</td><td>显存/解码加速</td><td>H2O、SnapKV、StreamingLLM</td><td>可能丢长程依赖</td></tr>
+<tr><td><strong>prefix caching</strong></td><td>复用相同前缀 KV</td><td>降成本/TTFT（10x）</td><td>Prompt Cache；三大厂产品</td><td>要求稳定前缀、append-only</td></tr>
+<tr><td><strong>compaction（Compress）</strong></td><td>高保真摘要后重启</td><td>窗口溢出、长对话</td><td>Anthropic / Claude Code</td><td>摘要有损；需 rehydration</td></tr>
+<tr><td><strong>外置记忆（Write）</strong></td><td>文件/笔记/记忆库换页</td><td>看似无限上下文</td><td>MemGPT、A-MEM、Generative Agents</td><td>召回可靠性、记忆评测难</td></tr>
+<tr><td><strong>subagent（Isolate）</strong></td><td>独立窗口 + 蒸馏回传</td><td>上下文隔离、扩展总容量</td><td>Anthropic research system</td><td>~15x token；协调/冲突风险</td></tr>
+<tr><td><strong>JIT / 动态发现</strong></td><td>标识符按需自取</td><td>控膨胀、降 token</td><td>Anthropic（Skills / Tool Search / code-exec MCP）、Cursor（-46.9%）</td><td>多花若干步主动检索</td></tr>
+<tr><td><strong>工具掩蔽（mask）</strong></td><td>logits masking 限定可选</td><td>保缓存、防悬空引用</td><td>Manus</td><td>工具集固定、灵活性下降</td></tr>
+</tbody>
+</table>
+</div>
+<blockquote>
+<p>这些方法<strong>不是互斥的</strong>，生产系统通常组合使用：稳定前缀 + prefix caching + append-only + JIT 检索 + 接近上限时 compaction + subagent 隔离重活。</p>
+</blockquote>
+<hr>
+<h2 id="sec-6">6. 主流观点与争议 <a class="heading-anchor" href="#sec-6" aria-label="锚点">#</a></h2>
+<h3 id="sec-6-1">争议 1：长上下文 vs RAG——窗口达百万级后 RAG 还有必要吗？ <a class="heading-anchor" href="#sec-6-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>A 方（"RAG 已死"/长上下文派）</strong>：代表 Google/Gemini 团队及部分实践者。窗口已 1–2M，直接全塞更简单，省去切块与检索管线；让模型用原生 attention 交错检索与生成，质量高于一次性朴素检索；token 会越来越便宜越快。CAG（Chan et al.《Don't Do RAG》）是其学术形态：预载 + 预计算 KV，消除检索延迟与误差。</li>
+<li><strong>B 方（RAG 仍在/混合派）</strong>：代表 Jerry Liu（LlamaIndex，"演进而非消亡"）、Chroma、Anthropic（"策展 token"立场）。真实知识库<strong>永远大于任何窗口</strong>；lost-in-the-middle 与 context rot 让"全塞"不可靠；检索更省成本、更低延迟、可审计可溯源。长上下文只是<strong>简化</strong>（如减少切块）而非取代 RAG，终局是"长上下文 RAG"混合架构。</li>
+<li><strong>我的判定锚点</strong>：边界由知识规模、时效、可审计性决定，学术评测（多篇 long-context vs RAG 对比）多指向"混合"。</li>
+</ul>
+<blockquote>
+<p>📦 <strong>结案框：长上下文 vs RAG（CAG）之争</strong></p>
+<ul>
+<li><strong>提出（2024）</strong>：Gemini 1.5 百万 token 窗口 + CAG《Don't Do RAG》把"窗口够大，RAG 还要吗"推上风口。</li>
+<li><strong>2026 定论</strong>：Self-Route（Google，arXiv 2407.16833）给出收敛性实证——资源充足时长上下文质量略优，但 RAG 成本低得多；按需路由（先用 RAG，判定不可答再转长上下文）兼得二者，<strong>降本 ~65%（Gemini-1.5-Pro）/ ~39%（GPT-4o）而质量逼近纯长上下文</strong>。</li>
+<li><strong>现状</strong>：终局不是二选一，而是"长上下文 RAG"混合 / 缓存感知的 agentic retrieval；边界由知识规模、时效、可审计性、窗口与缓存预算共同决定。</li>
+</ul>
+</blockquote>
+<h3 id="sec-6-2">争议 2："context engineering"是真演进还是新瓶装旧酒？ <a class="heading-anchor" href="#sec-6-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>A 方（真演进）</strong>：Karpathy、Tobi Lütke、Anthropic。"prompt engineering 没错，只是瓶颈挪到了别处"——生产 Agent 里提示只占总上下文一小部分，真正决定成败的是历史/工具输出/记忆/检索如何被组装维护，值得新名字与新方法论。</li>
+<li><strong>B 方（换皮/怀疑）</strong>：HN / OpenAI 开发者论坛部分实践者。这些事从业者早就在做，只是重新包装，本质仍是提示工程，更多是营销与 hype 周期。</li>
+<li><strong>折中方</strong>：Simon Willison——认可这是个<strong>有用的新名字</strong>，但承认底层做法（往窗口里放对的东西）早已存在。</li>
+</ul>
+<h3 id="sec-6-3">争议 3：上下文溢出时——窗口内 compaction 还是外置到文件再 JIT 召回？ <a class="heading-anchor" href="#sec-6-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>compaction 派（Anthropic / Claude Code）</strong>：摘要后重启最简单，对<strong>持续对话</strong>最佳，摘要保留架构决策/未解 bug。</li>
+<li><strong>文件外置派（Manus / Cursor）</strong>：摘要是 <strong>lossy</strong> 的，应把长输出写文件、保留<strong>可恢复指针</strong>，摘要时再回查原文；迭代型长任务更稳。</li>
+<li>实务上二者常<strong>混合</strong>：摘要 + 关键原文回查。</li>
+</ul>
+<h3 id="sec-6-4">争议 4：长任务用 multi-agent 并行还是单线程线性？（与 <a class="xref" href="08.html">08</a> 强关联） <a class="heading-anchor" href="#sec-6-4" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Cognition / Devin（Walden Yan《Don't Build Multi-Agents》）</strong>：反对朴素并行。两原则——①共享上下文且要共享<strong>完整 trace</strong>（不只单条消息）；②动作隐含决策，冲突决策产坏结果（Flappy Bird 例：subagent 各画不兼容的美术风格）。主张<strong>单线程线性 Agent</strong>，长任务才引入专门的上下文压缩模型。</li>
+<li><strong>Anthropic（《How we built our multi-agent research system》）</strong>：orchestrator-worker（Opus 4 主控 + Sonnet 4 subagent 并行检索），内部评测比单代理高 <strong>90.2%</strong>，代价约 <strong>15x token</strong>。subagent 各持独立窗口、只回传蒸馏摘要。</li>
+<li><strong>同一问题的相反结论</strong>：关键在任务是否<strong>可并行解耦</strong>。检索类广度任务 → multi-agent 收益大；强耦合需共享决策的任务 → 单线程更稳。</li>
+</ul>
+<h3 id="sec-6-5">争议 5：工具集变大时——动态增删还是固定 + 遮罩？ <a class="heading-anchor" href="#sec-6-5" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Manus</strong>：动态增删会<strong>击穿 KV-cache</strong> 且让模型指向已消失的工具，应保持定义稳定、用 <strong>logits masking</strong>（统一前缀 <code>browser_</code>/<code>shell_</code>）限定可选。</li>
+<li><strong>Cursor</strong>：按需选择性加载 MCP 工具（分文件夹、grep/语义发现），据其博客 A/B 实测降 <strong>46.9% token</strong>，动态加载在编码场景有效。</li>
+<li>边界：缓存稳定性优先（高频短交互）→ Manus 路线；token 预算优先且工具海量（编码/MCP 生态）→ Cursor 路线。</li>
+</ul>
+<h3 id="sec-6-6">争议 6：context rot 是可被规模/训练消除的工程缺陷，还是注意力的根本限制？ <a class="heading-anchor" href="#sec-6-6" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>可解决派</strong>：长窗口推动者（Google DeepMind、Magic.dev）。更好的位置编码、训练数据与更大窗口会逐步抹平中间位置劣势。</li>
+<li><strong>根本限制派</strong>：Chroma（Hong/Troynikov/Huber）、Drew Breunig。退化随长度单调出现、跨 18 模型普遍，attention 稀释是结构性的（O(n²) 下 100K token 即上百亿对关系），"少而精策展"将长期必要。</li>
+</ul>
+<hr>
+<h2 id="sec-7">7. 大厂工程实践 <a class="heading-anchor" href="#sec-7" aria-label="锚点">#</a></h2>
+<h3 id="sec-7-1">案例 A：Manus——以 KV-cache 命中率为头号指标 <a class="heading-anchor" href="#sec-7-1" aria-label="锚点">#</a></h3>
+<p><strong>取舍：为命中率牺牲灵活性。</strong> Manus（Yichao "Peak" Ji）把生产 Agent 总结为六条，核心是"缓存友好布局"：</p>
+<ol>
+<li><strong>KV-cache 命中率是头号指标</strong>——Claude Sonnet 缓存 $0.30 vs 未缓存 $3/MTok（10x），输入:输出 ≈ 100:1。故 system prompt 不放秒级时间戳、上下文严格 append-only、JSON key 序列化稳定。</li>
+<li><strong>工具用 logits masking 而非动态增删</strong>——统一前缀，避免击穿缓存与悬空引用。</li>
+<li><strong>文件系统即"无限上下文"</strong>——做<strong>可恢复压缩</strong>（保留 URL/路径，需要时再读回）。</li>
+<li><strong>recitation 对抗 lost-in-the-middle</strong>——用 <code>todo.md</code> 把目标反复重写进<strong>近端</strong>上下文（复杂任务约 50 次工具调用，目标易被"冲淡"）。</li>
+<li><strong>保留错误堆栈</strong>——让模型看到失败以自我纠偏，而非默默吞掉。</li>
+<li><strong>避免 few-shot 模式僵化</strong>——示例过多会让模型机械模仿。</li>
+</ol>
+<p><strong>工程亮点</strong>：把抽象的"上下文工程"翻译成可量化的成本/延迟收益，证明它是硬工程。</p>
+<h3 id="sec-7-2">案例 B：Anthropic Claude Code——compaction 三件套 + 三层治理 <a class="heading-anchor" href="#sec-7-2" aria-label="锚点">#</a></h3>
+<p><strong>取舍：分层治理而非一次性丢历史。</strong></p>
+<ul>
+<li><strong>三件套</strong>：compaction（接近上限高保真摘要重启）、structured note-taking（NOTES.md/todo 持久化到窗口外）、subagent（给子任务全新窗口，探索几万 token 只回传 1k–2k 蒸馏摘要）。</li>
+<li><strong>三层 compaction</strong>：microcompaction（大工具输出写磁盘，窗口留引用指针，覆盖 Read/Bash/Grep/Glob/WebSearch/WebFetch/Edit/Write）→ auto（留足"输出缓冲 + 压缩完成"的 buffer 时触发，社区观测触发点较历史 90%+ 提前）→ manual（<code>/compact</code> 带 focus）。</li>
+<li><strong>rehydration</strong>：压缩后重读最近约 5 个文件、恢复 todo/plan。</li>
+<li><strong>just-in-time</strong>：上下文里放轻量标识符而非预加载全量；把大文件读取<strong>委派给 subagent</strong>，使内容留在 subagent 窗口而非主窗口（见官方 <em>Explore the context window</em> 文档）。</li>
+</ul>
+<p><strong>对照案例（同属 Anthropic）</strong>：orchestrator-worker multi-agent 研究系统——用 ~15x token 换检索广度与上下文隔离，比单代理高 90.2%，但明确限定用于"产出价值远超成本"的研究类任务。它与 Cognition 的单线程立场构成同一问题的相反工程结论（§6 争议 4）。</p>
+<h3 id="sec-7-3">案例 C（补充）：跨厂商缓存作为成本杠杆 <a class="heading-anchor" href="#sec-7-3" aria-label="锚点">#</a></h3>
+<p><strong>收敛的工程约束：“不变的放前面、可变的放后面”。</strong> Anthropic 用 <code>cache_control</code> 显式打断点（5 分钟 TTL、命中免费续期、最高省 90%）；OpenAI 自动前缀缓存（≥1024 token、128 递增，成本节省按模型分档——GPT-4o 约 50% / GPT-4.1 约 75% / GPT-5 系约 90% / 实时音频约 98.75%，延迟最高降约 80%）；Google 显式 context caching（省约 75%）+ 隐式缓存。三家机制不同，但都把 append-only、稳定 system prompt 这类设计的经济性变成现实——这是 §4.5 布局原则的产品基础。</p>
+<hr>
+<h2 id="sec-8">8. 我的分析与判断 <a class="heading-anchor" href="#sec-8" aria-label="锚点">#</a></h2>
+<blockquote>
+<p><strong>以下为分析观点（非客观事实），是我基于上述材料的独立研判，供参考与批判。</strong></p>
+</blockquote>
+<p><strong>趋势研判一：上下文工程正在"下沉"为 Harness 的默认能力，但不会消失。</strong> 2025 年它还是要靠工程师手动布局（稳定前缀、recitation、手写 compaction）；2026 年 Cursor/Claude Code 已经把"文件即上下文""动态发现""三层 compaction"做进运行时。我判断未来 1–2 年它会像 GC（垃圾回收）之于内存管理一样<strong>部分自动化</strong>——但<strong>不会被完全吸收</strong>：因为"放什么"本质是任务语义判断，模型自管理上下文仍受 context rot 反噬（让一个会腐烂的系统自己决定喂自己什么，存在循环依赖）。所以这是个"高层抽象不断吃掉低层手活、但顶层判断永远留给人/更强模型"的渐进过程。</p>
+<p><strong>趋势研判二：长上下文 vs RAG 之争会以"混合 + 分层缓存"收场。</strong> "RAG 已死"是营销叙事。真实约束是经济学：百万窗口全塞的 prefill 成本 + context rot 的质量损失，长期高于"JIT 检索 + 前缀缓存"。我赌终局是 <strong>JIT 检索把高信号片段放进一个高度缓存友好的稳定布局里</strong>——既不是纯长上下文，也不是经典 RAG，而是"缓存感知的 agentic retrieval"。《Don't Break the Cache》是这个方向的第一块实证基石；而 <strong>Self-Route</strong>（见 §6 争议 1 结案框）已先一步给"长上下文 vs RAG"盖棺：质量略优但贵、RAG 便宜，按需路由两得其美。</p>
+<p><strong>常见坑（我见过/可预见的）</strong>：</p>
+<ol>
+<li><strong>在 system prompt 里塞动态时间戳/会话 ID</strong>——一行就击穿全部缓存，账单翻数倍而你以为是模型变贵了。</li>
+<li><strong>把工具结果原文无脑 append</strong>——一次网页抓取几万 token 直接灌进主窗口，三五轮就 context rot。正解：写文件 + 留指针（§4.6）。</li>
+<li><strong>compaction 只保 precision 不保 recall</strong>——摘要太"干净"丢了未解 bug 和架构决策，模型重启后开始<strong>重复犯已经犯过的错</strong>。Anthropic 的"先 recall 后 precision"是对的。</li>
+<li><strong>盲目上 multi-agent 追求并行</strong>——强耦合任务里 subagent 做出不兼容假设，整合阶段全盘崩（Cognition 的核心警告）。先问"这任务真能解耦吗"。</li>
+<li><strong>用 few-shot 示例当万灵药</strong>——示例会让 Agent 陷入模式僵化，长程任务里尤其有害。</li>
+<li><strong>只测 needle-in-haystack 就宣称"支持 1M 上下文"</strong>——RULER/Context Rot 已证明这远高估真实可用长度。</li>
+</ol>
+<p><strong>最佳实践清单（我的优先级排序）</strong>：</p>
+<ol>
+<li><strong>先量缓存命中率</strong>——它是成本/延迟的总开关，且最容易被一行代码毁掉。稳定前缀 + append-only + 确定性序列化是地基。</li>
+<li><strong>默认 JIT、谨慎预载</strong>——除非知识库小而稳（适合 CAG/Sleep-time），否则用标识符按需自取。</li>
+<li><strong>长输出一律写文件、窗口留指针</strong>——可恢复压缩 &gt; 有损摘要，能不丢就不丢。</li>
+<li><strong>接近上限再 compaction，且先 recall 后 precision，压缩后 rehydration</strong>。</li>
+<li><strong>用 recitation（todo.md）把目标钉在近端</strong>——对抗 lost-in-the-middle 的廉价高效手段。</li>
+<li><strong>multi-agent 只用于可并行解耦的广度任务</strong>，并接受 ~15x token 的明账。</li>
+<li><strong>建立超越 NIAH 的内部 eval</strong>——至少测干扰项、长度梯度、位置敏感性。</li>
+</ol>
+<p><strong>一句话判断</strong>：上下文工程的本质不是"如何放更多"，而是"如何在有限注意力预算下，让每个 token 都值回它稀释掉的注意力"。<strong>少即是多</strong>不是审美偏好，而是被 18 个模型实证支撑的工程定律。</p>
+<hr>
+<h2 id="sec-9">9. 面试考点 <a class="heading-anchor" href="#sec-9" aria-label="锚点">#</a></h2>
+<p><strong>概念题</strong></p>
+<ol>
+<li><strong>什么是 context engineering？和 prompt engineering 什么关系？</strong> 要点：在推理时持续<strong>策展与维护"最优 token 集合"</strong>的策略集合；prompt 只是其子集，历史/工具输出/记忆/检索共同构成上下文。一句话：瓶颈从"措辞"转移到"整窗口内容治理"。它是 prompt engineering 的自然演进而非取代。</li>
+<li><strong>解释 lost-in-the-middle 与 context rot，二者区别？</strong> 要点：lost-in-the-middle 是<strong>位置偏置</strong>（U 形，中间信息利用率最低，Liu 2023）；context rot 是 Chroma 2025 提出的更普遍现象——<strong>输入越长、性能非均匀地单调退化</strong>，即使远未溢出窗口、即使简单复制任务也成立。前者是"放哪里"，后者是"放多少"。共同结论：注意力是有限预算，少即是多。</li>
+<li><strong>prefix/KV caching 的原理？为什么决定 Agent 成本？</strong> 要点：prefill 为输入算 KV-cache；相同前缀可复用 KV、跳过重复 prefill，缓存读 vs 未缓存约 10x 价差、延迟降最高 80%。Agent 输入:输出 ≈ 100:1，绝大部分算力在反复 prefill，故命中率是头号成本指标。<strong>按最长公共前缀匹配，前缀变一个 token 后面全失效</strong>。</li>
+<li><strong>Write / Select / Compress / Isolate 四类操作各举一例。</strong> 要点：Write=scratchpad/记忆写到窗口外；Select=RAG/语义选工具；Compress=对话摘要/工具输出压缩/compaction；Isolate=multi-agent/沙箱。心智模型：LLM=CPU、上下文=RAM。</li>
+</ol>
+<p><strong>系统设计题</strong></p>
+<ol start="5">
+<li><strong>设计一个能跑几十步、不爆上下文的长程编码 Agent。</strong> 要点框架：①<strong>布局</strong>：稳定 system+tools 前缀、append-only、确定性 JSON 序列化（保缓存）；②<strong>供给</strong>：JIT 检索（文件路径/符号按需读），大输出写文件留指针；③<strong>治理</strong>：接近上限触发 compaction（先 recall 保架构决策/未解 bug/todo，后 precision，压缩后重读最近文件 rehydration）；④<strong>对抗腐烂</strong>：todo.md recitation 把目标钉在近端、保留错误堆栈；⑤<strong>隔离重活</strong>：把大范围探索委派 subagent、只回传蒸馏摘要；⑥<strong>度量</strong>：监控缓存命中率、TTFT、每步 token。说清每个选择的取舍即满分。</li>
+</ol>
+<p><strong>手写题</strong></p>
+<ol start="6">
+<li><strong>写出 compaction 触发与执行的伪代码（含 rehydration）。</strong> 参见 §4.4：阈值判断 → 高保真摘要（keep 决策/bug/路径/todo）→ 稳定前缀 + 摘要 + 最近 K 条原文重启 → 重读最近文件、恢复 todo/plan。评分点：<strong>先 recall 后 precision</strong>、保留指针、rehydration 三处。</li>
+</ol>
+<p><strong>陷阱题</strong></p>
+<ol start="7">
+<li><strong>"窗口够大就把所有文档全塞进去，最省事" —— 对吗？</strong> 陷阱：忽视 context rot 与成本。反驳：①18 模型实证输入越长越不可靠（连乱序 haystack 反优于连贯文档）；②单个干扰项即降准确率；③O(n²) prefill 成本 + 缓存难命中。正解：JIT + 最小高信号 token。</li>
+<li><strong>"把整段上下文都做 prefix 缓存，肯定更省钱" —— 对吗？</strong> 陷阱：把动态工具结果混进缓存。反驳（《Don't Break the Cache》）：动态内容会让缓存反复失效，朴素全量缓存反而<strong>可能增加延迟</strong>；正解是动态内容置末、排除动态工具结果，省 41–80%、TTFT +13–31%。</li>
+<li><strong>"multi-agent 并行一定比 single-agent 强" —— 对吗？</strong> 陷阱：忽视上下文隔离的冲突决策。反驳：Cognition 证明强耦合任务里 subagent 做不兼容假设导致整合失败；Anthropic 的 90.2% 仅在<strong>可并行的广度检索</strong>任务成立，且代价 ~15x token。正解：先判断任务可否解耦。</li>
+</ol>
+<hr>
+<h2 id="sec-10">10. 参考文献 <a class="heading-anchor" href="#sec-10" aria-label="锚点">#</a></h2>
+<h3 id="sec-10-1">📄 论文 <a class="heading-anchor" href="#sec-10-1" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Brown et al. (2020)</strong> · <em>Language Models are Few-Shot Learners (GPT-3)</em> · 确立 in-context learning，使"上下文里放什么示例"成为决定性能的工程变量。 · <a href="https://arxiv.org/abs/2005.14165" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.14165</a></li>
+<li><strong>Lewis et al. (2020, Meta/FAIR)</strong> · <em>Retrieval-Augmented Generation for Knowledge-Intensive NLP Tasks</em> · 开创 RAG：参数化记忆 + 非参数化检索，"按需把外部知识放进上下文"的范式源头。 · <a href="https://arxiv.org/abs/2005.11401" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2005.11401</a></li>
+<li><strong>Wei et al. (2022, Google)</strong> · <em>Chain-of-Thought Prompting Elicits Reasoning in LLMs</em> · 证明上下文结构/内容设计比单纯措辞更关键，prompt 走向工程化的标志。 · <a href="https://arxiv.org/abs/2201.11903" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2201.11903</a></li>
+<li><strong>Liu et al. (2023, Stanford)</strong> · <em>Lost in the Middle: How Language Models Use Long Contexts</em> · 实证 U 形位置偏置，"上下文需被编排"的第一份硬证据。 · <a href="https://arxiv.org/abs/2307.03172" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2307.03172</a></li>
+<li><strong>Chen et al. (2023)</strong> · <em>Extending Context Window of LLMs via Position Interpolation</em> · RoPE 线性内插少量微调扩窗到 32K，长上下文扩展奠基方法之一。 · <a href="https://arxiv.org/abs/2306.15595" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2306.15595</a></li>
+<li><strong>Peng et al. (2023)</strong> · <em>YaRN: Efficient Context Window Extension of LLMs</em> · 高效扩展 RoPE 窗口并支持推理期 Dynamic Scaling 免微调外推，事实标准。 · <a href="https://arxiv.org/abs/2309.00071" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.00071</a></li>
+<li><strong>Xiao et al. (2023)</strong> · <em>Efficient Streaming Language Models with Attention Sinks (StreamingLLM)</em> · 发现 attention sink，保留最初几个 token 的 KV 即可稳定外推到数百万 token。 · <a href="https://arxiv.org/abs/2309.17453" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2309.17453</a></li>
+<li><strong>Zhang et al. (2023, NeurIPS)</strong> · <em>H2O: Heavy-Hitter Oracle for Efficient Generative Inference of LLMs</em> · 基于 heavy-hitter 的 KV-cache 逐出策略，把 KV 与推理成本问题形式化。 · <a href="https://arxiv.org/abs/2306.14048" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2306.14048</a></li>
+<li><strong>Packer et al. (2023, UC Berkeley)</strong> · <em>MemGPT: Towards LLMs as Operating Systems</em> · OS 式分层内存/换页，把上下文重构为"需被调度的资源"。 · <a href="https://arxiv.org/abs/2310.08560" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.08560</a></li>
+<li><strong>Park et al. (2023, UIST)</strong> · <em>Generative Agents: Interactive Simulacra of Human Behavior</em> · memory stream + reflection + retrieval，agent 长期记忆与 JIT 召回的范式样板。 · <a href="https://arxiv.org/abs/2304.03442" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2304.03442</a></li>
+<li><strong>Jiang et al. (2023, EMNLP)</strong> · <em>LLMLingua: Compressing Prompts for Accelerated Inference of LLMs</em> · 预算控制器 + token 级迭代压缩，最高 20x 压缩仍保能力。 · <a href="https://arxiv.org/abs/2310.05736" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.05736</a></li>
+<li><strong>Jiang et al. (2023)</strong> · <em>LongLLMLingua</em> · 面向长上下文/RAG 的问题感知压缩与重排，约 4x 更少 token 反而提升最多 21.4%。 · <a href="https://arxiv.org/abs/2310.06839" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2310.06839</a></li>
+<li><strong>Gim et al. (2023, MLSys 2024)</strong> · <em>Prompt Cache: Modular Attention Reuse for Low-Latency Inference</em> · 对可复用片段预计算并跨请求复用 KV，前缀缓存的学术基础。 · <a href="https://arxiv.org/abs/2311.04934" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2311.04934</a></li>
+<li><strong>Hsieh et al. (2024)</strong> · <em>RULER: What's the Real Context Size of Your Long-Context LMs?</em> · 多针/多跳/聚合合成任务揭示真实可用上下文远短于宣称值。 · <a href="https://arxiv.org/abs/2404.06654" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2404.06654</a></li>
+<li><strong>Li et al. (2024, NeurIPS)</strong> · <em>SnapKV: LLM Knows What You are Looking for Before Generation</em> · 用 prompt 末端观察窗聚类重要 KV 压缩，16K 输入 3.6x 解码加速几乎不掉点。 · <a href="https://arxiv.org/abs/2404.14469" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2404.14469</a></li>
+<li><strong>Hsieh et al. (2024, ACL Findings)</strong> · <em>Found in the Middle: Calibrating Positional Attention Bias</em> · 把 lost-in-the-middle 归因于 U 形注意力偏置并提出校准，RAG 最高 +10pp。 · <a href="https://arxiv.org/abs/2406.16008" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2406.16008</a></li>
+<li><strong>Chan et al. (2024, WWW 2025)</strong> · <em>Don't Do RAG: When Cache-Augmented Generation (CAG) is All You Need for Knowledge Tasks</em> · 全知识预载 + 预计算 KV、免实时检索，"预加载 vs JIT"之争的代表。 · <a href="https://arxiv.org/abs/2412.15605" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2412.15605</a></li>
+<li><strong>Self-Route (Google, 2024)</strong> · <em>按需在 RAG 与长上下文间路由</em> · 资源足时长上下文质量略优、RAG 成本低得多；先 RAG、判定不可答再转长上下文，降本 ~65%（Gemini-1.5-Pro）/ ~39%（GPT-4o）而质量逼近纯长上下文——"RAG vs 长上下文"争议的收敛性实证（§6 结案框）。 · <a href="https://arxiv.org/abs/2407.16833" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2407.16833</a></li>
+<li><strong>Xu et al. (2025)</strong> · <em>A-MEM: Agentic Memory for LLM Agents</em> · Zettelkasten 式自动结构化笔记 + 动态互链，可自演化的 agent 记忆网络。 · <a href="https://arxiv.org/abs/2502.12110" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2502.12110</a></li>
+<li><strong>Lin, Packer et al. (2025, Letta/UC Berkeley)</strong> · <em>Sleep-time Compute: Beyond Inference Scaling at Test-time</em> · 查询前离线预处理上下文/预更新记忆，测试期算力降约 5x、准确率最高 +18%。 · <a href="https://arxiv.org/abs/2504.13171" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2504.13171</a></li>
+<li><strong>Mei et al. (2025, 中科院计算所等)</strong> · <em>A Survey of Context Engineering for Large Language Models</em> · 首篇系统综述（1400+ 篇），定义为"对信息载荷的系统优化"，拆检索生成/处理/管理三层。 · <a href="https://arxiv.org/abs/2507.13334" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2507.13334</a></li>
+<li><strong>Hua et al. (2025, GAIR/上海交大等)</strong> · <em>Context Engineering 2.0: The Context of Context Engineering</em> · 形式化定义 + 1.0/2.0 历史分期，论证可追溯至 1990s 人机交互。 · <a href="https://arxiv.org/abs/2510.26493" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2510.26493</a></li>
+<li><strong>Lumer et al. (2026)</strong> · <em>Don't Break the Cache: An Evaluation of Prompt Caching for Long-Horizon Agentic Tasks</em> · DeepResearchBench 上比较三厂三策略，"动态内容置末、排除动态工具结果"优于朴素全量缓存。 · <a href="https://arxiv.org/abs/2601.06007" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2601.06007</a></li>
+<li><strong>Vishnyakova (2026)</strong> · <em>Context Engineering: From Prompts to Corporate Multi-Agent Architecture</em> · 五准则（relevance / sufficiency / isolation / economy / provenance）+ 累进成熟度金字塔 Prompt→Context→Intent→Spec，把上下文工程上升为企业级分层方法论。 · <a href="https://arxiv.org/abs/2603.09619" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2603.09619</a></li>
+<li><strong>Parallel Context Compaction (2026)</strong> · <em>Parallel Context Compaction for Long-Horizon LLM Agent Serving</em> · 从 serving 角度对比并行压缩 vs 顺序摘要两条基线（HotpotQA / LoCoMo，8B–120B），把"压缩怎么调度"纳入吞吐 / 质量权衡（两路对比而非四路策略）。 · <a href="https://arxiv.org/abs/2605.23296" target="_blank" rel="noopener noreferrer">https://arxiv.org/abs/2605.23296</a></li>
+</ul>
+<h3 id="sec-10-2">✍️ 博客与工程文 <a class="heading-anchor" href="#sec-10-2" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Anthropic Engineering (2025)</strong> · <em>Effective context engineering for AI agents</em> · 官方定义 + compaction/note-taking/subagent/JIT 系统化（随 Sonnet 4.5）。 · <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents</a></li>
+<li><strong>Manus / Yichao "Peak" Ji (2025)</strong> · <em>Context Engineering for AI Agents: Lessons from Building Manus</em> · KV-cache 命中率头号指标、文件即上下文、mask 而非删工具、recitation 实战范本。 · <a href="https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus" target="_blank" rel="noopener noreferrer">https://manus.im/blog/Context-Engineering-for-AI-Agents-Lessons-from-Building-Manus</a></li>
+<li><strong>LangChain (2025)</strong> · <em>Context Engineering for Agents (Write/Select/Compress/Isolate)</em> · 四类基本操作 + "LLM=CPU、上下文=RAM"心智模型。 · <a href="https://www.langchain.com/blog/context-engineering-for-agents" target="_blank" rel="noopener noreferrer">https://www.langchain.com/blog/context-engineering-for-agents</a></li>
+<li><strong>Chroma / Hong, Troynikov, Huber (2025)</strong> · <em>Context Rot: How Increasing Input Tokens Impacts LLM Performance</em> · 18 模型实证输入越长越不可靠、非均匀退化，"少即是多"的实证锚点。 · <a href="https://research.trychroma.com/context-rot" target="_blank" rel="noopener noreferrer">https://research.trychroma.com/context-rot</a></li>
+<li><strong>Cognition / Walden Yan (2025)</strong> · <em>Don't Build Multi-Agents</em> · 反朴素并行 multi-agent：共享完整 trace、动作隐含决策，主张单线程线性。 · <a href="https://cognition.ai/blog/dont-build-multi-agents" target="_blank" rel="noopener noreferrer">https://cognition.ai/blog/dont-build-multi-agents</a></li>
+<li><strong>Anthropic Engineering (2025)</strong> · <em>How we built our multi-agent research system</em> · orchestrator-worker multi-agent 比单代理高 90.2%，代价 ~15x token，与 Cognition 对照。 · <a href="https://www.anthropic.com/engineering/multi-agent-research-system" target="_blank" rel="noopener noreferrer">https://www.anthropic.com/engineering/multi-agent-research-system</a></li>
+<li><strong>Cursor (2026)</strong> · <em>Dynamic context discovery</em> · 少给前置上下文让 agent 自取，选择性加载 MCP 工具降 46.9% token，"文件"为统一原语。 · <a href="https://cursor.com/blog/dynamic-context-discovery" target="_blank" rel="noopener noreferrer">https://cursor.com/blog/dynamic-context-discovery</a></li>
+<li><strong>Drew Breunig (2025)</strong> · <em>How Long Contexts Fail (and How to Fix Them)</em> · 上下文失效四象限 poisoning/distraction/confusion/clash，故障地图。 · <a href="https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html" target="_blank" rel="noopener noreferrer">https://www.dbreunig.com/2025/06/22/how-contexts-fail-and-how-to-fix-them.html</a></li>
+<li><strong>Andrej Karpathy (2025, X)</strong> · <em>+1 for "context engineering" over "prompt engineering"</em> · 为术语背书："用恰好正确的信息填充上下文窗口"的精细艺术，提示只是其一小部分。 · <a href="https://x.com/karpathy/status/1937902205765607626" target="_blank" rel="noopener noreferrer">https://x.com/karpathy/status/1937902205765607626</a></li>
+<li><strong>Simon Willison (2025)</strong> · <em>Context engineering</em> · 折中立场：有用的新名字，但承认底层做法早已存在。 · <a href="https://simonwillison.net/2025/jun/27/context-engineering/" target="_blank" rel="noopener noreferrer">https://simonwillison.net/2025/jun/27/context-engineering/</a></li>
+</ul>
+<h3 id="sec-10-3">📚 官方文档 <a class="heading-anchor" href="#sec-10-3" aria-label="锚点">#</a></h3>
+<ul>
+<li><strong>Anthropic (2025)</strong> · <em>Prompt caching（Claude API 文档）</em> · 用 <code>cache_control</code> 打断点缓存稳定前缀，5 分钟 TTL、命中免费续期、最高省 90%。 · <a href="https://platform.claude.com/docs/en/build-with-claude/prompt-caching" target="_blank" rel="noopener noreferrer">https://platform.claude.com/docs/en/build-with-claude/prompt-caching</a></li>
+<li><strong>OpenAI (2024)</strong> · <em>Prompt Caching in the API</em> · 自动 prefix caching，≥1024 token 起 128 递增匹配，零改动；成本节省按模型分档（GPT-4o 约 50% / GPT-4.1 约 75% / GPT-5 系约 90% / 实时音频约 98.75%），延迟最高降约 80%。 · <a href="https://openai.com/index/api-prompt-caching/" target="_blank" rel="noopener noreferrer">https://openai.com/index/api-prompt-caching/</a></li>
+<li><strong>Google Developers (2025)</strong> · <em>Gemini 2.5 models now support implicit caching</em> · 显式 context caching（省约 75%）之上加隐式缓存，自动传递命中折扣。 · <a href="https://developers.googleblog.com/en/gemini-2-5-models-now-support-implicit-caching/" target="_blank" rel="noopener noreferrer">https://developers.googleblog.com/en/gemini-2-5-models-now-support-implicit-caching/</a></li>
+<li><strong>Anthropic / Claude Code (2025)</strong> · <em>Explore the context window</em> · 说明 Claude Code 上下文构成与管理（自动 compaction、<code>/compact</code> focus、<code>/clear</code>、委派 subagent）。 · <a href="https://code.claude.com/docs/en/context-window" target="_blank" rel="noopener noreferrer">https://code.claude.com/docs/en/context-window</a></li>
+</ul>
+<hr>
+<blockquote>
+<p><strong>交叉链接</strong>：<a class="xref" href="00.html">00</a> 导论与心智模型 · <a class="xref" href="01.html">01</a> Agent 核心与推理范式 · <a class="xref" href="02.html">02</a> Harness 运行时 · <a class="xref" href="04.html">04</a> 工具与 MCP · <a class="xref" href="06.html">06</a> 记忆系统 · <a class="xref" href="07.html">07</a> 检索与 RAG · <a class="xref" href="08.html">08</a> 多智能体编排 · <a class="xref" href="13.html">13</a> 大厂案例研究</p>
+</blockquote>
+
+        <!-- prev / next -->
+        <nav class="pager" aria-label="翻页">
+  <a class="pager__link pager__link--prev" href="02.html">
+    <span class="pager__dir">← 上一节</span>
+    <span class="pager__title">02 · Harness 运行时</span>
+  </a>
+  <a class="pager__link pager__link--next" href="04.html">
+    <span class="pager__dir">下一节 →</span>
+    <span class="pager__title">04 · 工具与 MCP</span>
+  </a>
+</nav>
+
+        <footer class="site-footer">
+          Agent / Harness 工程知识库 · Rosé Pine Moon · 静态站
+        </footer>
+      </article>
+    </main>
+
+    <!-- ================= RIGHT TOC ==================== -->
+    <aside class="toc" data-toc aria-label="本页目录">
+      <p class="toc__label">本页目录</p>
+<ul class="toc__list">
+  <li class="toc__item"><a href="#sec-1">1. TL;DR / 速览</a></li>
+  <li class="toc__item"><a href="#sec-2">2. 定位与动机</a></li>
+  <li class="toc__item"><a href="#sec-3">3. 历史发展脉络</a></li>
+  <li class="toc__item"><a href="#sec-4">4. 核心概念与原理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-1">4.1 心智模型：LLM = CPU，上下文窗口 = RAM</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-2">4.2 上下文里到底放什么</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-3">4.3 context rot 与位置偏置（为什么"少即是多"）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-4">4.4 compaction：接近上限时怎么办</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-5">4.5 KV-cache / prefix caching：为什么布局决定成本</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-4-6">4.6 just-in-time vs 预加载</a></li>
+  <li class="toc__item"><a href="#sec-5">5. 主流方法谱系</a></li>
+  <li class="toc__item"><a href="#sec-6">6. 主流观点与争议</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-1">争议 1：长上下文 vs RAG——窗口达百万级后 RAG 还有必要吗？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-2">争议 2："context engineering"是真演进还是新瓶装旧酒？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-3">争议 3：上下文溢出时——窗口内 compaction 还是外置到文件再 JIT 召回？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-4">争议 4：长任务用 multi-agent 并行还是单线程线性？（与 <a class="xref" href="08.html">08</a> 强关联）</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-5">争议 5：工具集变大时——动态增删还是固定 + 遮罩？</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-6-6">争议 6：context rot 是可被规模/训练消除的工程缺陷，还是注意力的根本限制？</a></li>
+  <li class="toc__item"><a href="#sec-7">7. 大厂工程实践</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-1">案例 A：Manus——以 KV-cache 命中率为头号指标</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-2">案例 B：Anthropic Claude Code——compaction 三件套 + 三层治理</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-7-3">案例 C（补充）：跨厂商缓存作为成本杠杆</a></li>
+  <li class="toc__item"><a href="#sec-8">8. 我的分析与判断</a></li>
+  <li class="toc__item"><a href="#sec-9">9. 面试考点</a></li>
+  <li class="toc__item"><a href="#sec-10">10. 参考文献</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-1">📄 论文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-2">✍️ 博客与工程文</a></li>
+  <li class="toc__item toc__item--h3"><a href="#sec-10-3">📚 官方文档</a></li>
+</ul>
+    </aside>
+
+  </div>
+
+  <!-- back to top -->
+  <button class="to-top" type="button" data-to-top aria-label="回到顶部">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+         stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+      <path d="M12 19V5M5 12l7-7 7 7"/>
+    </svg>
+  </button>
+
+  <script src="assets/app.js" defer></script>
+</body>
+</html>
